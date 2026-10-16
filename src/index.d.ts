@@ -4,6 +4,7 @@ import type {
   TiptapBlockUserTheme,
   TiptapContentInput,
   TiptapInternalLinkResolver,
+  TiptapMediaUrlResolver,
 } from "./types";
 
 export * from "./lib";
@@ -16,6 +17,11 @@ export interface TiptapBlocksProps {
   class?: string;
   allowedIframeDomains?: ReadonlyArray<string>;
   resolveInternalLink?: TiptapInternalLinkResolver;
+  mediaBaseUrl?: string;
+  resolveMediaUrl?: TiptapMediaUrlResolver;
+  headingAnchors?: boolean;
+  showCodeLineNumbers?: boolean;
+  copyableCodeBlocks?: boolean;
 }
 
 export declare const TiptapBlocks: AstroComponentFactory;

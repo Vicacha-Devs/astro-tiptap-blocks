@@ -1,12 +1,13 @@
 ---
-import { sanitizeTiptapUrl } from "../../../lib/sanitize";
+import { resolveTiptapMediaUrl } from "../../../lib/sanitize";
 import { getPropertyClass, renderPropertyClasses, TiptapBlockThemeDefault } from "../../../lib/theme";
-import type { TiptapBlockTheme, TiptapImageNode } from "../../../types";
+import type { TiptapBlockTheme, TiptapImageNode, TiptapMediaUrlResolver } from "../../../types";
 
 /**
  * @component TiptapBlockImage
  * @title Tiptap Block Image
- * @description Renders a sanitized `<figure><img><figcaption>` image block supporting lazy loading,
+ * @description Renders a sanitized `<figure><img><figcaption>` image block supporting responsive `srcset`/`sizes`,
+ * configurable `loading` (`lazy` | `eager`), `decoding`, `fetchpriority`, Strapi `mediaBaseUrl` resolution,
  * captions (`caption` or `title`), alignment (`data-align`), and Strapi Media Library metadata (`data-asset-id`, `data-document-id`).
  *
  * @preview
@@ -23,6 +24,7 @@ import type { TiptapBlockTheme, TiptapImageNode } from "../../../types";
  * ---
  *
  * <TiptapBlockImage
+ *   mediaBaseUrl="https://cms.mezquitabogota.org"
  *   attrs={{
  *     src: "/uploads/hero.webp",
  *     alt: "Hero banner",
@@ -40,7 +42,7 @@ export interface Props {
    */
   type?: TiptapImageNode["type"];
   /**
-   * Image attributes (`src`, `alt`, `title`, `caption`, `width`, `height`, `data-align`, `data-asset-id`, `data-document-id`).
+   * Image attributes (`src`, `alt`, `title`, `caption`, `width`, `height`, `srcset`, `sizes`, `loading`, `decoding`, `fetchpriority`, `data-align`, `data-asset-id`, `data-document-id`).
    */
   attrs: TiptapImageNode["attrs"];
   /**
@@ -48,16 +50,36 @@ export interface Props {
    * @default TiptapBlockThemeDefault
    */
   theme?: TiptapBlockTheme;
+  /**
+   * Optional Strapi media base URL prefixed to relative `/uploads/...` image URLs.
+   */
+  mediaBaseUrl?: string;
+  /**
+   * Optional custom resolver for image URLs before sanitization.
+   */
+  resolveMediaUrl?: TiptapMediaUrlResolver;
 }
 
-const { type = "image", attrs, theme = TiptapBlockThemeDefault } = Astro.props;
-const safeSrc = sanitizeTiptapUrl(attrs?.src);
+const {
+  type = "image",
+  attrs,
+  theme = TiptapBlockThemeDefault,
+  mediaBaseUrl,
+  resolveMediaUrl,
+} = Astro.props;
+const safeSrc = resolveTiptapMediaUrl(attrs?.src, { mediaBaseUrl, resolveMediaUrl });
 const alt = attrs?.alt || "";
 const title = attrs?.title || undefined;
 const captionText = attrs?.caption || attrs?.title || undefined;
 const align = attrs?.["data-align"] || undefined;
 const assetId = attrs?.["data-asset-id"] ?? undefined;
 const documentId = attrs?.["data-document-id"] || undefined;
+const loadingAttr = attrs?.loading === "eager" ? "eager" : "lazy";
+const decodingAttr = attrs?.decoding && ["async", "sync", "auto"].includes(attrs.decoding) ? attrs.decoding : "async";
+const fetchPriorityAttr =
+  attrs?.fetchpriority && ["high", "low", "auto"].includes(attrs.fetchpriority)
+    ? attrs.fetchpriority
+    : undefined;
 
 const alignClass =
   align === "center" ? "mx-auto text-center" : align === "right" ? "ms-auto text-end" : "";
@@ -76,12 +98,15 @@ const captionClass = getPropertyClass(theme.image.caption);
     >
       <img
         src={safeSrc}
+        srcset={attrs?.srcset || undefined}
+        sizes={attrs?.sizes || undefined}
         alt={alt}
         title={title}
         width={attrs?.width || undefined}
         height={attrs?.height || undefined}
-        loading="lazy"
-        decoding="async"
+        loading={loadingAttr}
+        decoding={decodingAttr}
+        fetchpriority={fetchPriorityAttr}
         class:list={[imgClass || undefined]}
       />
       {captionText && <figcaption class:list={[captionClass || undefined]}>{captionText}</figcaption>}

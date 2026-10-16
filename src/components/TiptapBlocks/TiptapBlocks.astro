@@ -8,6 +8,7 @@ import type {
   TiptapBlockUserTheme,
   TiptapContentInput,
   TiptapInternalLinkResolver,
+  TiptapMediaUrlResolver,
 } from "../../types";
 
 import TiptapBlockCallout from "../blocks/TiptapBlockCallout/TiptapBlockCallout.astro";
@@ -45,30 +46,16 @@ import TiptapBlockToc from "../blocks/TiptapBlockToc/TiptapBlockToc.astro";
  *
  * <TiptapBlocks
  *   data={article.body}
+ *   mediaBaseUrl="https://cms.mezquitabogota.org"
  *   allowedIframeDomains={["youtube.com", "player.vimeo.com"]}
  *   resolveInternalLink={({ collectionName, documentId }) => `/${collectionName}/${documentId}`}
  * />
  * ```
- *
- * @examples
- *
- * ### Extending the Default Theme
- *
- * ```astro nocollapse
- * <TiptapBlocks
- *   data={article.body}
- *   theme={{ extend: { heading: { h2: "text-3xl font-extrabold" } } }}
- * />
- * ```
  */
 export interface Props {
-  /**
-   * Tiptap content input: ProseMirror JSON (`TiptapDocNode` or `TiptapBlockNode[]`), JSON string, HTML string, Markdown string, or `string[]`.
-   */
+  /** Tiptap content input: ProseMirror JSON (`TiptapDocNode` or `TiptapBlockNode[]`), JSON string, HTML string, Markdown string, or `string[]`. */
   data: TiptapContentInput;
-  /**
-   * Optional user theme configuration (`extend` or `overwrite`) merged over `TiptapBlockThemeDefault`.
-   */
+  /** Optional user theme configuration (`extend` or `overwrite`) merged over `TiptapBlockThemeDefault`. */
   theme?: TiptapBlockUserTheme;
   /**
    * Optional map of custom Astro components overriding specific block types (`heading`, `paragraph`, `quote`, etc.).
@@ -80,14 +67,29 @@ export interface Props {
    * @default ""
    */
   class?: string;
-  /**
-   * Optional domain allowlist for HTTPS `<iframe>` and video embeds (e.g. `["youtube.com", "player.vimeo.com"]`).
-   */
+  /** Optional domain allowlist for HTTPS `<iframe>` and video embeds (e.g. `["youtube.com", "player.vimeo.com"]`). */
   allowedIframeDomains?: ReadonlyArray<string>;
-  /**
-   * Optional callback to resolve Strapi internal links (`strapi://collectionName/documentId` and `linker` nodes) into frontend URLs.
-   */
+  /** Optional callback to resolve Strapi internal links (`strapi://collectionName/documentId` and `linker` nodes) into frontend URLs. */
   resolveInternalLink?: TiptapInternalLinkResolver;
+  /** Optional Strapi media base URL prefixed to relative `/uploads/...` media URLs. */
+  mediaBaseUrl?: string;
+  /** Optional custom resolver for media URLs (`image`, `video`, `audio`, `attachment`) before sanitization. */
+  resolveMediaUrl?: TiptapMediaUrlResolver;
+  /**
+   * Renders an accessible `#` permalink anchor inside headings (`h1`–`h6`).
+   * @default false
+   */
+  headingAnchors?: boolean;
+  /**
+   * Adds `data-line-number` attributes to code block lines.
+   * @default false
+   */
+  showCodeLineNumbers?: boolean;
+  /**
+   * Renders a header bar with language badge and copy button on code blocks.
+   * @default false
+   */
+  copyableCodeBlocks?: boolean;
 }
 
 const {
@@ -97,15 +99,18 @@ const {
   class: className = "",
   allowedIframeDomains,
   resolveInternalLink,
+  mediaBaseUrl,
+  resolveMediaUrl,
+  headingAnchors = false,
+  showCodeLineNumbers = false,
+  copyableCodeBlocks = false,
 } = Astro.props;
 
-const doc = parseTiptapContent(data, { allowedIframeDomains, resolveInternalLink });
+const doc = parseTiptapContent(data, { allowedIframeDomains, resolveInternalLink, mediaBaseUrl, resolveMediaUrl });
 const theme = buildThemeObject(userTheme, TiptapBlockThemeDefault);
 const wrapperClass = [getPropertyClass(theme.default), className].filter(Boolean).join(" ").trim();
 
-const mapNodeTypeToThemeKey = (
-  nodeType: TiptapBlockNode["type"]
-): keyof TiptapBlockThemeCustomComponents => {
+const mapNodeTypeToThemeKey = (nodeType: TiptapBlockNode["type"]): keyof TiptapBlockThemeCustomComponents => {
   switch (nodeType) {
     case "heading": return "heading";
     case "paragraph": return "paragraph";
@@ -143,7 +148,7 @@ const mapNodeTypeToThemeKey = (
       }
       switch (block.type) {
         case "heading":
-          return <TiptapBlockHeading {...block} theme={theme} />;
+          return <TiptapBlockHeading {...block} theme={theme} anchorLink={headingAnchors} />;
         case "paragraph":
         case "leadParagraph":
           return <TiptapBlockParagraph {...block} theme={theme} />;
@@ -161,9 +166,9 @@ const mapNodeTypeToThemeKey = (
         case "taskList":
           return <TiptapBlockList {...block} theme={theme} />;
         case "codeBlock":
-          return <TiptapBlockCode {...block} theme={theme} />;
+          return <TiptapBlockCode {...block} theme={theme} showLineNumbers={showCodeLineNumbers} copyable={copyableCodeBlocks} />;
         case "image":
-          return <TiptapBlockImage {...block} theme={theme} />;
+          return <TiptapBlockImage {...block} theme={theme} mediaBaseUrl={mediaBaseUrl} resolveMediaUrl={resolveMediaUrl} />;
         case "video":
         case "audio":
         case "attachment":

@@ -14,7 +14,8 @@ import TiptapInlineNodes from "../items/TiptapInlineNodes/TiptapInlineNodes.astr
  * @component TiptapBlockHeading
  * @title Tiptap Block Heading
  * @description Renders a semantic heading (`<h1>`–`<h6>`) with automatic slug `id` generation for Table of Contents anchors,
- * optional SEO `tag` override (`data-seo-tag`) from `BaseHeadingWithSEOTag`, text alignment, and directionality.
+ * optional accessible `#` anchor permalink (`anchorLink`), optional SEO `tag` override (`data-seo-tag`) from `BaseHeadingWithSEOTag`,
+ * text alignment, and directionality.
  *
  * @preview
  *
@@ -28,6 +29,7 @@ import TiptapInlineNodes from "../items/TiptapInlineNodes/TiptapInlineNodes.astr
  * ---
  *
  * <TiptapBlockHeading
+ *   anchorLink
  *   attrs={{ level: 2, tag: "h3", id: "overview" }}
  *   content={[{ type: "text", text: "Visual H2 Rendered as H3" }]}
  * />
@@ -49,7 +51,7 @@ export interface Props {
    */
   type?: TiptapHeadingNode["type"];
   /**
-   * Heading attributes including `level` (1–6), optional SEO `tag` (`h1`–`h6`), anchor `id`, `textAlign`, and `dir`.
+   * Heading attributes including `level` (1–6), optional SEO `tag` (`h1`–`h6`), anchor `id`, `anchorLink`, `textAlign`, and `dir`.
    */
   attrs?: TiptapHeadingNode["attrs"];
   /**
@@ -62,16 +64,29 @@ export interface Props {
    * @default TiptapBlockThemeDefault
    */
   theme?: TiptapBlockTheme;
+  /**
+   * Renders an accessible `#` permalink anchor inside the heading when an `id` is available.
+   * @default false
+   */
+  anchorLink?: boolean;
 }
 
-const { type = "heading", attrs, content = [], theme = TiptapBlockThemeDefault } = Astro.props;
+const {
+  type = "heading",
+  attrs,
+  content = [],
+  theme = TiptapBlockThemeDefault,
+  anchorLink = false,
+} = Astro.props;
 const level: TiptapHeadingLevel =
   attrs?.level && attrs.level >= 1 && attrs.level <= 6 ? attrs.level : 2;
 const validTags = new Set<TiptapHeadingTag>(["h1", "h2", "h3", "h4", "h5", "h6"]);
 const Tag: TiptapHeadingTag =
   attrs?.tag && validTags.has(attrs.tag) ? attrs.tag : (`h${level}` as TiptapHeadingTag);
 const headingKey = `h${level}` as keyof Omit<typeof theme.heading, "default">;
-const className = renderPropertyClasses(theme.heading, headingKey);
+const showAnchor = Boolean(anchorLink || attrs?.anchorLink);
+const baseClass = renderPropertyClasses(theme.heading, headingKey);
+const className = [baseClass, showAnchor ? "group" : ""].filter(Boolean).join(" ").trim();
 
 const rawText = content
   .map((n) => (n.type === "text" ? n.text : n.type === "linker" ? n.attrs.label || "" : ""))
@@ -93,4 +108,15 @@ const dirAttr = attrs?.dir || undefined;
   class:list={[className || undefined]}
 >
   <TiptapInlineNodes nodes={content} theme={theme.paragraph} />
+  {
+    showAnchor && headingId && (
+      <a
+        href={`#${headingId}`}
+        aria-label={`Permalink to ${rawText || headingId}`}
+        class="tiptap-heading-anchor ms-2 text-slate-400 opacity-0 transition-opacity hover:text-blue-600 focus:opacity-100 group-hover:opacity-100 no-underline"
+      >
+        #
+      </a>
+    )
+  }
 </Tag>

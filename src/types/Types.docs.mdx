@@ -4,7 +4,7 @@ import { Meta } from "@storybook/addon-docs/blocks";
 
 # TypeScript Types Reference (`src/types/`)
 
-`@vicacha-devs/astro-tiptap-blocks` exports strict TypeScript definitions for every Tiptap AST node, inline mark, Strapi relation descriptor, theme slot, and component prop interface.
+`@vicacha-devs/astro-tiptap-blocks` exports strict TypeScript definitions for every Tiptap AST node, inline mark, Strapi relation descriptor, document metadata summary, theme slot, and component prop interface.
 
 ---
 
@@ -26,9 +26,13 @@ export type TiptapDocNode = {
   content: Array<TiptapBlockNode>;
 };
 
+export type TiptapMediaUrlResolver = (url: string) => string | null | undefined;
+
 export type TiptapParserOptions = {
   allowedIframeDomains?: ReadonlyArray<string>;
   resolveInternalLink?: TiptapInternalLinkResolver;
+  mediaBaseUrl?: string;
+  resolveMediaUrl?: TiptapMediaUrlResolver;
 };
 ```
 
@@ -38,7 +42,7 @@ export type TiptapParserOptions = {
 | :--- | :--- | :--- | :--- |
 | `"paragraph"` | `TiptapParagraphNode` | `textAlign`, `dir` | `TiptapInlineNode[]` |
 | `"leadParagraph"` | `TiptapLeadParagraphNode` | `textAlign`, `dir` | `TiptapInlineNode[]` |
-| `"heading"` | `TiptapHeadingNode` | `level` (`1..6`), `id`, `tag` (`"h1".."h6"`), `textAlign`, `dir` | `TiptapInlineNode[]` |
+| `"heading"` | `TiptapHeadingNode` | `level` (`1..6`), `id`, `tag` (`"h1".."h6"`), `anchorLink` (`boolean`), `textAlign`, `dir` | `TiptapInlineNode[]` |
 | `"blockquote"` | `TiptapBlockquoteNode` | `textAlign`, `dir` | `TiptapBlockNode[]` |
 | `"informationPane"` | `TiptapInformationPaneNode` | `variant` (`"info" \| "success" \| "warning" \| "danger" \| "neutral" \| "tip"`), `title` | `TiptapBlockNode[]` |
 | `"conversationHistory"` | `TiptapConversationHistoryNode` | `author`, `timestamp` | `TiptapBlockNode[]` |
@@ -46,8 +50,8 @@ export type TiptapParserOptions = {
 | `"layoutContainer"` | `TiptapLayoutContainerNode` | `columns` (`"1:1" \| "1:1:1" \| "2:1" \| "1:2"`) | `TiptapLayoutColumnNode[]` |
 | `"bulletList"` / `"orderedList"` | `TiptapBulletListNode` / `TiptapOrderedListNode` | `start` (`number`), `indentLevel` (`number`) | `TiptapListItemNode[]` |
 | `"taskList"` | `TiptapTaskListNode` | `textAlign`, `dir` | `TiptapTaskItemNode[]` (`attrs.checked: boolean`) |
-| `"codeBlock"` | `TiptapCodeBlockNode` | `language` (`string`) | `TiptapTextNode[]` |
-| `"image"` | `TiptapImageNode` | `src`, `alt`, `title`, `caption`, `width`, `height`, `data-align`, `data-asset-id`, `data-document-id` | — |
+| `"codeBlock"` | `TiptapCodeBlockNode` | `language` (`string`), `showLineNumbers` (`boolean`), `copyable` (`boolean`) | `TiptapTextNode[]` |
+| `"image"` | `TiptapImageNode` | `src`, `alt`, `title`, `caption`, `width`, `height`, `srcset`, `sizes`, `loading`, `decoding`, `fetchpriority`, `data-align`, `data-asset-id`, `data-document-id` | — |
 | `"video"` | `TiptapVideoNode` | `src`, `embedType` (`"embed" \| "file"`), `title`, `caption`, `width`, `height`, `mime` | — |
 | `"audio"` | `TiptapAudioNode` | `src`, `title`, `caption`, `mime` | — |
 | `"attachment"` | `TiptapAttachmentNode` | `href`, `filename`, `title`, `size`, `mime`, `ext` | — |
@@ -66,15 +70,6 @@ export type TiptapParserOptions = {
 - **`TiptapHardBreakNode`**: `{ type: "hardBreak" }`
 - **`TiptapLinkerNode`**: `{ type: "linker"; attrs: { collectionName?: string | null; documentId?: string | null; label?: string | null; href?: string | null; status?: string | null } }`
 - **`TiptapMathematicsNode`**: `{ type: "mathematics"; attrs: { latex: string; displayMode?: "inline" | "block" | boolean | null } }`
-
-| Mark `type` | Attributes Type | Rendered Element |
-| :--- | :--- | :--- |
-| `"bold"` / `"italic"` / `"underline"` / `"strike"` / `"code"` / `"subscript"` / `"superscript"` | — | `<strong>`, `<em>`, `<u>`, `<s>`, `<code>`, `<sub>`, `<sup>` |
-| `"link"` | `TiptapLinkMarkAttrs` (`href`, `target`, `rel`, `title`, `class`) | `<a>` |
-| `"highlight"` | `TiptapHighlightMarkAttrs` (`color`) | `<mark>` |
-| `"textStyle"` | `TiptapTextStyleMarkAttrs` (`color`, `fontFamily`, `fontSize`, `lineHeight`) | `<span style="...">` |
-| `"abbr"` | `TiptapAbbrMarkAttrs` (`title`) | `<abbr title="...">` |
-| `"language"` | `TiptapLanguageMarkAttrs` (`lang`, `dir`) | `<span lang="..." dir="...">` |
 
 ---
 

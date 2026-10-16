@@ -1,6 +1,6 @@
 {
   "name": "@vicacha-devs/astro-tiptap-blocks",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Zero-JS Astro block components and themeable renderer for Tiptap & Strapi Tiptap Editor (JSON, HTML & Markdown)",
   "keywords": [
     "astro",
@@ -18,19 +18,38 @@
   "main": "./src/components/TiptapBlocks/TiptapBlocks.astro",
   "types": "./src/index.d.ts",
   "exports": {
-    ".": "./src/index.ts",
-    "./astro": "./src/components/TiptapBlocks/TiptapBlocks.astro",
+    ".": {
+      "types": "./src/index.d.ts",
+      "default": "./src/index.ts"
+    },
+    "./astro": {
+      "types": "./src/index.d.ts",
+      "default": "./src/components/TiptapBlocks/TiptapBlocks.astro"
+    },
+    "./lib": {
+      "types": "./src/lib/index.ts",
+      "default": "./src/lib/index.ts"
+    },
+    "./types": {
+      "types": "./src/types/index.ts",
+      "default": "./src/types/index.ts"
+    },
+    "./components/*": "./src/components/*",
     "./package.json": "./package.json"
   },
   "files": [
-    "src"
+    "src",
+    "!src/**/*.stories.ts",
+    "!src/**/*.test.ts",
+    "!src/vitest.setup.ts",
+    "!src/utils/test.helpers.ts"
   ],
   "scripts": {
     "dev": "storybook dev -p 6006",
     "storybook": "storybook dev -p 6006",
     "build:storybook": "storybook build",
     "build-storybook": "storybook build",
-    "build": "tsc",
+    "build": "tsc -p tsconfig.build.json",
     "check": "tsc --noEmit",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
@@ -39,6 +58,7 @@
   "devDependencies": {
     "@storybook-astro/framework": "1.8.0",
     "@storybook-astro/renderer": "^1.8.0",
+    "@storybook/addon-a11y": "10.4.6",
     "@storybook/addon-docs": "10.4.6",
     "@storybook/builder-vite": "10.4.6",
     "@testing-library/dom": "10.4.1",

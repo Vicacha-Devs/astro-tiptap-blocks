@@ -5,8 +5,8 @@ import type { TiptapBlockTheme, TiptapCodeBlockNode, TiptapTextNode } from "../.
 /**
  * @component TiptapBlockCode
  * @title Tiptap Block Code
- * @description Renders a `<pre><code>` fenced code block with optional `data-language` / `language-*` class
- * and per-line `<span>` wrappers for line-level styling.
+ * @description Renders a `<pre><code>` fenced code block with optional `data-language` / `language-*` class,
+ * per-line `<span>` wrappers with `data-line-number`, and an optional header toolbar with language badge and copy button.
  *
  * @preview
  *
@@ -20,6 +20,8 @@ import type { TiptapBlockTheme, TiptapCodeBlockNode, TiptapTextNode } from "../.
  * ---
  *
  * <TiptapBlockCode
+ *   showLineNumbers
+ *   copyable
  *   attrs={{ language: "typescript" }}
  *   content={[{ type: "text", text: "export const hello = () => 'world';" }]}
  * />
@@ -32,7 +34,7 @@ export interface Props {
    */
   type?: TiptapCodeBlockNode["type"];
   /**
-   * Code block attributes (`language` identifier, e.g. `"typescript"`, `"bash"`, `"json"`).
+   * Code block attributes (`language`, `showLineNumbers`, `copyable`).
    */
   attrs?: TiptapCodeBlockNode["attrs"];
   /**
@@ -45,18 +47,76 @@ export interface Props {
    * @default TiptapBlockThemeDefault
    */
   theme?: TiptapBlockTheme;
+  /**
+   * Adds `data-line-number` attributes and line numbers to each code line.
+   * @default false
+   */
+  showLineNumbers?: boolean;
+  /**
+   * Renders a header bar with language badge and a copy-to-clipboard button (`data-copy-code`).
+   * @default false
+   */
+  copyable?: boolean;
 }
 
-const { type = "codeBlock", attrs, content = [], theme = TiptapBlockThemeDefault } = Astro.props;
+const {
+  type = "codeBlock",
+  attrs,
+  content = [],
+  theme = TiptapBlockThemeDefault,
+  showLineNumbers = false,
+  copyable = false,
+} = Astro.props;
 const language = attrs?.language || undefined;
+const withLineNumbers = Boolean(showLineNumbers || attrs?.showLineNumbers);
+const isCopyable = Boolean(copyable || attrs?.copyable);
 const preClassName = renderPropertyClasses(theme.code);
 const lineClassName = getPropertyClass(theme.code.line);
 const rawCode = content.map((node) => node.text).join("");
 const lines = rawCode ? rawCode.split("\n") : [];
 ---
 
-<pre class:list={[preClassName || undefined]} data-language={language}>
-  <code class:list={[language ? `language-${language}` : undefined]}>
-    {lines.map((line) => <span class:list={[lineClassName || undefined]}>{line}{"\n"}</span>)}
-  </code>
-</pre>
+{
+  isCopyable ? (
+    <div class="tiptap-code-wrapper my-4">
+      <div class="flex items-center justify-between rounded-t-lg border border-b-0 border-slate-700 bg-slate-800 px-4 py-1.5 text-xs text-slate-300">
+        <span class="font-mono uppercase tracking-wider">{language || "code"}</span>
+        <button
+          type="button"
+          data-copy-code={rawCode}
+          aria-label="Copy code to clipboard"
+          class="rounded bg-slate-700 px-2 py-0.5 font-medium text-slate-200 hover:bg-slate-600"
+        >
+          Copy
+        </button>
+      </div>
+      <pre class:list={[preClassName || undefined, "!my-0 !rounded-t-none"]} data-language={language}>
+        <code class:list={[language ? `language-${language}` : undefined]}>
+          {lines.map((line, idx) => (
+            <span
+              data-line-number={withLineNumbers ? idx + 1 : undefined}
+              class:list={[lineClassName || undefined]}
+            >
+              {line}
+              {"\n"}
+            </span>
+          ))}
+        </code>
+      </pre>
+    </div>
+  ) : (
+    <pre class:list={[preClassName || undefined]} data-language={language}>
+      <code class:list={[language ? `language-${language}` : undefined]}>
+        {lines.map((line, idx) => (
+          <span
+            data-line-number={withLineNumbers ? idx + 1 : undefined}
+            class:list={[lineClassName || undefined]}
+          >
+            {line}
+            {"\n"}
+          </span>
+        ))}
+      </code>
+    </pre>
+  )
+}

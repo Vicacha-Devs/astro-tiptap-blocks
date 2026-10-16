@@ -4,13 +4,16 @@ import { renderAstroComponentToDom } from "@utils/test.helpers";
 import TiptapBlockImage from "./TiptapBlockImage.astro";
 
 describe("TiptapBlockImage", () => {
-  it("renders figure, img, and figcaption with Strapi asset metadata", async () => {
+  it("renders figure, img, and figcaption with Strapi asset metadata and mediaBaseUrl", async () => {
     const { root, close } = await renderAstroComponentToDom(TiptapBlockImage, {
       props: {
+        mediaBaseUrl: "https://cms.mezquitabogota.org",
         attrs: {
-          src: "https://example.com/photo.jpg",
+          src: "/uploads/photo.jpg",
           alt: "Architecture diagram",
           caption: "Figure 1: Overview",
+          loading: "eager",
+          fetchpriority: "high",
           "data-align": "center",
           "data-asset-id": 42,
           "data-document-id": "asset-doc-42",
@@ -20,7 +23,9 @@ describe("TiptapBlockImage", () => {
 
     try {
       const img = getByRole(root, "img", { name: "Architecture diagram" });
-      expect(img.getAttribute("src")).toBe("https://example.com/photo.jpg");
+      expect(img.getAttribute("src")).toBe("https://cms.mezquitabogota.org/uploads/photo.jpg");
+      expect(img.getAttribute("loading")).toBe("eager");
+      expect(img.getAttribute("fetchpriority")).toBe("high");
       expect(getByText(root, "Figure 1: Overview")).toBeInTheDocument();
 
       const figure = root.querySelector("figure");

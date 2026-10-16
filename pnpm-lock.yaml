@@ -14,6 +14,9 @@ importers:
       '@storybook-astro/renderer':
         specifier: ^1.8.0
         version: 1.12.0(astro@7.4.0(@types/node@22.20.5)(esbuild@0.28.2)(yaml@2.9.1))(storybook@10.4.6(@testing-library/dom@10.4.1)(@types/react@19.3.0)(react@19.3.1))
+      '@storybook/addon-a11y':
+        specifier: 10.4.6
+        version: 10.4.6(storybook@10.4.6(@testing-library/dom@10.4.1)(@types/react@19.3.0)(react@19.3.1))
       '@storybook/addon-docs':
         specifier: 10.4.6
         version: 10.4.6(@types/react@19.3.0)(esbuild@0.28.2)(storybook@10.4.6(@testing-library/dom@10.4.1)(@types/react@19.3.0)(react@19.3.1))(vite@8.3.4(@types/node@22.20.5)(esbuild@0.28.2)(yaml@2.9.1))
@@ -1059,6 +1062,11 @@ packages:
       '@storybook/react':
         optional: true
 
+  '@storybook/addon-a11y@10.4.6':
+    resolution: {integrity: sha512-XCJy+f0DFOiCgUU9knRDlLDxVFI+AAQ3/wE/NF85zB9iDPPS2DwkSN+mas3zDgHt66zhN8Cq3/UiyCDUweV9Zw==}
+    peerDependencies:
+      storybook: ^10.4.6
+
   '@storybook/addon-docs@10.4.6':
     resolution: {integrity: sha512-aWAfP5JMiT5a3zBJizwroCRzOCqZwDTJmvsYvwMD3ilIEa/kT1vhf6Xrbk4XIPhDwbh8Hpb/Gfnka1xBYEISWg==}
     peerDependencies:
@@ -1286,6 +1294,10 @@ packages:
     peerDependenciesMeta:
       '@astrojs/markdown-remark':
         optional: true
+
+  axe-core@4.14.0:
+    resolution: {integrity: sha512-9WTZxEjsZ7b13TH8JPmbV2z8CHbl80/2hm3XPEG4JgNdQLK81IBRXmSxHfMAOkSqQeRxT/0dwNDz2GOm3zzpcQ==}
+    engines: {node: '>=4'}
 
   axobject-query@4.1.0:
     resolution: {integrity: sha512-qIj0G9wZbMGNLjLmg1PT6v2mE9AH2zlnADJD/2tC6E00hgmhUOfEB6greHPAfLRSufHqROIUTkw6E+M3lH0PTQ==}
@@ -3189,6 +3201,12 @@ snapshots:
       astro: 7.4.0(@types/node@22.20.5)(esbuild@0.28.2)(yaml@2.9.1)
       storybook: 10.4.6(@testing-library/dom@10.4.1)(@types/react@19.3.0)(react@19.3.1)
 
+  '@storybook/addon-a11y@10.4.6(storybook@10.4.6(@testing-library/dom@10.4.1)(@types/react@19.3.0)(react@19.3.1))':
+    dependencies:
+      '@storybook/global': 5.0.0
+      axe-core: 4.14.0
+      storybook: 10.4.6(@testing-library/dom@10.4.1)(@types/react@19.3.0)(react@19.3.1)
+
   '@storybook/addon-docs@10.4.6(@types/react@19.3.0)(esbuild@0.28.2)(storybook@10.4.6(@testing-library/dom@10.4.1)(@types/react@19.3.0)(react@19.3.1))(vite@8.3.4(@types/node@22.20.5)(esbuild@0.28.2)(yaml@2.9.1))':
     dependencies:
       '@mdx-js/react': 3.1.1(@types/react@19.3.0)(react@19.3.1)
@@ -3527,6 +3545,8 @@ snapshots:
       - tsx
       - uploadthing
       - yaml
+
+  axe-core@4.14.0: {}
 
   axobject-query@4.1.0: {}
 

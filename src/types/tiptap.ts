@@ -9,7 +9,12 @@ export type TiptapBlockBaseAttrs = { textAlign?: TiptapTextAlign | null; dir?: T
 
 export type TiptapHeadingNode = {
   type: "heading";
-  attrs?: TiptapBlockBaseAttrs & { level: TiptapHeadingLevel; id?: string | null; tag?: TiptapHeadingTag | null };
+  attrs?: TiptapBlockBaseAttrs & {
+    level: TiptapHeadingLevel;
+    id?: string | null;
+    tag?: TiptapHeadingTag | null;
+    anchorLink?: boolean | null;
+  };
   content?: Array<TiptapInlineNode>;
 };
 
@@ -71,7 +76,7 @@ export type TiptapListNode = TiptapBulletListNode | TiptapOrderedListNode | Tipt
 
 export type TiptapCodeBlockNode = {
   type: "codeBlock";
-  attrs?: { language?: string | null };
+  attrs?: { language?: string | null; showLineNumbers?: boolean | null; copyable?: boolean | null };
   content?: Array<TiptapTextNode>;
 };
 
@@ -90,6 +95,11 @@ export type TiptapImageNode = {
     caption?: string | null;
     width?: number | string | null;
     height?: number | string | null;
+    srcset?: string | null;
+    sizes?: string | null;
+    loading?: "lazy" | "eager" | null;
+    decoding?: "async" | "sync" | "auto" | null;
+    fetchpriority?: "high" | "low" | "auto" | null;
   };
 };
 
@@ -170,7 +180,10 @@ export type TiptapBlockType =
   | "attachment" | "iframe" | "mathematics" | "tableOfContents" | "pageBreak" | "table" | "hr";
 export type TiptapContentInput =
   | TiptapDocNode | Array<TiptapBlockNode> | string | ReadonlyArray<string> | null | undefined;
+export type TiptapMediaUrlResolver = (url: string) => string | null | undefined;
 export type TiptapParserOptions = {
   allowedIframeDomains?: ReadonlyArray<string>;
   resolveInternalLink?: TiptapInternalLinkResolver;
+  mediaBaseUrl?: string;
+  resolveMediaUrl?: TiptapMediaUrlResolver;
 };

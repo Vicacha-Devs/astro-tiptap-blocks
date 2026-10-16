@@ -11,15 +11,17 @@ Render **Tiptap / ProseMirror** rich text content (with full support for [`@notu
 - **Zero `set:html` / `innerHTML` Rendering** — Every block and inline mark is parsed into a typed `TiptapDocNode` AST and rendered through native Astro components (`{text}`).
 - **Full `@notum-cz/strapi-plugin-tiptap-editor` Feature Parity**:
   - **Typography & Inline Marks**: `bold`, `italic`, `underline`, `strike`, `code`, `subscript` (`<sub>`), `superscript` (`<sup>`), `highlight` (with custom color), `link` (with `strapi://` internal link resolution), `textStyle` (`color`, `fontFamily`, `fontSize`, `lineHeight`), `abbr` (`<abbr title>`), `language` (`<span lang dir>`), inline `linker` chips, and inline `mathematics` formulas.
-  - **Headings & Lead Paragraphs**: `heading` (`h1`–`h6` with automatic slug `id` generation and SEO `tag` override from `BaseHeadingWithSEOTag`) and `leadParagraph` (`data-lead="true"`).
+  - **Headings & Lead Paragraphs**: `heading` (`h1`–`h6` with automatic slug `id` generation, optional `#` permalink anchors via `headingAnchors`, and SEO `tag` override from `BaseHeadingWithSEOTag`) and `leadParagraph` (`data-lead="true"`).
   - **Callouts & Accordions**: `informationPane` (`info`, `success`, `warning`, `danger`, `neutral`, `tip`), `conversationHistory` (author & timestamp), and collapsible `details` (`detailsSummary` + `detailsContent`).
   - **Multi-Column Layouts**: `layoutContainer` and `layoutColumn` with configurable column ratios (`1:1`, `1:1:1`, `2:1`, `1:2`, `1:1:1:1`).
   - **Lists & Checklists**: `bulletList`, `orderedList`, and `taskList` (`taskItem` with interactive-styled read-only checkboxes).
-  - **Media & Sandboxed Embeds**: `image` (with `caption`, `data-align`, `data-asset-id`, `data-document-id`), `video` (YouTube/Vimeo embeds & `<video controls>`), `audio` (`<audio controls>`), `attachment` (downloadable file card with formatted size & badge), and HTTPS-only sandboxed `iframe` (with optional `allowedIframeDomains` allowlist).
+  - **Code Blocks with Line Numbers & Copy Toolbar**: `codeBlock` with `showCodeLineNumbers` (`data-line-number`) and `copyableCodeBlocks` (`data-copy-code`).
+  - **Media, Responsive Images & Sandboxed Embeds**: `image` (with `mediaBaseUrl`, `srcset`, `sizes`, `loading`, `decoding`, `fetchpriority`, `caption`, `data-align`, `data-asset-id`, `data-document-id`), `video` (YouTube/Vimeo embeds & `<video controls>`), `audio` (`<audio controls>`), `attachment` (downloadable file card with formatted size & badge), and HTTPS-only sandboxed `iframe` (with optional `allowedIframeDomains` allowlist).
   - **Mathematics, TOC & Page Breaks**: Display/inline `mathematics` (`role="math"` with Unicode formula preview), auto-populated `tableOfContents`, and `pageBreak`.
   - **Advanced Tables**: `table`, `tableRow`, `tableHeader`, and `tableCell` supporting `colspan`, `rowspan`, `colwidth`, and sanitized `backgroundColor`.
 - **3-Format Input Normalization** — Seamlessly accepts ProseMirror JSON (`TiptapDocNode` or JSON string), Tiptap HTML strings, Tiptap/Strapi Markdown strings (including lossless `<!-- tiptap-node:{...} -->` metadata comments), or `string[]` fallback arrays.
-- **Strapi Relation Extraction** — Includes `extractRelationsFromTiptap()`, `parseStrapiLinkUri()`, `formatStrapiLinkUri()`, and `resolveStrapiLinkHref()` to inspect referenced Strapi Media Library assets and internal content links.
+- **Built-in SEO Metadata, Reading Time & Strapi Relation Extraction** — Includes `extractDocumentMetadata()`, `extractPlainTextFromTiptap()`, `calculateReadingTime()`, `extractHeadingsFromTiptap()`, and `extractRelationsFromTiptap()`.
+- **Granular Subpath Exports** — Import the Astro component from `@vicacha-devs/astro-tiptap-blocks`, pure TypeScript utilities from `@vicacha-devs/astro-tiptap-blocks/lib`, or types from `@vicacha-devs/astro-tiptap-blocks/types`.
 
 ---
 
@@ -43,7 +45,7 @@ pnpm add @vicacha-devs/astro-tiptap-blocks
 
 ```astro
 ---
-import { TiptapBlocks } from "@vicacha-devs/astro-tiptap-blocks";
+import { TiptapBlocks, extractDocumentMetadata } from "@vicacha-devs/astro-tiptap-blocks";
 
 const articleContent = {
   type: "doc",
@@ -70,10 +72,18 @@ const articleContent = {
     },
   ],
 };
+
+const { excerpt, readingTime, headings } = extractDocumentMetadata(articleContent);
 ---
+
+<p class="text-sm text-slate-500">{readingTime.text}</p>
 
 <TiptapBlocks
   data={articleContent}
+  mediaBaseUrl="https://cms.mezquitabogota.org"
+  headingAnchors
+  showCodeLineNumbers
+  copyableCodeBlocks
   allowedIframeDomains={["youtube.com", "player.vimeo.com", "openstreetmap.org"]}
   resolveInternalLink={({ collectionName, documentId }) =>
     `/blog/${collectionName.split(".").pop()}/${documentId}`
@@ -83,38 +93,46 @@ const articleContent = {
 
 ---
 
-## Programmatic Utilities
+## Programmatic Utilities (`@vicacha-devs/astro-tiptap-blocks/lib`)
 
 ```ts
 import {
   parseTiptapContent,
   parseTiptapHtml,
   parseTiptapMarkdown,
+  extractDocumentMetadata,
+  extractPlainTextFromTiptap,
+  calculateReadingTime,
+  extractHeadingsFromTiptap,
   extractRelationsFromTiptap,
   parseStrapiLinkUri,
   formatStrapiLinkUri,
   resolveStrapiLinkHref,
+  resolveTiptapMediaUrl,
   sanitizeTiptapUrl,
   sanitizeTiptapIframeUrl,
   sanitizeCssColor,
   buildSafeInlineStyle,
   buildThemeObject,
   TiptapBlockThemeDefault,
-} from "@vicacha-devs/astro-tiptap-blocks";
+} from "@vicacha-devs/astro-tiptap-blocks/lib";
 ```
 
 ---
 
-## Interactive Documentation (Storybook for Astro)
+## Interactive Documentation & Testing
 
-This repository includes a full TypeScript **Storybook for Astro** (`@storybook-astro/framework`) suite with `autodocs` prop tables for every `.astro` component, interactive demos for `src/lib/` utilities, and MDX documentation for `src/types/`.
+This repository includes a full TypeScript **Storybook for Astro** (`@storybook-astro/framework` + `@storybook/addon-docs` + `@storybook/addon-a11y`) suite and **Vitest** unit/component tests for every `.astro` component and `src/lib/` module.
 
 ```bash
 # Start Storybook dev server on http://localhost:6006
 pnpm storybook
 
-# Build static Storybook site
-pnpm build-storybook
+# Run Vitest unit & component tests with coverage
+pnpm test:coverage
+
+# Typecheck & build declaration files
+pnpm check && pnpm build
 ```
 
 ---

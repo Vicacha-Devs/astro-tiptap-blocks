@@ -4,20 +4,20 @@ import { renderAstroComponentToDom } from "@utils/test.helpers";
 import TiptapBlockHeading from "./TiptapBlockHeading.astro";
 
 describe("TiptapBlockHeading", () => {
-  it("renders semantic heading with auto-generated slug id", async () => {
+  it("renders semantic heading with auto-generated slug id and optional permalink anchor", async () => {
     const { root, close } = await renderAstroComponentToDom(TiptapBlockHeading, {
       props: {
+        anchorLink: true,
         attrs: { level: 2 },
         content: [{ type: "text", text: "Getting Started Guide" }],
       },
     });
 
     try {
-      const heading = getByRole(root, "heading", {
-        level: 2,
-        name: "Getting Started Guide",
-      });
+      const heading = getByRole(root, "heading", { level: 2 });
       expect(heading.getAttribute("id")).toBe("getting-started-guide");
+      const anchor = getByRole(root, "link", { name: "Permalink to Getting Started Guide" });
+      expect(anchor.getAttribute("href")).toBe("#getting-started-guide");
     } finally {
       await close();
     }

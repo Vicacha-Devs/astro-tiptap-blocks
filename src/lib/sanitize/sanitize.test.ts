@@ -2,6 +2,7 @@ import {
   buildSafeInlineStyle,
   formatFileSize,
   formatLatexPreview,
+  resolveTiptapMediaUrl,
   sanitizeCssColor,
   sanitizeTiptapIframeUrl,
   sanitizeTiptapUrl,
@@ -23,6 +24,20 @@ describe("sanitize utilities (lib/sanitize)", () => {
     expect(sanitizeTiptapUrl("mailto:info@mezquitabogota.org")).toBe(
       "mailto:info@mezquitabogota.org"
     );
+  });
+
+  it("resolves relative Strapi media URLs with mediaBaseUrl or resolveMediaUrl", () => {
+    expect(
+      resolveTiptapMediaUrl("/uploads/mosque_hero.webp", {
+        mediaBaseUrl: "https://cms.mezquitabogota.org/",
+      })
+    ).toBe("https://cms.mezquitabogota.org/uploads/mosque_hero.webp");
+
+    expect(
+      resolveTiptapMediaUrl("/uploads/doc.pdf", {
+        resolveMediaUrl: (url) => `https://cdn.example.com${url}`,
+      })
+    ).toBe("https://cdn.example.com/uploads/doc.pdf");
   });
 
   it("enforces HTTPS and optional domain allowlist for iframe URLs", () => {

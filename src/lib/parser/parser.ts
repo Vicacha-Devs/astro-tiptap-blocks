@@ -6,7 +6,8 @@ import { parseTiptapHtml } from "../html-parser";
 import { isLikelyMarkdown, parseTiptapMarkdown } from "../markdown-parser";
 import { resolveStrapiLinkHref } from "../relations";
 import {
-  sanitizeCssColor, sanitizeTextStyleAttrs, sanitizeTiptapIframeUrl, sanitizeTiptapUrl, slugifyHeadingText,
+  resolveTiptapMediaUrl, sanitizeCssColor, sanitizeTextStyleAttrs,
+  sanitizeTiptapIframeUrl, slugifyHeadingText,
 } from "../sanitize";
 
 const extractInlineText = (nodes?: TiptapInlineNode[]): string =>
@@ -101,12 +102,12 @@ const sanitizeBlockNodes = (nodes?: TiptapBlockNode[], options?: TiptapParserOpt
       case "image":
       case "video":
       case "audio": {
-        const safeSrc = sanitizeTiptapUrl(node.attrs?.src);
+        const safeSrc = resolveTiptapMediaUrl(node.attrs?.src, options);
         if (safeSrc !== "#") result.push({ ...node, attrs: { ...node.attrs, src: safeSrc } } as TiptapBlockNode);
         break;
       }
       case "attachment": {
-        const safeHref = sanitizeTiptapUrl(node.attrs?.href);
+        const safeHref = resolveTiptapMediaUrl(node.attrs?.href, options);
         if (safeHref !== "#") result.push({ ...node, attrs: { ...node.attrs, href: safeHref } });
         break;
       }

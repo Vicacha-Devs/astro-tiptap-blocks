@@ -12,9 +12,20 @@ export default getViteConfig({
     environment: "node",
     setupFiles: ["./src/vitest.setup.ts"],
     coverage: {
-      exclude: [...coverageConfigDefaults.exclude, "**/*.stories.ts", "**/*.docs.mdx"],
+      exclude: [
+        ...coverageConfigDefaults.exclude,
+        "**/*.stories.ts",
+        "**/*.docs.mdx",
+        "src/utils/test.helpers.ts",
+        "src/vitest.setup.ts",
+      ],
       provider: "v8",
-      reporter: ["html", "verbose"],
+      reporter: ["text", "html", "json-summary"],
+      thresholds: {
+        lines: 80,
+        functions: 80,
+        statements: 80,
+      },
     },
   },
 });

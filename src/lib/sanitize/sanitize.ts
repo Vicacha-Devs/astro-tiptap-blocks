@@ -1,17 +1,11 @@
-import type { TiptapTextStyleMarkAttrs } from "../../types";
+import type { TiptapMediaUrlResolver, TiptapTextStyleMarkAttrs } from "../../types";
 
 const SAFE_URL_PROTOCOLS = ["http:", "https:", "mailto:", "tel:", "strapi:"];
 const SAFE_DATA_URI_REGEX =
   /^data:(?:image\/(?:png|jpeg|jpg|gif|webp|avif)|audio\/(?:wav|mpeg|mp3|ogg|webm));base64,[a-z0-9+/=\s]+$/i;
 
 const HTML_ENTITIES: Record<string, string> = {
-  "&amp;": "&",
-  "&lt;": "<",
-  "&gt;": ">",
-  "&quot;": '"',
-  "&#39;": "'",
-  "&apos;": "'",
-  "&nbsp;": " ",
+  "&amp;": "&", "&lt;": "<", "&gt;": ">", "&quot;": '"', "&#39;": "'", "&apos;": "'", "&nbsp;": " ",
 };
 
 export const decodeHtmlEntities = (text: string): string =>
@@ -25,49 +19,42 @@ export const decodeHtmlEntities = (text: string): string =>
  * Blocks `javascript:`, `vbscript:`, `data:text/html`, `data:image/svg+xml`, and `//` protocol-relative URLs.
  */
 export const sanitizeTiptapUrl = (rawUrl: string | null | undefined): string => {
-  if (!rawUrl || typeof rawUrl !== "string") {
-    return "#";
-  }
-
+  if (!rawUrl || typeof rawUrl !== "string") return "#";
   const trimmed = decodeHtmlEntities(rawUrl).trim();
-  if (!trimmed || trimmed.startsWith("//")) {
-    return "#";
-  }
-
-  if (
-    trimmed.startsWith("/") ||
-    trimmed.startsWith("#") ||
-    trimmed.startsWith("./") ||
-    trimmed.startsWith("../")
-  ) {
+  if (!trimmed || trimmed.startsWith("//")) return "#";
+  if (trimmed.startsWith("/") || trimmed.startsWith("#") || trimmed.startsWith("./") || trimmed.startsWith("../")) {
     return trimmed;
   }
-
   const normalized = trimmed.replace(/[\u0000-\u001F\u007F-\u009F\s]+/g, "").toLowerCase();
-  if (normalized.startsWith("javascript:") || normalized.startsWith("vbscript:")) {
-    return "#";
-  }
-
-  if (normalized.startsWith("data:")) {
-    return SAFE_DATA_URI_REGEX.test(trimmed) ? trimmed : "#";
-  }
-
+  if (normalized.startsWith("javascript:") || normalized.startsWith("vbscript:")) return "#";
+  if (normalized.startsWith("data:")) return SAFE_DATA_URI_REGEX.test(trimmed) ? trimmed : "#";
   if (normalized.startsWith("strapi://")) {
     return /^strapi:\/\/[a-zA-Z0-9_.:-]+\/[a-zA-Z0-9_.:-]+$/.test(trimmed) ? trimmed : "#";
   }
-
   try {
     const parsed = new URL(trimmed);
-    if (SAFE_URL_PROTOCOLS.includes(parsed.protocol.toLowerCase())) {
-      return trimmed;
-    }
-    return "#";
+    return SAFE_URL_PROTOCOLS.includes(parsed.protocol.toLowerCase()) ? trimmed : "#";
   } catch {
-    if (!trimmed.includes(":")) {
-      return trimmed;
-    }
-    return "#";
+    return !trimmed.includes(":") ? trimmed : "#";
   }
+};
+
+/**
+ * Resolves relative Strapi media URLs (e.g. `/uploads/photo.webp`) using `mediaBaseUrl` or `resolveMediaUrl`
+ * before running `sanitizeTiptapUrl()`.
+ */
+export const resolveTiptapMediaUrl = (
+  rawUrl: string | null | undefined,
+  options?: { mediaBaseUrl?: string; resolveMediaUrl?: TiptapMediaUrlResolver }
+): string => {
+  if (!rawUrl || typeof rawUrl !== "string") return "#";
+  const custom = options?.resolveMediaUrl ? options.resolveMediaUrl(rawUrl) : rawUrl;
+  const candidate = (custom ?? rawUrl).trim();
+  if (options?.mediaBaseUrl && candidate.startsWith("/") && !candidate.startsWith("//")) {
+    const base = options.mediaBaseUrl.trim().replace(/\/+$/, "");
+    return sanitizeTiptapUrl(`${base}${candidate}`);
+  }
+  return sanitizeTiptapUrl(candidate);
 };
 
 /**
@@ -79,12 +66,9 @@ export const sanitizeTiptapIframeUrl = (
 ): string => {
   const safe = sanitizeTiptapUrl(rawUrl);
   if (safe === "#") return "#";
-
   try {
     const parsed = new URL(safe);
-    if (parsed.protocol.toLowerCase() !== "https:") {
-      return "#";
-    }
+    if (parsed.protocol.toLowerCase() !== "https:") return "#";
     if (allowedDomains && allowedDomains.length > 0) {
       const host = parsed.hostname.toLowerCase();
       const allowed = allowedDomains.some((domain) => {
@@ -119,10 +103,7 @@ export const sanitizeCssDimension = (val: string | null | undefined): string | n
 export const sanitizeCssFontFamily = (font: string | null | undefined): string | null => {
   if (!font || typeof font !== "string") return null;
   const trimmed = font.trim();
-  if (!SAFE_FONT_FAMILY_REGEX.test(trimmed) || /url\(|expression\(|;/i.test(trimmed)) {
-    return null;
-  }
-  return trimmed;
+  return SAFE_FONT_FAMILY_REGEX.test(trimmed) && !/url\(|expression\(|;/i.test(trimmed) ? trimmed : null;
 };
 
 export const sanitizeTextStyleAttrs = (
