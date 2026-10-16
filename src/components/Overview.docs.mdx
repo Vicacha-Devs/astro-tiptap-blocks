@@ -34,14 +34,14 @@ parseTiptapContent(data, options)
 
 ## Key Capabilities (Strapi Tiptap Editor PR #40)
 
-| Category | Supported Nodes, Marks & Features |
-| :--- | :--- |
-| **Input Formats** | ProseMirror JSON (`TiptapDocNode`), HTML string (`parseTiptapHtml`), Markdown string (`parseTiptapMarkdown` with lossless `<!-- tiptap-node:... -->` comments), and `string[]` |
-| **Typography & Layout** | `paragraph`, `leadParagraph`, `heading` (levels 1–6, `id`, SEO `tag` override `h1`–`h6`), `blockquote`, `horizontalRule`, `layoutContainer` (`columns`: `1:1`, `1:1:1`, `2:1`, `1:2` with `layoutColumn`), `details` (`detailsSummary`, `detailsContent`), `pageBreak`, `tableOfContents` |
-| **Callouts & History** | `informationPane` (`info`, `success`, `warning`, `danger`, `neutral`, `tip`) and `conversationHistory` (`author`, `timestamp`) |
-| **Lists** | `bulletList`, `orderedList` (`start`, `indentLevel`), `listItem`, `taskList`, and `taskItem` (`checked`) |
-| **Media & Embeds** | `image` (`caption`, `width`, `height`, `data-align`, `data-asset-id`, `data-document-id`), `video` (YouTube/Vimeo `embedType: "embed"` & native `<video controls>`), `audio`, `attachment` (downloadable file card with formatted size), `iframe` (HTTPS-only sandboxed embed) |
-| **Code, Math & Tables** | `codeBlock` (`language`), block & inline `mathematics` (`latex`, `displayMode` with Unicode symbol preview), `table`, `tableRow`, `tableHeader`, `tableCell` (`colspan`, `rowspan`, `colwidth`, `backgroundColor`) |
+| Category                 | Supported Nodes, Marks & Features                                                                                                                                                                                                                                                             |
+| :----------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Input Formats**        | ProseMirror JSON (`TiptapDocNode`), HTML string (`parseTiptapHtml`), Markdown string (`parseTiptapMarkdown` with lossless `<!-- tiptap-node:... -->` comments), and `string[]`                                                                                                                |
+| **Typography & Layout**  | `paragraph`, `leadParagraph`, `heading` (levels 1–6, `id`, SEO `tag` override `h1`–`h6`), `blockquote`, `horizontalRule`, `layoutContainer` (`columns`: `1:1`, `1:1:1`, `2:1`, `1:2` with `layoutColumn`), `details` (`detailsSummary`, `detailsContent`), `pageBreak`, `tableOfContents`     |
+| **Callouts & History**   | `informationPane` (`info`, `success`, `warning`, `danger`, `neutral`, `tip`) and `conversationHistory` (`author`, `timestamp`)                                                                                                                                                                |
+| **Lists**                | `bulletList`, `orderedList` (`start`, `indentLevel`), `listItem`, `taskList`, and `taskItem` (`checked`)                                                                                                                                                                                      |
+| **Media & Embeds**       | `image` (`caption`, `width`, `height`, `data-align`, `data-asset-id`, `data-document-id`), `video` (YouTube/Vimeo `embedType: "embed"` & native `<video controls>`), `audio`, `attachment` (downloadable file card with formatted size), `iframe` (HTTPS-only sandboxed embed)                |
+| **Code, Math & Tables**  | `codeBlock` (`language`), block & inline `mathematics` (`latex`, `displayMode` with Unicode symbol preview), `table`, `tableRow`, `tableHeader`, `tableCell` (`colspan`, `rowspan`, `colwidth`, `backgroundColor`)                                                                            |
 | **Inline Marks & Links** | `bold`, `italic`, `underline`, `strike`, `code`, `subscript`, `superscript`, `highlight` (`color`), `textStyle` (`color`, `fontFamily`, `fontSize`, `lineHeight`), `abbr` (`title`), `language` (`lang`, `dir`), `link` (`strapi://` internal relation resolution), and inline `linker` chips |
 
 ---
