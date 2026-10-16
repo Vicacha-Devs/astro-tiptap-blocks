@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { parseTiptapContent } from "../parser";
-import { sanitizeTiptapUrl } from "../sanitize";
+import { sanitizeTiptapIframeUrl, sanitizeTiptapUrl } from "../sanitize";
 
 describe("astro-tiptap-blocks parser & sanitizer", () => {
-  it("parses ProseMirror JSON doc and preserves formatting marks", () => {
+  it("parses ProseMirror JSON doc and preserves formatting marks + auto-generates heading id", () => {
     const doc = parseTiptapContent({
       type: "doc",
       content: [
@@ -29,7 +29,7 @@ describe("astro-tiptap-blocks parser & sanitizer", () => {
     expect(doc.content).toHaveLength(2);
     expect(doc.content[0]).toEqual({
       type: "heading",
-      attrs: { level: 2, textAlign: undefined },
+      attrs: { level: 2, id: "welcome-to-abu-bakr-mosque" },
       content: [{ type: "text", text: "Welcome to Abu Bakr Mosque" }],
     });
     expect(doc.content[1].type).toBe("paragraph");
@@ -67,36 +67,45 @@ describe("astro-tiptap-blocks parser & sanitizer", () => {
       const linkNode = paragraph.content?.find((n) => n.type === "text" && n.text === "hospitality");
       expect(linkNode?.type === "text" && linkNode.marks?.[0]).toEqual({
         type: "link",
-        attrs: { href: "/contact", target: "_blank", rel: null },
+        attrs: { href: "/contact", target: "_blank", rel: null, title: null, class: null },
       });
     }
   });
 
-  it("strips <script>, <iframe>, and neutralizes javascript: and data: URLs (PoC security check)", () => {
+  it("strips <script>, blocks HTTP/unallowed iframes, and neutralizes javascript: and dangerous data: URLs", () => {
     const maliciousHtml = `
       <script>window.__xss = true;</script>
-      <iframe src="https://evil.example.com"></iframe>
+      <iframe src="http://insecure.example.com"></iframe>
       <p><a href="javascript:alert(1)">Click me</a></p>
       <img src="javascript:alert(2)" alt="bad" />
       <img src="https://mezquitabogota.org/mosque.jpg" alt="Mosque" title="Exterior" />
     `;
 
     const doc = parseTiptapContent(maliciousHtml);
-    expect(doc.content).toHaveLength(2); // paragraph + valid image (malicious script, iframe, and bad img removed)
+    expect(doc.content).toHaveLength(2);
 
     const p = doc.content[0];
     if (p.type === "paragraph" && p.content?.[0]?.type === "text") {
       expect(p.content[0].marks?.[0]).toEqual({
         type: "link",
-        attrs: { href: "#", target: null, rel: null },
+        attrs: { href: "#", target: null, rel: null, title: null, class: null },
       });
     }
 
     expect(sanitizeTiptapUrl("javascript:alert(1)")).toBe("#");
     expect(sanitizeTiptapUrl("  JaVaScRiPt:alert(1)")).toBe("#");
+    expect(sanitizeTiptapUrl("&#106;avascript:alert(1)")).toBe("#");
+    expect(sanitizeTiptapUrl("//evil.example.com/payload.js")).toBe("#");
     expect(sanitizeTiptapUrl("data:text/html,<script>alert(1)</script>")).toBe("#");
+    expect(sanitizeTiptapUrl("data:image/svg+xml;base64,PHN2Zz4=")).toBe("#");
+    expect(sanitizeTiptapUrl("data:audio/wav;base64,UklGRiQAAABXQVZF")).toContain("data:audio/wav;base64,");
     expect(sanitizeTiptapUrl("https://mezquitabogota.org")).toBe("https://mezquitabogota.org");
     expect(sanitizeTiptapUrl("mailto:info@mezquitabogota.org")).toBe("mailto:info@mezquitabogota.org");
+    expect(sanitizeTiptapIframeUrl("http://example.com")).toBe("#");
+    expect(sanitizeTiptapIframeUrl("https://www.youtube.com/embed/123", ["youtube.com"])).toBe(
+      "https://www.youtube.com/embed/123"
+    );
+    expect(sanitizeTiptapIframeUrl("https://evil.com/embed", ["youtube.com"])).toBe("#");
   });
 
   it("supports fallback string[] paragraph arrays", () => {

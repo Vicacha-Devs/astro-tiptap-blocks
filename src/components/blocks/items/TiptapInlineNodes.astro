@@ -1,6 +1,9 @@
 ---
-import type { TiptapInlineNode, TiptapLinkMark } from "../../../types/tiptap";
+import { resolveStrapiLinkHref } from "../../../lib/relations";
+import { formatLatexPreview } from "../../../lib/sanitize";
+import { getPropertyClass } from "../../../lib/theme";
 import type { TiptapBlockThemeParagraph } from "../../../types/theme";
+import type { TiptapInlineNode, TiptapLinkMark } from "../../../types/tiptap";
 import TiptapLinkItem from "./TiptapLinkItem.astro";
 import TiptapTextItem from "./TiptapTextItem.astro";
 
@@ -10,12 +13,44 @@ interface Props {
 }
 
 const { nodes = [], theme } = Astro.props;
+const linkerClass = getPropertyClass(theme.linker || theme.link);
+const mathInlineClass = getPropertyClass(theme.mathInline);
 ---
 
 {
   nodes.map((node) => {
     if (node.type === "hardBreak") {
       return <br />;
+    }
+    if (node.type === "linker") {
+      const safeHref = resolveStrapiLinkHref(node.attrs || {});
+      const label = node.attrs?.label || node.attrs?.documentId || "Internal Link";
+      return (
+        <a
+          href={safeHref}
+          data-type="linker"
+          data-collection={node.attrs?.collectionName || undefined}
+          data-document-id={node.attrs?.documentId || undefined}
+          data-label={node.attrs?.label || undefined}
+          class:list={[linkerClass || undefined]}
+        >
+          {label}
+        </a>
+      );
+    }
+    if (node.type === "mathematics") {
+      const latex = node.attrs?.latex || "";
+      return (
+        <span
+          data-type="mathematics"
+          data-latex={latex}
+          role="math"
+          aria-label={latex}
+          class:list={[mathInlineClass || undefined]}
+        >
+          {formatLatexPreview(latex)}
+        </span>
+      );
     }
     const linkMark = node.marks?.find(
       (mark): mark is TiptapLinkMark => mark.type === "link"

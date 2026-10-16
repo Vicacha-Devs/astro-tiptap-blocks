@@ -1,6 +1,8 @@
 ---
+import { sanitizeCssColor } from "../../lib/sanitize";
 import { getPropertyClass, renderPropertyClasses } from "../../lib/theme";
-import type { TiptapBlockTheme, TiptapTableNode } from "../../types";
+import type { TiptapBlockTheme, TiptapTableCellNode, TiptapTableNode } from "../../types";
+import TiptapBlockList from "./TiptapBlockList.astro";
 import TiptapInlineNodes from "./items/TiptapInlineNodes.astro";
 
 interface Props extends TiptapTableNode {
@@ -20,6 +22,16 @@ const hasHeaderRow =
   (content[0].content || []).every((cell) => cell.type === "tableHeader");
 const headerRows = hasHeaderRow ? [content[0]] : [];
 const bodyRows = hasHeaderRow ? content.slice(1) : content;
+
+const buildCellStyle = (cell: TiptapTableCellNode): string | undefined => {
+  const parts: string[] = [];
+  const bg = sanitizeCssColor(cell.attrs?.backgroundColor);
+  if (bg) parts.push(`background-color: ${bg}`);
+  if (Array.isArray(cell.attrs?.colwidth) && cell.attrs.colwidth[0] && Number(cell.attrs.colwidth[0]) > 0) {
+    parts.push(`width: ${Number(cell.attrs.colwidth[0])}px`);
+  }
+  return parts.length > 0 ? parts.join("; ") : undefined;
+};
 ---
 
 <table class:list={[tableClass || undefined]}>
@@ -32,14 +44,15 @@ const bodyRows = hasHeaderRow ? content.slice(1) : content;
               <th
                 colspan={cell.attrs?.colspan || undefined}
                 rowspan={cell.attrs?.rowspan || undefined}
+                data-background-color={sanitizeCssColor(cell.attrs?.backgroundColor) || undefined}
+                style={buildCellStyle(cell)}
                 class:list={[headerCellClass || undefined]}
               >
                 {(cell.content || []).map((block) =>
                   block.type === "paragraph" ? (
-                    <TiptapInlineNodes
-                      nodes={block.content}
-                      theme={theme.paragraph}
-                    />
+                    <TiptapInlineNodes nodes={block.content} theme={theme.paragraph} />
+                  ) : block.type === "bulletList" || block.type === "orderedList" || block.type === "taskList" ? (
+                    <TiptapBlockList {...block} theme={theme} />
                   ) : null
                 )}
               </th>
@@ -62,14 +75,15 @@ const bodyRows = hasHeaderRow ? content.slice(1) : content;
                 <CellTag
                   colspan={cell.attrs?.colspan || undefined}
                   rowspan={cell.attrs?.rowspan || undefined}
+                  data-background-color={sanitizeCssColor(cell.attrs?.backgroundColor) || undefined}
+                  style={buildCellStyle(cell)}
                   class:list={[currentCellClass || undefined]}
                 >
                   {(cell.content || []).map((block) =>
                     block.type === "paragraph" ? (
-                      <TiptapInlineNodes
-                        nodes={block.content}
-                        theme={theme.paragraph}
-                      />
+                      <TiptapInlineNodes nodes={block.content} theme={theme.paragraph} />
+                    ) : block.type === "bulletList" || block.type === "orderedList" || block.type === "taskList" ? (
+                      <TiptapBlockList {...block} theme={theme} />
                     ) : null
                   )}
                 </CellTag>

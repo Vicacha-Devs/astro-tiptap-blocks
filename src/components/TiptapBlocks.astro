@@ -7,28 +7,44 @@ import type {
   TiptapBlockUserComponents,
   TiptapBlockUserTheme,
   TiptapContentInput,
+  TiptapInternalLinkResolver,
 } from "../types";
 
+import TiptapBlockCallout from "./blocks/TiptapBlockCallout.astro";
 import TiptapBlockCode from "./blocks/TiptapBlockCode.astro";
+import TiptapBlockColumns from "./blocks/TiptapBlockColumns.astro";
 import TiptapBlockCustom from "./blocks/TiptapBlockCustom.astro";
+import TiptapBlockDetails from "./blocks/TiptapBlockDetails.astro";
 import TiptapBlockHeading from "./blocks/TiptapBlockHeading.astro";
 import TiptapBlockHr from "./blocks/TiptapBlockHr.astro";
 import TiptapBlockImage from "./blocks/TiptapBlockImage.astro";
 import TiptapBlockList from "./blocks/TiptapBlockList.astro";
+import TiptapBlockMath from "./blocks/TiptapBlockMath.astro";
+import TiptapBlockMedia from "./blocks/TiptapBlockMedia.astro";
 import TiptapBlockParagraph from "./blocks/TiptapBlockParagraph.astro";
 import TiptapBlockQuote from "./blocks/TiptapBlockQuote.astro";
 import TiptapBlockTable from "./blocks/TiptapBlockTable.astro";
+import TiptapBlockToc from "./blocks/TiptapBlockToc.astro";
 
 interface Props {
   data: TiptapContentInput;
   theme?: TiptapBlockUserTheme;
   blocks?: TiptapBlockUserComponents;
   class?: string;
+  allowedIframeDomains?: ReadonlyArray<string>;
+  resolveInternalLink?: TiptapInternalLinkResolver;
 }
 
-const { data, theme: userTheme, blocks: customBlocks = {}, class: className = "" } = Astro.props;
+const {
+  data,
+  theme: userTheme,
+  blocks: customBlocks = {},
+  class: className = "",
+  allowedIframeDomains,
+  resolveInternalLink,
+} = Astro.props;
 
-const doc = parseTiptapContent(data);
+const doc = parseTiptapContent(data, { allowedIframeDomains, resolveInternalLink });
 const theme = buildThemeObject(userTheme, TiptapBlockThemeDefault);
 const wrapperClass = [getPropertyClass(theme.default), className].filter(Boolean).join(" ").trim();
 
@@ -40,15 +56,41 @@ const mapNodeTypeToThemeKey = (
       return "heading";
     case "paragraph":
       return "paragraph";
+    case "leadParagraph":
+      return "leadParagraph";
     case "blockquote":
       return "quote";
+    case "informationPane":
+      return "informationPane";
+    case "conversationHistory":
+      return "conversationHistory";
+    case "details":
+      return "details";
+    case "layoutContainer":
+      return "columns";
     case "bulletList":
     case "orderedList":
       return "list";
+    case "taskList":
+      return "taskList";
     case "codeBlock":
       return "code";
     case "image":
       return "image";
+    case "video":
+      return "video";
+    case "audio":
+      return "audio";
+    case "attachment":
+      return "attachment";
+    case "iframe":
+      return "iframe";
+    case "mathematics":
+      return "mathematics";
+    case "tableOfContents":
+      return "tableOfContents";
+    case "pageBreak":
+      return "pageBreak";
     case "table":
       return "table";
     case "horizontalRule":
@@ -72,16 +114,35 @@ const mapNodeTypeToThemeKey = (
           case "heading":
             return <TiptapBlockHeading {...block} theme={theme} />;
           case "paragraph":
+          case "leadParagraph":
             return <TiptapBlockParagraph {...block} theme={theme} />;
           case "blockquote":
             return <TiptapBlockQuote {...block} theme={theme} />;
+          case "informationPane":
+          case "conversationHistory":
+            return <TiptapBlockCallout {...block} theme={theme} />;
+          case "details":
+            return <TiptapBlockDetails {...block} theme={theme} />;
+          case "layoutContainer":
+            return <TiptapBlockColumns {...block} theme={theme} />;
           case "bulletList":
           case "orderedList":
+          case "taskList":
             return <TiptapBlockList {...block} theme={theme} />;
           case "codeBlock":
             return <TiptapBlockCode {...block} theme={theme} />;
           case "image":
             return <TiptapBlockImage {...block} theme={theme} />;
+          case "video":
+          case "audio":
+          case "attachment":
+          case "iframe":
+            return <TiptapBlockMedia {...block} theme={theme} allowedIframeDomains={allowedIframeDomains} />;
+          case "mathematics":
+            return <TiptapBlockMath {...block} theme={theme} />;
+          case "tableOfContents":
+          case "pageBreak":
+            return <TiptapBlockToc {...block} theme={theme} />;
           case "table":
             return <TiptapBlockTable {...block} theme={theme} />;
           case "horizontalRule":

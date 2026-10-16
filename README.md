@@ -1,50 +1,25 @@
 # `@vicacha-devs/astro-tiptap-blocks`
 
-Render **Tiptap / ProseMirror** rich text content (including [`@notum-cz/strapi-plugin-tiptap-editor`](https://github.com/notum-cz/strapi-plugin-tiptap-editor)) using native, themeable **Astro** block components — inspired by [`@sensinum/astro-strapi-blocks`](https://github.com/VirtusLab-Open-Source/astro-strapi-blocks).
+Render **Tiptap / ProseMirror** rich text content (with full support for [`@notum-cz/strapi-plugin-tiptap-editor`](https://github.com/notum-cz/strapi-plugin-tiptap-editor) extended features across **JSON**, **HTML**, and **Markdown** output modes) using native, themeable **Astro** block components — inspired by [`@sensinum/astro-strapi-blocks`](https://github.com/VirtusLab-Open-Source/astro-strapi-blocks).
 
 > **Astro compatibility:** `^5.0.0 || ^6.0.0 || ^7.0.0`
 
 ---
 
-## Contents
-
-- [Features](#features)
-- [Requirements](#requirements)
-- [Installation](#installation)
-- [Architecture](#architecture)
-- [Quick Start](#quick-start)
-- [Supported Input Formats](#supported-input-formats)
-- [Theme Customization](#theme-customization)
-- [Custom Block Components](#custom-block-components)
-- [Programmatic Utilities](#programmatic-utilities)
-- [Security & XSS Prevention](#security--xss-prevention)
-- [Development & Testing](#development--testing)
-- [License](#license)
-
----
-
 ## Features
 
-- **Zero `set:html` / `innerHTML` Rendering** — Every block (`heading`, `paragraph`, `blockquote`, `bulletList`, `orderedList`, `codeBlock`, `image`, `table`, `horizontalRule`) and inline mark (`bold`, `italic`, `underline`, `strike`, `code`, `highlight`, `link`) is rendered through native Astro components.
-- **Multi-Format Input Normalization** — Seamlessly accepts:
-  - ProseMirror JSON document (`{ type: "doc", content: [...] }`)
-  - Array of `TiptapBlockNode[]`
-  - Serialized JSON strings
-  - Tiptap HTML strings (e.g. default output from `@notum-cz/strapi-plugin-tiptap-editor`)
-  - Plain `string[]` paragraph arrays (fallback/mock content)
-- **Tailwind CSS Theme Engine** — Built-in `TiptapBlockThemeDefault` with `theme={{ extend, overwrite }}` API matching `@sensinum/astro-strapi-blocks`.
-- **Pluggable Custom Astro Components** — Override any block renderer (`heading`, `paragraph`, `quote`, `list`, `code`, `image`, `table`, `hr`) via the `blocks` prop.
-- **Strict URL & Attribute Sanitization** — Automatically strips `<script>`, `<iframe>`, `<object>`, `<embed>`, and blocks `javascript:`, `vbscript:`, and `data:` schemes on links and images while enforcing `rel="noopener noreferrer"` on `target="_blank"` links.
-
----
-
-## Requirements
-
-| Dependency | Version |
-| :--- | :--- |
-| `astro` | `^5.0.0 \|\| ^6.0.0 \|\| ^7.0.0` |
-| `tailwindcss` | `^3.0.0 \|\| ^4.0.0` *(optional — recommended for default theme classes)* |
-| Node.js | `>= 20` |
+- **Zero `set:html` / `innerHTML` Rendering** — Every block and inline mark is parsed into a typed `TiptapDocNode` AST and rendered through native Astro components (`{text}`).
+- **Full `@notum-cz/strapi-plugin-tiptap-editor` Feature Parity**:
+  - **Typography & Inline Marks**: `bold`, `italic`, `underline`, `strike`, `code`, `subscript` (`<sub>`), `superscript` (`<sup>`), `highlight` (with custom color), `link` (with `strapi://` internal link resolution), `textStyle` (`color`, `fontFamily`, `fontSize`, `lineHeight`), `abbr` (`<abbr title>`), `language` (`<span lang dir>`), inline `linker` chips, and inline `mathematics` formulas.
+  - **Headings & Lead Paragraphs**: `heading` (`h1`–`h6` with automatic slug `id` generation and SEO `tag` override from `BaseHeadingWithSEOTag`) and `leadParagraph` (`data-lead="true"`).
+  - **Callouts & Accordions**: `informationPane` (`info`, `success`, `warning`, `danger`, `neutral`, `tip`), `conversationHistory` (author & timestamp), and collapsible `details` (`detailsSummary` + `detailsContent`).
+  - **Multi-Column Layouts**: `layoutContainer` and `layoutColumn` with configurable column ratios (`1:1`, `1:1:1`, `2:1`, `1:2`, `1:1:1:1`).
+  - **Lists & Checklists**: `bulletList`, `orderedList`, and `taskList` (`taskItem` with interactive-styled read-only checkboxes).
+  - **Media & Sandboxed Embeds**: `image` (with `caption`, `data-align`, `data-asset-id`, `data-document-id`), `video` (YouTube/Vimeo embeds & `<video controls>`), `audio` (`<audio controls>`), `attachment` (downloadable file card with formatted size & badge), and HTTPS-only sandboxed `iframe` (with optional `allowedIframeDomains` allowlist).
+  - **Mathematics, TOC & Page Breaks**: Display/inline `mathematics` (`role="math"` with Unicode formula preview), auto-populated `tableOfContents`, and `pageBreak`.
+  - **Advanced Tables**: `table`, `tableRow`, `tableHeader`, and `tableCell` supporting `colspan`, `rowspan`, `colwidth`, and sanitized `backgroundColor`.
+- **3-Format Input Normalization** — Seamlessly accepts ProseMirror JSON (`TiptapDocNode` or JSON string), Tiptap HTML strings, Tiptap/Strapi Markdown strings (including lossless `<!-- tiptap-node:{...} -->` metadata comments), or `string[]` fallback arrays.
+- **Strapi Relation Extraction** — Includes `extractRelationsFromTiptap()`, `parseStrapiLinkUri()`, `formatStrapiLinkUri()`, and `resolveStrapiLinkHref()` to inspect referenced Strapi Media Library assets and internal content links.
 
 ---
 
@@ -54,61 +29,12 @@ Render **Tiptap / ProseMirror** rich text content (including [`@notum-cz/strapi-
 pnpm add @vicacha-devs/astro-tiptap-blocks
 ```
 
-If using **Tailwind CSS**, ensure Tailwind scans the package's default theme classes:
-
 ### Tailwind CSS v4 (`@tailwindcss/vite`)
 
 ```css
 /* src/styles/global.css */
 @import "tailwindcss";
 @source "../../node_modules/@vicacha-devs/astro-tiptap-blocks/src/**/*.{astro,ts}";
-```
-
-### Tailwind CSS v3 (`tailwind.config.mjs`)
-
-```js
-export default {
-  content: [
-    "./src/**/*.{astro,html,js,jsx,md,mdx,ts,tsx}",
-    "./node_modules/@vicacha-devs/astro-tiptap-blocks/src/**/*.{astro,ts}",
-  ],
-};
-```
-
----
-
-## Architecture
-
-```text
-src/
-├── index.ts                              # Package entrypoint (exports TiptapBlocks, lib, types)
-├── index.d.ts                            # TypeScript declarations
-├── components/
-│   ├── TiptapBlocks.astro                # Root orchestrator component
-│   └── blocks/
-│       ├── TiptapBlockCustom.astro       # Dynamic custom block wrapper
-│       ├── TiptapBlockHeading.astro      # <h1> – <h6> renderer
-│       ├── TiptapBlockParagraph.astro    # <p> renderer
-│       ├── TiptapBlockQuote.astro        # <blockquote> renderer
-│       ├── TiptapBlockList.astro         # <ul> / <ol> renderer (with nested list support)
-│       ├── TiptapBlockCode.astro         # <pre><code> renderer with per-line spans
-│       ├── TiptapBlockImage.astro        # <figure><img><figcaption> renderer
-│       ├── TiptapBlockTable.astro        # <table><thead><tbody> renderer
-│       ├── TiptapBlockHr.astro           # <hr /> renderer
-│       └── items/
-│           ├── TiptapInlineNodes.astro   # Dispatches text, link, and hardBreak nodes
-│           ├── TiptapTextItem.astro      # Renders bold, italic, underline, strike, code, highlight
-│           └── TiptapLinkItem.astro      # Renders sanitized <a> tags with rel="noopener noreferrer"
-├── lib/
-│   ├── parser.ts                         # Normalizes JSON, HTML, or string[] into TiptapDocNode
-│   ├── html-parser.ts                    # Pure TypeScript HTML-to-ProseMirror AST parser
-│   ├── sanitize.ts                       # URL protocol validator & HTML entity decoder
-│   └── theme.ts                          # TiptapBlockThemeDefault & buildThemeObject()
-└── types/
-    ├── common.ts                         # DeepPartial<T> utility type
-    ├── custom.ts                         # TiptapBlockUserComponents
-    ├── theme.ts                          # TiptapBlockTheme & TiptapBlockUserTheme
-    └── tiptap.ts                         # ProseMirror / Tiptap AST node & mark types
 ```
 
 ---
@@ -119,19 +45,41 @@ src/
 ---
 import { TiptapBlocks } from "@vicacha-devs/astro-tiptap-blocks";
 
-const articleContent = `
-  <h2>Welcome to Our Community</h2>
-  <p>We provide <strong>daily educational programs</strong> and <a href="/services">community services</a>.</p>
-  <ul>
-    <li>Guided visits</li>
-    <li>Cultural dialogue</li>
-  </ul>
-`;
+const articleContent = {
+  type: "doc",
+  content: [
+    { type: "tableOfContents" },
+    {
+      type: "leadParagraph",
+      content: [{ type: "text", text: "Executive summary of our new release." }],
+    },
+    {
+      type: "heading",
+      attrs: { level: 2, tag: "h2" },
+      content: [{ type: "text", text: "Key Highlights" }],
+    },
+    {
+      type: "informationPane",
+      attrs: { variant: "tip", title: "Pro Tip" },
+      content: [
+        {
+          type: "paragraph",
+          content: [{ type: "text", text: "Works with JSON, HTML, and Markdown!" }],
+        },
+      ],
+    },
+  ],
+};
 ---
 
-<TiptapBlocks data={articleContent} />
+<TiptapBlocks
+  data={articleContent}
+  allowedIframeDomains={["youtube.com", "player.vimeo.com", "openstreetmap.org"]}
+  resolveInternalLink={({ collectionName, documentId }) =>
+    `/blog/${collectionName.split(".").pop()}/${documentId}`
+  }
+/>
 ```
-
 ---
 
 ## Supported Input Formats
@@ -261,10 +209,16 @@ import CustomCalloutQuote from "./CustomCalloutQuote.astro";
 import {
   parseTiptapContent,
   parseTiptapHtml,
+  parseTiptapMarkdown,
+  extractRelationsFromTiptap,
+  parseStrapiLinkUri,
+  formatStrapiLinkUri,
+  resolveStrapiLinkHref,
   sanitizeTiptapUrl,
+  sanitizeTiptapIframeUrl,
+  sanitizeCssColor,
+  buildSafeInlineStyle,
   buildThemeObject,
-  getPropertyClass,
-  renderPropertyClasses,
   TiptapBlockThemeDefault,
 } from "@vicacha-devs/astro-tiptap-blocks";
 ```

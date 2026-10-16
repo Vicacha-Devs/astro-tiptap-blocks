@@ -1,109 +1,130 @@
 import type {
-  TiptapBlockNode,
-  TiptapContentInput,
-  TiptapDocNode,
-  TiptapInlineNode,
-  TiptapMark,
+  TiptapBlockNode, TiptapContentInput, TiptapDocNode, TiptapHeadingLevel,
+  TiptapInlineNode, TiptapMark, TiptapParserOptions, TiptapTocHeadingItem,
 } from "../types";
 import { parseTiptapHtml } from "./html-parser";
-import { sanitizeTiptapUrl } from "./sanitize";
+import { isLikelyMarkdown, parseTiptapMarkdown } from "./markdown-parser";
+import { resolveStrapiLinkHref } from "./relations";
+import {
+  sanitizeCssColor, sanitizeTextStyleAttrs, sanitizeTiptapIframeUrl, sanitizeTiptapUrl, slugifyHeadingText,
+} from "./sanitize";
 
-const sanitizeMarks = (marks?: TiptapMark[]): TiptapMark[] | undefined => {
-  if (!Array.isArray(marks) || marks.length === 0) {
-    return undefined;
-  }
-  return marks.map((mark) => {
+const extractInlineText = (nodes?: TiptapInlineNode[]): string =>
+  (nodes ?? []).map((n) => (n.type === "text" ? n.text : n.type === "linker" ? n.attrs.label || "" : "")).join("");
+
+const sanitizeMarks = (marks?: TiptapMark[], options?: TiptapParserOptions): TiptapMark[] | undefined => {
+  if (!Array.isArray(marks) || marks.length === 0) return undefined;
+  const result: TiptapMark[] = [];
+  for (const mark of marks) {
+    if (!mark || typeof mark !== "object" || !("type" in mark)) continue;
     if (mark.type === "link") {
-      return {
-        ...mark,
-        attrs: {
-          ...mark.attrs,
-          href: sanitizeTiptapUrl(mark.attrs?.href),
-        },
-      };
+      result.push({ ...mark, attrs: { ...mark.attrs, href: resolveStrapiLinkHref({ href: mark.attrs?.href }, options?.resolveInternalLink) } });
+    } else if (mark.type === "highlight") {
+      const color = sanitizeCssColor(mark.attrs?.color);
+      result.push({ type: "highlight", ...(color ? { attrs: { color } } : {}) });
+    } else if (mark.type === "textStyle") {
+      const safeAttrs = sanitizeTextStyleAttrs(mark.attrs);
+      if (safeAttrs) result.push({ type: "textStyle", attrs: safeAttrs });
+    } else {
+      result.push(mark);
     }
-    return mark;
-  });
+  }
+  return result.length > 0 ? result : undefined;
 };
 
-const sanitizeInlineNodes = (nodes?: TiptapInlineNode[]): TiptapInlineNode[] => {
-  if (!Array.isArray(nodes)) {
-    return [];
-  }
-  return nodes
-    .filter((node): node is TiptapInlineNode => Boolean(node && typeof node === "object" && "type" in node))
-    .map((node) => {
-      if (node.type === "text") {
-        const marks = sanitizeMarks(node.marks);
-        return {
-          type: "text",
-          text: typeof node.text === "string" ? node.text : "",
-          ...(marks ? { marks } : {}),
-        };
-      }
-      return { type: "hardBreak" };
-    });
-};
-
-const sanitizeBlockNodes = (nodes?: TiptapBlockNode[]): TiptapBlockNode[] => {
-  if (!Array.isArray(nodes)) {
-    return [];
-  }
-  const result: TiptapBlockNode[] = [];
-
+const sanitizeInlineNodes = (nodes?: TiptapInlineNode[], options?: TiptapParserOptions): TiptapInlineNode[] => {
+  if (!Array.isArray(nodes)) return [];
+  const result: TiptapInlineNode[] = [];
   for (const node of nodes) {
-    if (!node || typeof node !== "object" || !("type" in node)) {
-      continue;
+    if (!node || typeof node !== "object" || !("type" in node)) continue;
+    if (node.type === "text") {
+      const marks = sanitizeMarks(node.marks, options);
+      result.push({ type: "text", text: typeof node.text === "string" ? node.text : "", ...(marks ? { marks } : {}) });
+    } else if (node.type === "hardBreak") {
+      result.push({ type: "hardBreak" });
+    } else if (node.type === "linker") {
+      const href = resolveStrapiLinkHref(node.attrs || {}, options?.resolveInternalLink);
+      result.push({ ...node, attrs: { ...node.attrs, href } });
+    } else if (node.type === "mathematics") {
+      result.push({ type: "mathematics", attrs: { latex: String(node.attrs?.latex ?? ""), displayMode: node.attrs?.displayMode ?? "inline" } });
     }
+  }
+  return result;
+};
+
+const sanitizeBlockNodes = (nodes?: TiptapBlockNode[], options?: TiptapParserOptions): TiptapBlockNode[] => {
+  if (!Array.isArray(nodes)) return [];
+  const result: TiptapBlockNode[] = [];
+  for (const node of nodes) {
+    if (!node || typeof node !== "object" || !("type" in node)) continue;
     switch (node.type) {
-      case "heading":
-        result.push({
-          ...node,
-          attrs: { level: node.attrs?.level ?? 2, textAlign: node.attrs?.textAlign },
-          content: sanitizeInlineNodes(node.content),
-        });
+      case "heading": {
+        const content = sanitizeInlineNodes(node.content, options);
+        const level = (node.attrs?.level ?? 2) as TiptapHeadingLevel;
+        const rawText = extractInlineText(content);
+        const id = node.attrs?.id || (rawText ? slugifyHeadingText(rawText) : null);
+        result.push({ ...node, attrs: { ...node.attrs, level, ...(id ? { id } : {}) }, content });
         break;
+      }
       case "paragraph":
-        result.push({
-          ...node,
-          content: sanitizeInlineNodes(node.content),
-        });
+      case "leadParagraph":
+        result.push({ ...node, content: sanitizeInlineNodes(node.content, options) });
         break;
       case "blockquote":
+      case "informationPane":
+      case "conversationHistory":
+        result.push({ ...node, content: sanitizeBlockNodes(node.content, options) });
+        break;
+      case "details":
         result.push({
           ...node,
-          content: sanitizeBlockNodes(node.content),
+          content: (node.content ?? []).map((child) => {
+            if (child.type === "detailsSummary") return { type: "detailsSummary" as const, content: sanitizeInlineNodes(child.content, options) };
+            if (child.type === "detailsContent") return { type: "detailsContent" as const, content: sanitizeBlockNodes(child.content, options) };
+            return sanitizeBlockNodes([child], options)[0];
+          }).filter(Boolean),
         });
+        break;
+      case "layoutContainer":
+        result.push({ ...node, content: (node.content ?? []).map((col) => ({ type: "layoutColumn", content: sanitizeBlockNodes(col.content, options) })) });
         break;
       case "bulletList":
       case "orderedList":
-        result.push({
-          ...node,
-          content: (node.content ?? []).map((item) => ({
-            type: "listItem",
-            content: sanitizeBlockNodes(item.content),
-          })),
-        });
+        result.push({ ...node, content: (node.content ?? []).map((item) => ({ type: "listItem", content: sanitizeBlockNodes(item.content, options) })) });
+        break;
+      case "taskList":
+        result.push({ ...node, content: (node.content ?? []).map((item) => ({ type: "taskItem", attrs: { checked: Boolean(item.attrs?.checked) }, content: sanitizeBlockNodes(item.content, options) })) });
         break;
       case "codeBlock":
-        result.push({
-          ...node,
-          content: sanitizeInlineNodes(node.content) as Extract<TiptapInlineNode, { type: "text" }>[],
-        });
+        result.push({ ...node, content: sanitizeInlineNodes(node.content, options).filter((n) => n.type === "text") });
         break;
-      case "image": {
+      case "image":
+      case "video":
+      case "audio": {
         const safeSrc = sanitizeTiptapUrl(node.attrs?.src);
-        if (safeSrc !== "#") {
-          result.push({
-            ...node,
-            attrs: {
-              ...node.attrs,
-              src: safeSrc,
-            },
-          });
-        }
+        if (safeSrc !== "#") result.push({ ...node, attrs: { ...node.attrs, src: safeSrc } } as TiptapBlockNode);
         break;
       }
+      case "attachment": {
+        const safeHref = sanitizeTiptapUrl(node.attrs?.href);
+        if (safeHref !== "#") result.push({ ...node, attrs: { ...node.attrs, href: safeHref } });
+        break;
+      }
+      case "iframe": {
+        const safeSrc = sanitizeTiptapIframeUrl(node.attrs?.src, options?.allowedIframeDomains);
+        if (safeSrc !== "#") result.push({ ...node, attrs: { ...node.attrs, src: safeSrc } });
+        break;
+      }
+      case "mathematics":
+        result.push({ type: "mathematics", attrs: { latex: String(node.attrs?.latex ?? ""), displayMode: node.attrs?.displayMode ?? "block" } });
+        break;
+      case "tableOfContents":
+        result.push({ ...node });
+        break;
+      case "pageBreak":
+      case "horizontalRule":
+        result.push({ type: node.type });
+        break;
       case "table":
         result.push({
           ...node,
@@ -111,85 +132,62 @@ const sanitizeBlockNodes = (nodes?: TiptapBlockNode[]): TiptapBlockNode[] => {
             type: "tableRow",
             content: (row.content ?? []).map((cell) => ({
               ...cell,
-              content: sanitizeBlockNodes(cell.content),
+              attrs: { ...cell.attrs, backgroundColor: sanitizeCssColor(cell.attrs?.backgroundColor) },
+              content: sanitizeBlockNodes(cell.content, options),
             })),
           })),
         });
-        break;
-      case "horizontalRule":
-        result.push({ type: "horizontalRule" });
         break;
     }
   }
   return result;
 };
 
-/**
- * Normalizes any Tiptap input (ProseMirror JSON AST, JSON string, HTML string, or string[] paragraphs)
- * into a validated, sanitized `TiptapDocNode` AST ready for `<TiptapBlocks />`.
- */
-export const parseTiptapContent = (input: TiptapContentInput): TiptapDocNode => {
-  if (!input) {
-    return { type: "doc", content: [] };
-  }
-
-  if (Array.isArray(input)) {
-    // Either TiptapBlockNode[] or string[]
-    if (input.length === 0) {
-      return { type: "doc", content: [] };
+const populateTocBlocks = (blocks: TiptapBlockNode[]): TiptapBlockNode[] => {
+  const headings: TiptapTocHeadingItem[] = [];
+  for (const b of blocks) {
+    if (b.type === "heading") {
+      const text = extractInlineText(b.content).trim();
+      if (text) headings.push({ id: b.attrs?.id || slugifyHeadingText(text), text, level: b.attrs?.level ?? 2 });
     }
+  }
+  return blocks.map((b) =>
+    b.type === "tableOfContents" && (!b.attrs?.headings || b.attrs.headings.length === 0)
+      ? { ...b, attrs: { ...b.attrs, headings } }
+      : b
+  );
+};
+
+export const parseTiptapContent = (input: TiptapContentInput, options?: TiptapParserOptions): TiptapDocNode => {
+  if (!input) return { type: "doc", content: [] };
+  if (Array.isArray(input)) {
+    if (input.length === 0) return { type: "doc", content: [] };
     if (typeof input[0] === "string") {
       return {
         type: "doc",
-        content: (input as string[])
-          .filter((paragraph) => typeof paragraph === "string" && paragraph.trim().length > 0)
-          .map((paragraph) => ({
-            type: "paragraph",
-            content: [{ type: "text", text: paragraph }],
-          })),
+        content: (input as string[]).filter((p) => typeof p === "string" && p.trim().length > 0).map((p) => ({ type: "paragraph", content: [{ type: "text", text: p }] })),
       };
     }
-    return {
-      type: "doc",
-      content: sanitizeBlockNodes(input as TiptapBlockNode[]),
-    };
+    return { type: "doc", content: populateTocBlocks(sanitizeBlockNodes(input as TiptapBlockNode[], options)) };
   }
-
   if (typeof input === "object" && "type" in input && input.type === "doc") {
-    return {
-      type: "doc",
-      content: sanitizeBlockNodes(input.content),
-    };
+    return { type: "doc", content: populateTocBlocks(sanitizeBlockNodes(input.content, options)) };
   }
-
   if (typeof input === "string") {
     const trimmed = input.trim();
-    if (!trimmed) {
-      return { type: "doc", content: [] };
-    }
+    if (!trimmed) return { type: "doc", content: [] };
     if (trimmed.startsWith("{") || trimmed.startsWith("[")) {
-      try {
-        const parsed = JSON.parse(trimmed);
-        return parseTiptapContent(parsed);
-      } catch {
-        // Fall through to HTML/plain text parsing
-      }
+      try { return parseTiptapContent(JSON.parse(trimmed), options); } catch { /* fall through */ }
     }
-    if (trimmed.includes("<") && trimmed.includes(">")) {
-      return parseTiptapHtml(trimmed);
+    if (trimmed.startsWith("<") && !/^<!--\s*(?:pagebreak|toc|tiptap-node:)/i.test(trimmed) && !trimmed.includes("<!-- tiptap-node:")) {
+      return parseTiptapContent(parseTiptapHtml(trimmed), options);
     }
+    if (isLikelyMarkdown(trimmed)) return parseTiptapContent(parseTiptapMarkdown(trimmed), options);
+    if (trimmed.includes("<") && trimmed.includes(">")) return parseTiptapContent(parseTiptapHtml(trimmed), options);
     return {
       type: "doc",
-      content: trimmed
-        .split(/\n{2,}/)
-        .map((p) => p.trim())
-        .filter(Boolean)
-        .map((text) => ({
-          type: "paragraph",
-          content: [{ type: "text", text }],
-        })),
+      content: trimmed.split(/\n{2,}/).map((p) => p.trim()).filter(Boolean).map((text) => ({ type: "paragraph", content: [{ type: "text", text }] })),
     };
   }
-
   return { type: "doc", content: [] };
 };

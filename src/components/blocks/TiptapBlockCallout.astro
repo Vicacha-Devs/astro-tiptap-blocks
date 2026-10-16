@@ -1,0 +1,82 @@
+---
+import { getPropertyClass, renderPropertyClasses } from "../../lib/theme";
+import type {
+  TiptapBlockTheme,
+  TiptapConversationHistoryNode,
+  TiptapInformationPaneNode,
+  TiptapInformationPaneVariant,
+} from "../../types";
+import TiptapNestedBlocks from "./items/TiptapNestedBlocks.astro";
+
+type CalloutProps = (TiptapInformationPaneNode | TiptapConversationHistoryNode) & {
+  theme: TiptapBlockTheme;
+};
+
+interface Props extends CalloutProps {}
+
+const props = Astro.props;
+const { theme, content = [] } = props;
+const isConversation = props.type === "conversationHistory";
+
+const validVariants = new Set<TiptapInformationPaneVariant>([
+  "info",
+  "success",
+  "warning",
+  "danger",
+  "neutral",
+  "tip",
+]);
+const rawVariant = !isConversation ? props.attrs?.variant : null;
+const variant: TiptapInformationPaneVariant =
+  rawVariant && validVariants.has(rawVariant) ? rawVariant : "info";
+const paneTitle = !isConversation ? props.attrs?.title : null;
+const paneClass = !isConversation ? renderPropertyClasses(theme.informationPane, variant) : "";
+const paneTitleClass = getPropertyClass(theme.informationPane.title);
+const paneBodyClass = getPropertyClass(theme.informationPane.body);
+
+const author = isConversation ? props.attrs?.author : null;
+const timestamp = isConversation ? props.attrs?.timestamp : null;
+const convClass = isConversation ? renderPropertyClasses(theme.conversationHistory) : "";
+const convHeaderClass = getPropertyClass(theme.conversationHistory.header);
+const convAuthorClass = getPropertyClass(theme.conversationHistory.author);
+const convTimeClass = getPropertyClass(theme.conversationHistory.timestamp);
+const convBodyClass = getPropertyClass(theme.conversationHistory.body);
+---
+
+{
+  isConversation ? (
+    <div
+      data-type="conversation-history"
+      data-author={author || undefined}
+      data-timestamp={timestamp || undefined}
+      class:list={[convClass || undefined]}
+    >
+      {(author || timestamp) && (
+        <div class:list={[convHeaderClass || undefined]}>
+          {author && <span class:list={[convAuthorClass || undefined]}>{author}</span>}
+          {timestamp && <time class:list={[convTimeClass || undefined]}>{timestamp}</time>}
+        </div>
+      )}
+      <div class:list={[convBodyClass || undefined]}>
+        <TiptapNestedBlocks blocks={content} theme={theme} />
+      </div>
+    </div>
+  ) : (
+    <aside
+      role="note"
+      data-type="information-pane"
+      data-variant={variant}
+      data-title={paneTitle || undefined}
+      class:list={[paneClass || undefined]}
+    >
+      {paneTitle && (
+        <strong data-type="pane-title" class:list={[paneTitleClass || undefined]}>
+          {paneTitle}
+        </strong>
+      )}
+      <div class:list={[paneBodyClass || undefined]}>
+        <TiptapNestedBlocks blocks={content} theme={theme} />
+      </div>
+    </aside>
+  )
+}

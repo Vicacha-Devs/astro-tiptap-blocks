@@ -1,31 +1,21 @@
 ---
 import { renderPropertyClasses } from "../../lib/theme";
 import type { TiptapBlockquoteNode, TiptapBlockTheme } from "../../types";
-import TiptapBlockParagraph from "./TiptapBlockParagraph.astro";
-import TiptapInlineNodes from "./items/TiptapInlineNodes.astro";
+import TiptapNestedBlocks from "./items/TiptapNestedBlocks.astro";
 
 interface Props extends TiptapBlockquoteNode {
   theme: TiptapBlockTheme;
 }
 
-const { content = [], theme } = Astro.props;
+const { attrs, content = [], theme } = Astro.props;
 const quoteClass = renderPropertyClasses(theme.quote);
+const textAlignStyle =
+  attrs?.textAlign && ["left", "center", "right", "justify"].includes(attrs.textAlign)
+    ? `text-align: ${attrs.textAlign}`
+    : undefined;
+const dirAttr = attrs?.dir || undefined;
 ---
 
-<blockquote class:list={[quoteClass || undefined]}>
-  {
-    content.map((childBlock) => {
-      if (childBlock.type === "paragraph") {
-        return <TiptapBlockParagraph {...childBlock} theme={theme} />;
-      }
-      if ("content" in childBlock && Array.isArray(childBlock.content)) {
-        return (
-          <p>
-            <TiptapInlineNodes nodes={childBlock.content as any} theme={theme.paragraph} />
-          </p>
-        );
-      }
-      return null;
-    })
-  }
+<blockquote dir={dirAttr} style={textAlignStyle} class:list={[quoteClass || undefined]}>
+  <TiptapNestedBlocks blocks={content} theme={theme} />
 </blockquote>

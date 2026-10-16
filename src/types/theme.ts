@@ -24,14 +24,56 @@ export interface TiptapBlockThemeParagraph extends TiptapBlockThemeProperty {
   strikethrough: TiptapBlockThemePropertyValue;
   code: TiptapBlockThemePropertyValue;
   highlight: TiptapBlockThemePropertyValue;
+  subscript: TiptapBlockThemePropertyValue;
+  superscript: TiptapBlockThemePropertyValue;
+  abbr: TiptapBlockThemePropertyValue;
+  language: TiptapBlockThemePropertyValue;
+  linker: TiptapBlockThemePropertyValue;
+  mathInline: TiptapBlockThemePropertyValue;
 }
 
+export interface TiptapBlockThemeLeadParagraph extends TiptapBlockThemeProperty {}
+
 export interface TiptapBlockThemeQuote extends TiptapBlockThemeProperty {}
+
+export interface TiptapBlockThemeInformationPane extends TiptapBlockThemeProperty {
+  info: TiptapBlockThemePropertyValue;
+  success: TiptapBlockThemePropertyValue;
+  warning: TiptapBlockThemePropertyValue;
+  danger: TiptapBlockThemePropertyValue;
+  neutral: TiptapBlockThemePropertyValue;
+  tip: TiptapBlockThemePropertyValue;
+  title: TiptapBlockThemePropertyValue;
+  body: TiptapBlockThemePropertyValue;
+}
+
+export interface TiptapBlockThemeConversationHistory extends TiptapBlockThemeProperty {
+  header: TiptapBlockThemePropertyValue;
+  author: TiptapBlockThemePropertyValue;
+  timestamp: TiptapBlockThemePropertyValue;
+  body: TiptapBlockThemePropertyValue;
+}
+
+export interface TiptapBlockThemeDetails extends TiptapBlockThemeProperty {
+  summary: TiptapBlockThemePropertyValue;
+  content: TiptapBlockThemePropertyValue;
+}
+
+export interface TiptapBlockThemeColumns extends TiptapBlockThemeProperty {
+  column: TiptapBlockThemePropertyValue;
+}
 
 export interface TiptapBlockThemeList extends TiptapBlockThemeProperty {
   ordered: TiptapBlockThemePropertyValue;
   unordered: TiptapBlockThemePropertyValue;
   item: TiptapBlockThemePropertyValue;
+}
+
+export interface TiptapBlockThemeTaskList extends TiptapBlockThemeProperty {
+  item: TiptapBlockThemePropertyValue;
+  checkbox: TiptapBlockThemePropertyValue;
+  content: TiptapBlockThemePropertyValue;
+  checked: TiptapBlockThemePropertyValue;
 }
 
 export interface TiptapBlockThemeCode extends TiptapBlockThemeProperty {
@@ -42,6 +84,41 @@ export interface TiptapBlockThemeImage extends TiptapBlockThemeProperty {
   image: TiptapBlockThemePropertyValue;
   caption: TiptapBlockThemePropertyValue;
 }
+
+export interface TiptapBlockThemeVideo extends TiptapBlockThemeProperty {
+  video: TiptapBlockThemePropertyValue;
+  iframe: TiptapBlockThemePropertyValue;
+  caption: TiptapBlockThemePropertyValue;
+}
+
+export interface TiptapBlockThemeAudio extends TiptapBlockThemeProperty {
+  audio: TiptapBlockThemePropertyValue;
+  caption: TiptapBlockThemePropertyValue;
+}
+
+export interface TiptapBlockThemeAttachment extends TiptapBlockThemeProperty {
+  badge: TiptapBlockThemePropertyValue;
+  title: TiptapBlockThemePropertyValue;
+  meta: TiptapBlockThemePropertyValue;
+  button: TiptapBlockThemePropertyValue;
+}
+
+export interface TiptapBlockThemeIframe extends TiptapBlockThemeProperty {
+  iframe: TiptapBlockThemePropertyValue;
+}
+
+export interface TiptapBlockThemeMathematics extends TiptapBlockThemeProperty {
+  formula: TiptapBlockThemePropertyValue;
+}
+
+export interface TiptapBlockThemeTableOfContents extends TiptapBlockThemeProperty {
+  title: TiptapBlockThemePropertyValue;
+  list: TiptapBlockThemePropertyValue;
+  item: TiptapBlockThemePropertyValue;
+  link: TiptapBlockThemePropertyValue;
+}
+
+export interface TiptapBlockThemePageBreak extends TiptapBlockThemeProperty {}
 
 export interface TiptapBlockThemeTable extends TiptapBlockThemeProperty {
   head: TiptapBlockThemePropertyValue;
@@ -57,10 +134,23 @@ export interface TiptapBlockTheme {
   default: TiptapBlockThemePropertyValue;
   heading: TiptapBlockThemeHeading;
   paragraph: TiptapBlockThemeParagraph;
+  leadParagraph: TiptapBlockThemeLeadParagraph;
   quote: TiptapBlockThemeQuote;
+  informationPane: TiptapBlockThemeInformationPane;
+  conversationHistory: TiptapBlockThemeConversationHistory;
+  details: TiptapBlockThemeDetails;
+  columns: TiptapBlockThemeColumns;
   list: TiptapBlockThemeList;
+  taskList: TiptapBlockThemeTaskList;
   code: TiptapBlockThemeCode;
   image: TiptapBlockThemeImage;
+  video: TiptapBlockThemeVideo;
+  audio: TiptapBlockThemeAudio;
+  attachment: TiptapBlockThemeAttachment;
+  iframe: TiptapBlockThemeIframe;
+  mathematics: TiptapBlockThemeMathematics;
+  tableOfContents: TiptapBlockThemeTableOfContents;
+  pageBreak: TiptapBlockThemePageBreak;
   table: TiptapBlockThemeTable;
   hr: TiptapBlockThemeHr;
 }

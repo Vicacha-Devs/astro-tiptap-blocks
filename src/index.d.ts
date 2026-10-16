@@ -1,5 +1,10 @@
 import type { AstroComponentFactory } from "astro/runtime/server/index.js";
-import type { TiptapBlockUserComponents, TiptapBlockUserTheme, TiptapContentInput } from "./types";
+import type {
+  TiptapBlockUserComponents,
+  TiptapBlockUserTheme,
+  TiptapContentInput,
+  TiptapInternalLinkResolver,
+} from "./types";
 
 export * from "./lib";
 export * from "./types";
@@ -9,6 +14,8 @@ export interface TiptapBlocksProps {
   theme?: TiptapBlockUserTheme;
   blocks?: TiptapBlockUserComponents;
   class?: string;
+  allowedIframeDomains?: ReadonlyArray<string>;
+  resolveInternalLink?: TiptapInternalLinkResolver;
 }
 
 export declare const TiptapBlocks: AstroComponentFactory;
