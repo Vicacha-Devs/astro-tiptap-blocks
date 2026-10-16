@@ -1,0 +1,95 @@
+---
+import { parseTiptapContent } from "../lib/parser";
+import { buildThemeObject, getPropertyClass, TiptapBlockThemeDefault } from "../lib/theme";
+import type {
+  TiptapBlockNode,
+  TiptapBlockThemeCustomComponents,
+  TiptapBlockUserComponents,
+  TiptapBlockUserTheme,
+  TiptapContentInput,
+} from "../types";
+
+import TiptapBlockCode from "./blocks/TiptapBlockCode.astro";
+import TiptapBlockCustom from "./blocks/TiptapBlockCustom.astro";
+import TiptapBlockHeading from "./blocks/TiptapBlockHeading.astro";
+import TiptapBlockHr from "./blocks/TiptapBlockHr.astro";
+import TiptapBlockImage from "./blocks/TiptapBlockImage.astro";
+import TiptapBlockList from "./blocks/TiptapBlockList.astro";
+import TiptapBlockParagraph from "./blocks/TiptapBlockParagraph.astro";
+import TiptapBlockQuote from "./blocks/TiptapBlockQuote.astro";
+import TiptapBlockTable from "./blocks/TiptapBlockTable.astro";
+
+interface Props {
+  data: TiptapContentInput;
+  theme?: TiptapBlockUserTheme;
+  blocks?: TiptapBlockUserComponents;
+  class?: string;
+}
+
+const { data, theme: userTheme, blocks: customBlocks = {}, class: className = "" } = Astro.props;
+
+const doc = parseTiptapContent(data);
+const theme = buildThemeObject(userTheme, TiptapBlockThemeDefault);
+const wrapperClass = [getPropertyClass(theme.default), className].filter(Boolean).join(" ").trim();
+
+const mapNodeTypeToThemeKey = (
+  nodeType: TiptapBlockNode["type"]
+): keyof TiptapBlockThemeCustomComponents => {
+  switch (nodeType) {
+    case "heading":
+      return "heading";
+    case "paragraph":
+      return "paragraph";
+    case "blockquote":
+      return "quote";
+    case "bulletList":
+    case "orderedList":
+      return "list";
+    case "codeBlock":
+      return "code";
+    case "image":
+      return "image";
+    case "table":
+      return "table";
+    case "horizontalRule":
+      return "hr";
+  }
+};
+---
+
+{
+  doc.content.length > 0 && (
+    <div class:list={[wrapperClass || undefined]}>
+      {doc.content.map((block) => {
+        const blockKey = mapNodeTypeToThemeKey(block.type);
+        const CustomBlock = customBlocks?.[blockKey];
+
+        if (CustomBlock) {
+          return <TiptapBlockCustom component={CustomBlock} {...block} theme={theme} />;
+        }
+
+        switch (block.type) {
+          case "heading":
+            return <TiptapBlockHeading {...block} theme={theme} />;
+          case "paragraph":
+            return <TiptapBlockParagraph {...block} theme={theme} />;
+          case "blockquote":
+            return <TiptapBlockQuote {...block} theme={theme} />;
+          case "bulletList":
+          case "orderedList":
+            return <TiptapBlockList {...block} theme={theme} />;
+          case "codeBlock":
+            return <TiptapBlockCode {...block} theme={theme} />;
+          case "image":
+            return <TiptapBlockImage {...block} theme={theme} />;
+          case "table":
+            return <TiptapBlockTable {...block} theme={theme} />;
+          case "horizontalRule":
+            return <TiptapBlockHr {...block} theme={theme} />;
+          default:
+            return null;
+        }
+      })}
+    </div>
+  )
+}

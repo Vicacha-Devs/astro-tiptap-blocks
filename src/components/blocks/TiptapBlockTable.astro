@@ -1,0 +1,83 @@
+---
+import { getPropertyClass, renderPropertyClasses } from "../../lib/theme";
+import type { TiptapBlockTheme, TiptapTableNode } from "../../types";
+import TiptapInlineNodes from "./items/TiptapInlineNodes.astro";
+
+interface Props extends TiptapTableNode {
+  theme: TiptapBlockTheme;
+}
+
+const { content = [], theme } = Astro.props;
+const tableClass = renderPropertyClasses(theme.table);
+const headClass = getPropertyClass(theme.table.head);
+const bodyClass = getPropertyClass(theme.table.body);
+const rowClass = getPropertyClass(theme.table.row);
+const headerCellClass = getPropertyClass(theme.table.headerCell);
+const cellClass = getPropertyClass(theme.table.cell);
+
+const hasHeaderRow =
+  content.length > 0 &&
+  (content[0].content || []).every((cell) => cell.type === "tableHeader");
+const headerRows = hasHeaderRow ? [content[0]] : [];
+const bodyRows = hasHeaderRow ? content.slice(1) : content;
+---
+
+<table class:list={[tableClass || undefined]}>
+  {
+    headerRows.length > 0 && (
+      <thead class:list={[headClass || undefined]}>
+        {headerRows.map((row) => (
+          <tr class:list={[rowClass || undefined]}>
+            {(row.content || []).map((cell) => (
+              <th
+                colspan={cell.attrs?.colspan || undefined}
+                rowspan={cell.attrs?.rowspan || undefined}
+                class:list={[headerCellClass || undefined]}
+              >
+                {(cell.content || []).map((block) =>
+                  block.type === "paragraph" ? (
+                    <TiptapInlineNodes
+                      nodes={block.content}
+                      theme={theme.paragraph}
+                    />
+                  ) : null
+                )}
+              </th>
+            ))}
+          </tr>
+        ))}
+      </thead>
+    )
+  }
+  {
+    bodyRows.length > 0 && (
+      <tbody class:list={[bodyClass || undefined]}>
+        {bodyRows.map((row) => (
+          <tr class:list={[rowClass || undefined]}>
+            {(row.content || []).map((cell) => {
+              const CellTag = cell.type === "tableHeader" ? "th" : "td";
+              const currentCellClass =
+                cell.type === "tableHeader" ? headerCellClass : cellClass;
+              return (
+                <CellTag
+                  colspan={cell.attrs?.colspan || undefined}
+                  rowspan={cell.attrs?.rowspan || undefined}
+                  class:list={[currentCellClass || undefined]}
+                >
+                  {(cell.content || []).map((block) =>
+                    block.type === "paragraph" ? (
+                      <TiptapInlineNodes
+                        nodes={block.content}
+                        theme={theme.paragraph}
+                      />
+                    ) : null
+                  )}
+                </CellTag>
+              );
+            })}
+          </tr>
+        ))}
+      </tbody>
+    )
+  }
+</table>

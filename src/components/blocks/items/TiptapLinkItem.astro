@@ -1,0 +1,32 @@
+---
+import { getPropertyClass } from "../../../lib/theme";
+import { sanitizeTiptapUrl } from "../../../lib/sanitize";
+import type { TiptapLinkMark, TiptapTextNode } from "../../../types/tiptap";
+import type { TiptapBlockThemeParagraph } from "../../../types/theme";
+import TiptapTextItem from "./TiptapTextItem.astro";
+
+interface Props extends TiptapTextNode {
+  linkMark: TiptapLinkMark;
+  theme: TiptapBlockThemeParagraph;
+}
+
+const { text, marks = [], linkMark, theme } = Astro.props;
+
+const safeHref = sanitizeTiptapUrl(linkMark.attrs?.href);
+const target = linkMark.attrs?.target || undefined;
+const rel =
+  target === "_blank"
+    ? linkMark.attrs?.rel || "noopener noreferrer"
+    : linkMark.attrs?.rel || undefined;
+const nonLinkMarks = marks.filter((m) => m.type !== "link");
+const linkClass = getPropertyClass(theme.link);
+---
+
+<a
+  href={safeHref}
+  target={target}
+  rel={rel}
+  class:list={[linkClass || undefined]}
+>
+  <TiptapTextItem type="text" text={text} marks={nonLinkMarks} theme={theme} />
+</a>

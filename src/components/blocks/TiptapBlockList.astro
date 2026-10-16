@@ -1,0 +1,71 @@
+---
+import { getPropertyClass, renderPropertyClasses } from "../../lib/theme";
+import type {
+  TiptapBlockTheme,
+  TiptapBulletListNode,
+  TiptapOrderedListNode,
+} from "../../types";
+import TiptapInlineNodes from "./items/TiptapInlineNodes.astro";
+
+type ListNode = TiptapBulletListNode | TiptapOrderedListNode;
+
+interface Props extends ListNode {
+  theme: TiptapBlockTheme;
+}
+
+const { type, attrs, content = [], theme } = Astro.props;
+const isOrdered = type === "orderedList";
+const ListTag = isOrdered ? "ol" : "ul";
+const listClass = renderPropertyClasses(
+  theme.list,
+  isOrdered ? "ordered" : "unordered"
+);
+const itemClass = getPropertyClass(theme.list.item);
+const startAttr =
+  isOrdered && attrs && "start" in attrs && attrs.start && attrs.start > 1
+    ? attrs.start
+    : undefined;
+---
+
+<ListTag start={startAttr} class:list={[listClass || undefined]}>
+  {
+    content.map((item) => (
+      <li class:list={[itemClass || undefined]}>
+        {(item.content || []).map((child) => {
+          if (child.type === "paragraph") {
+            return (
+              <TiptapInlineNodes
+                nodes={child.content}
+                theme={theme.paragraph}
+              />
+            );
+          }
+          if (child.type === "bulletList" || child.type === "orderedList") {
+            const SubListTag = child.type === "orderedList" ? "ol" : "ul";
+            const subListClass = renderPropertyClasses(
+              theme.list,
+              child.type === "orderedList" ? "ordered" : "unordered"
+            );
+            return (
+              <SubListTag class:list={[subListClass || undefined]}>
+                {(child.content || []).map((subItem) => (
+                  <li class:list={[itemClass || undefined]}>
+                    {(subItem.content || []).map((subChild) =>
+                      subChild.type === "paragraph" ? (
+                        <TiptapInlineNodes
+                          nodes={subChild.content}
+                          theme={theme.paragraph}
+                        />
+                      ) : null
+                    )}
+                  </li>
+                ))}
+              </SubListTag>
+            );
+          }
+          return null;
+        })}
+      </li>
+    ))
+  }
+</ListTag>

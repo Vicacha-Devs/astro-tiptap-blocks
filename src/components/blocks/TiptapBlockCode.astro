@@ -1,0 +1,21 @@
+---
+import { getPropertyClass, renderPropertyClasses } from "../../lib/theme";
+import type { TiptapBlockTheme, TiptapCodeBlockNode } from "../../types";
+
+interface Props extends TiptapCodeBlockNode {
+  theme: TiptapBlockTheme;
+}
+
+const { attrs, content = [], theme } = Astro.props;
+const language = attrs?.language || undefined;
+const preClassName = renderPropertyClasses(theme.code);
+const lineClassName = getPropertyClass(theme.code.line);
+const rawCode = content.map((node) => node.text).join("");
+const lines = rawCode ? rawCode.split("\n") : [];
+---
+
+<pre class:list={[preClassName || undefined]} data-language={language}>
+  <code class:list={[language ? `language-${language}` : undefined]}>
+    {lines.map((line) => <span class:list={[lineClassName || undefined]}>{line}{"\n"}</span>)}
+  </code>
+</pre>

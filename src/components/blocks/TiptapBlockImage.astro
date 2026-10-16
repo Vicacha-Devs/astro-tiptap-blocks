@@ -1,0 +1,34 @@
+---
+import { getPropertyClass, renderPropertyClasses } from "../../lib/theme";
+import { sanitizeTiptapUrl } from "../../lib/sanitize";
+import type { TiptapBlockTheme, TiptapImageNode } from "../../types";
+
+interface Props extends TiptapImageNode {
+  theme: TiptapBlockTheme;
+}
+
+const { attrs, theme } = Astro.props;
+const safeSrc = sanitizeTiptapUrl(attrs?.src);
+const alt = attrs?.alt || "";
+const title = attrs?.title || undefined;
+const figureClass = renderPropertyClasses(theme.image);
+const imgClass = getPropertyClass(theme.image.image);
+const captionClass = getPropertyClass(theme.image.caption);
+---
+
+{
+  safeSrc !== "#" && (
+    <figure class:list={[figureClass || undefined]}>
+      <img
+        src={safeSrc}
+        alt={alt}
+        title={title}
+        width={attrs?.width || undefined}
+        height={attrs?.height || undefined}
+        loading="lazy"
+        class:list={[imgClass || undefined]}
+      />
+      {title && <figcaption class:list={[captionClass || undefined]}>{title}</figcaption>}
+    </figure>
+  )
+}

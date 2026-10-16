@@ -1,0 +1,31 @@
+---
+import { renderPropertyClasses } from "../../lib/theme";
+import type { TiptapBlockquoteNode, TiptapBlockTheme } from "../../types";
+import TiptapBlockParagraph from "./TiptapBlockParagraph.astro";
+import TiptapInlineNodes from "./items/TiptapInlineNodes.astro";
+
+interface Props extends TiptapBlockquoteNode {
+  theme: TiptapBlockTheme;
+}
+
+const { content = [], theme } = Astro.props;
+const quoteClass = renderPropertyClasses(theme.quote);
+---
+
+<blockquote class:list={[quoteClass || undefined]}>
+  {
+    content.map((childBlock) => {
+      if (childBlock.type === "paragraph") {
+        return <TiptapBlockParagraph {...childBlock} theme={theme} />;
+      }
+      if ("content" in childBlock && Array.isArray(childBlock.content)) {
+        return (
+          <p>
+            <TiptapInlineNodes nodes={childBlock.content as any} theme={theme.paragraph} />
+          </p>
+        );
+      }
+      return null;
+    })
+  }
+</blockquote>

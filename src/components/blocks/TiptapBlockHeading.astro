@@ -1,0 +1,20 @@
+---
+import { renderPropertyClasses } from "../../lib/theme";
+import type { TiptapBlockTheme, TiptapHeadingLevel, TiptapHeadingNode } from "../../types";
+import TiptapInlineNodes from "./items/TiptapInlineNodes.astro";
+
+interface Props extends TiptapHeadingNode {
+  theme: TiptapBlockTheme;
+}
+
+const { attrs, content = [], theme } = Astro.props;
+const level: TiptapHeadingLevel =
+  attrs?.level && attrs.level >= 1 && attrs.level <= 6 ? attrs.level : 2;
+const Tag = `h${level}` as const;
+const headingKey = `h${level}` as keyof Omit<typeof theme.heading, "default">;
+const className = renderPropertyClasses(theme.heading, headingKey);
+---
+
+<Tag class:list={[className || undefined]}>
+  <TiptapInlineNodes nodes={content} theme={theme.paragraph} />
+</Tag>

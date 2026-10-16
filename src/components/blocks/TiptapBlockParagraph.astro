@@ -1,0 +1,16 @@
+---
+import { renderPropertyClasses } from "../../lib/theme";
+import type { TiptapBlockTheme, TiptapParagraphNode } from "../../types";
+import TiptapInlineNodes from "./items/TiptapInlineNodes.astro";
+
+interface Props extends TiptapParagraphNode {
+  theme: TiptapBlockTheme;
+}
+
+const { content = [], theme } = Astro.props;
+const className = renderPropertyClasses(theme.paragraph);
+---
+
+<p class:list={[className || undefined]}>
+  <TiptapInlineNodes nodes={content} theme={theme.paragraph} />
+</p>

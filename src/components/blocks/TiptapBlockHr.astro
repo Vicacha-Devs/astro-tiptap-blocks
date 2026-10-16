@@ -1,0 +1,13 @@
+---
+import { renderPropertyClasses } from "../../lib/theme";
+import type { TiptapBlockTheme, TiptapHorizontalRuleNode } from "../../types";
+
+interface Props extends TiptapHorizontalRuleNode {
+  theme: TiptapBlockTheme;
+}
+
+const { theme } = Astro.props;
+const className = renderPropertyClasses(theme.hr);
+---
+
+<hr class:list={[className || undefined]} />

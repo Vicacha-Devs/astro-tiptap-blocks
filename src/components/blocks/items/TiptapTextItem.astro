@@ -1,0 +1,57 @@
+---
+import { getPropertyClass } from "../../../lib/theme";
+import type { TiptapMark, TiptapTextNode } from "../../../types/tiptap";
+import type { TiptapBlockThemeParagraph } from "../../../types/theme";
+
+interface Props extends TiptapTextNode {
+  theme: TiptapBlockThemeParagraph;
+}
+
+const { text, marks = [], theme } = Astro.props;
+
+const hasMark = (markType: TiptapMark["type"]): boolean =>
+  marks.some((mark) => mark.type === markType);
+
+const isBold = hasMark("bold");
+const isItalic = hasMark("italic");
+const isUnderline = hasMark("underline");
+const isStrike = hasMark("strike");
+const isCode = hasMark("code");
+const isHighlight = hasMark("highlight");
+
+const activeClasses = [
+  isBold ? getPropertyClass(theme.bold) : "",
+  isItalic ? getPropertyClass(theme.italic) : "",
+  isUnderline ? getPropertyClass(theme.underline) : "",
+  isStrike ? getPropertyClass(theme.strikethrough) : "",
+  isCode ? getPropertyClass(theme.code) : "",
+  isHighlight ? getPropertyClass(theme.highlight) : "",
+]
+  .filter(Boolean)
+  .join(" ")
+  .trim();
+---
+
+{
+  isCode ? (
+    <code class:list={[activeClasses || undefined]}>{text}</code>
+  ) : isHighlight ? (
+    <mark class:list={[activeClasses || undefined]}>{text}</mark>
+  ) : isBold && isItalic ? (
+    <strong class:list={[activeClasses || undefined]}>
+      <em>{text}</em>
+    </strong>
+  ) : isBold ? (
+    <strong class:list={[activeClasses || undefined]}>{text}</strong>
+  ) : isItalic ? (
+    <em class:list={[activeClasses || undefined]}>{text}</em>
+  ) : isUnderline ? (
+    <u class:list={[activeClasses || undefined]}>{text}</u>
+  ) : isStrike ? (
+    <s class:list={[activeClasses || undefined]}>{text}</s>
+  ) : activeClasses ? (
+    <span class:list={[activeClasses]}>{text}</span>
+  ) : (
+    text
+  )
+}

@@ -1,0 +1,14 @@
+---
+import type { AstroComponentFactory } from "astro/runtime/server/index.js";
+
+interface Props {
+  component: AstroComponentFactory;
+  [key: string]: any;
+}
+
+const { component: CustomComponent, ...rest } = Astro.props;
+---
+
+<CustomComponent {...rest}>
+  <slot />
+</CustomComponent>

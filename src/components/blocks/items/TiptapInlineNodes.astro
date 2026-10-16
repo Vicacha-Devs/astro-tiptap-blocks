@@ -1,0 +1,28 @@
+---
+import type { TiptapInlineNode, TiptapLinkMark } from "../../../types/tiptap";
+import type { TiptapBlockThemeParagraph } from "../../../types/theme";
+import TiptapLinkItem from "./TiptapLinkItem.astro";
+import TiptapTextItem from "./TiptapTextItem.astro";
+
+interface Props {
+  nodes?: TiptapInlineNode[];
+  theme: TiptapBlockThemeParagraph;
+}
+
+const { nodes = [], theme } = Astro.props;
+---
+
+{
+  nodes.map((node) => {
+    if (node.type === "hardBreak") {
+      return <br />;
+    }
+    const linkMark = node.marks?.find(
+      (mark): mark is TiptapLinkMark => mark.type === "link"
+    );
+    if (linkMark) {
+      return <TiptapLinkItem {...node} linkMark={linkMark} theme={theme} />;
+    }
+    return <TiptapTextItem {...node} theme={theme} />;
+  })
+}

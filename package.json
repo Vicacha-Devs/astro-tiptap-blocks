@@ -1,0 +1,54 @@
+{
+  "name": "@vicacha-devs/astro-tiptap-blocks",
+  "version": "1.0.0",
+  "description": "Zero-JS Astro block components and themeable renderer for Tiptap & Strapi Tiptap Editor (JSON & HTML)",
+  "keywords": [
+    "astro",
+    "tiptap",
+    "prosemirror",
+    "strapi",
+    "blocks",
+    "rich-text",
+    "astro-component",
+    "withastro",
+    "tailwindcss"
+  ],
+  "type": "module",
+  "main": "./src/components/TiptapBlocks.astro",
+  "types": "./src/index.d.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./astro": "./src/components/TiptapBlocks.astro",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "src"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "check": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "astro": "^6.0.0 || ^7.0.0",
+    "typescript": "^5.7.2",
+    "vitest": "^4.1.9"
+  },
+  "peerDependencies": {
+    "astro": "^5.0.0 || ^6.0.0 || ^7.0.0"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Vicacha-Devs/astro-tiptap-blocks.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Vicacha-Devs/astro-tiptap-blocks/issues"
+  },
+  "homepage": "https://github.com/Vicacha-Devs/astro-tiptap-blocks#readme"
+}
