@@ -1,0 +1,62 @@
+---
+import { getPropertyClass, renderPropertyClasses, TiptapBlockThemeDefault } from "../../../lib/theme";
+import type { TiptapBlockTheme, TiptapCodeBlockNode, TiptapTextNode } from "../../../types";
+
+/**
+ * @component TiptapBlockCode
+ * @title Tiptap Block Code
+ * @description Renders a `<pre><code>` fenced code block with optional `data-language` / `language-*` class
+ * and per-line `<span>` wrappers for line-level styling.
+ *
+ * @preview
+ *
+ * <TiptapBlockCode attrs={{ language: "ts" }} content={[{ type: "text", text: "const x: number = 42;" }]} />
+ *
+ * @usage
+ *
+ * ```astro nocollapse
+ * ---
+ * import TiptapBlockCode from "@components/blocks/TiptapBlockCode/TiptapBlockCode.astro";
+ * ---
+ *
+ * <TiptapBlockCode
+ *   attrs={{ language: "typescript" }}
+ *   content={[{ type: "text", text: "export const hello = () => 'world';" }]}
+ * />
+ * ```
+ */
+export interface Props {
+  /**
+   * Discriminator node type.
+   * @default "codeBlock"
+   */
+  type?: TiptapCodeBlockNode["type"];
+  /**
+   * Code block attributes (`language` identifier, e.g. `"typescript"`, `"bash"`, `"json"`).
+   */
+  attrs?: TiptapCodeBlockNode["attrs"];
+  /**
+   * Plain text nodes containing the source code.
+   * @default []
+   */
+  content?: Array<TiptapTextNode>;
+  /**
+   * Resolved block theme object.
+   * @default TiptapBlockThemeDefault
+   */
+  theme?: TiptapBlockTheme;
+}
+
+const { type = "codeBlock", attrs, content = [], theme = TiptapBlockThemeDefault } = Astro.props;
+const language = attrs?.language || undefined;
+const preClassName = renderPropertyClasses(theme.code);
+const lineClassName = getPropertyClass(theme.code.line);
+const rawCode = content.map((node) => node.text).join("");
+const lines = rawCode ? rawCode.split("\n") : [];
+---
+
+<pre class:list={[preClassName || undefined]} data-language={language}>
+  <code class:list={[language ? `language-${language}` : undefined]}>
+    {lines.map((line) => <span class:list={[lineClassName || undefined]}>{line}{"\n"}</span>)}
+  </code>
+</pre>

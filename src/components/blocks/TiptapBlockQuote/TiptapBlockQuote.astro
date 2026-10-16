@@ -1,0 +1,61 @@
+---
+import { renderPropertyClasses, TiptapBlockThemeDefault } from "../../../lib/theme";
+import type { TiptapBlockBaseAttrs, TiptapBlockNode, TiptapBlockTheme } from "../../../types";
+import TiptapNestedBlocks from "../items/TiptapNestedBlocks/TiptapNestedBlocks.astro";
+
+/**
+ * @component TiptapBlockQuote
+ * @title Tiptap Block Quote
+ * @description Renders a semantic `<blockquote>` container supporting nested block elements
+ * (`paragraph`, `bulletList`, `orderedList`, etc.), text alignment, and directionality.
+ *
+ * @preview
+ *
+ * <TiptapBlockQuote content={[{ type: "paragraph", content: [{ type: "text", text: "Quoted passage." }] }]} />
+ *
+ * @usage
+ *
+ * ```astro nocollapse
+ * ---
+ * import TiptapBlockQuote from "@components/blocks/TiptapBlockQuote/TiptapBlockQuote.astro";
+ * ---
+ *
+ * <TiptapBlockQuote
+ *   content={[{ type: "paragraph", content: [{ type: "text", text: "Simplicity is prerequisite for reliability." }] }]}
+ * />
+ * ```
+ */
+export interface Props {
+  /**
+   * Discriminator node type.
+   * @default "blockquote"
+   */
+  type?: "blockquote";
+  /**
+   * Optional alignment and text direction attributes (`textAlign`, `dir`).
+   */
+  attrs?: TiptapBlockBaseAttrs;
+  /**
+   * Nested block nodes rendered inside the blockquote.
+   * @default []
+   */
+  content?: Array<TiptapBlockNode>;
+  /**
+   * Resolved block theme object.
+   * @default TiptapBlockThemeDefault
+   */
+  theme?: TiptapBlockTheme;
+}
+
+const { type = "blockquote", attrs, content = [], theme = TiptapBlockThemeDefault } = Astro.props;
+const quoteClass = renderPropertyClasses(theme.quote);
+const textAlignStyle =
+  attrs?.textAlign && ["left", "center", "right", "justify"].includes(attrs.textAlign)
+    ? `text-align: ${attrs.textAlign}`
+    : undefined;
+const dirAttr = attrs?.dir || undefined;
+---
+
+<blockquote dir={dirAttr} style={textAlignStyle} class:list={[quoteClass || undefined]}>
+  <TiptapNestedBlocks blocks={content} theme={theme} />
+</blockquote>

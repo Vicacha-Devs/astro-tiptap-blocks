@@ -1,0 +1,84 @@
+---
+import { resolveStrapiLinkHref } from "../../../../lib/relations";
+import { getPropertyClass, TiptapBlockThemeDefault } from "../../../../lib/theme";
+import type { TiptapBlockThemeParagraph } from "../../../../types/theme";
+import type { TiptapLinkMark, TiptapMark, TiptapTextNode } from "../../../../types/tiptap";
+import TiptapTextItem from "../TiptapTextItem/TiptapTextItem.astro";
+
+/**
+ * @component TiptapLinkItem
+ * @title Tiptap Link Item
+ * @description Renders a sanitized `<a>` hyperlink wrapping a `TiptapTextItem`.
+ * Automatically resolves `strapi://collectionName/documentId` URIs and enforces `rel="noopener noreferrer"` on `target="_blank"`.
+ *
+ * @preview
+ *
+ * <TiptapLinkItem
+ *   text="Astro Documentation"
+ *   linkMark={{ type: "link", attrs: { href: "https://docs.astro.build", target: "_blank" } }}
+ * />
+ *
+ * @usage
+ *
+ * ```astro nocollapse
+ * ---
+ * import TiptapLinkItem from "@components/blocks/items/TiptapLinkItem/TiptapLinkItem.astro";
+ * ---
+ *
+ * <TiptapLinkItem
+ *   text="Internal Article"
+ *   linkMark={{ type: "link", attrs: { href: "strapi://api::article.article/doc-99" } }}
+ * />
+ * ```
+ */
+export interface Props {
+  /**
+   * Discriminator node type.
+   * @default "text"
+   */
+  type?: TiptapTextNode["type"];
+  /**
+   * Link anchor text content.
+   */
+  text: string;
+  /**
+   * Optional additional inline marks (`bold`, `italic`, etc.) combined with the link.
+   * @default []
+   */
+  marks?: Array<TiptapMark>;
+  /**
+   * Link mark object containing `href`, `target`, `rel`, `title`, and `class` attributes.
+   */
+  linkMark: TiptapLinkMark;
+  /**
+   * Paragraph/inline theme configuration object.
+   * @default TiptapBlockThemeDefault.paragraph
+   */
+  theme?: TiptapBlockThemeParagraph;
+}
+
+const { type = "text", text, marks = [], linkMark, theme = TiptapBlockThemeDefault.paragraph } = Astro.props;
+
+const safeHref = resolveStrapiLinkHref({ href: linkMark.attrs?.href, label: text });
+const target = linkMark.attrs?.target || undefined;
+const title = linkMark.attrs?.title || undefined;
+const rel =
+  target === "_blank"
+    ? linkMark.attrs?.rel || "noopener noreferrer"
+    : linkMark.attrs?.rel || undefined;
+const nonLinkMarks = marks.filter((m) => m.type !== "link");
+const linkClass = [getPropertyClass(theme.link), linkMark.attrs?.class || ""]
+  .filter(Boolean)
+  .join(" ")
+  .trim();
+---
+
+<a
+  href={safeHref}
+  target={target}
+  rel={rel}
+  title={title}
+  class:list={[linkClass || undefined]}
+>
+  <TiptapTextItem type={type} text={text} marks={nonLinkMarks} theme={theme} />
+</a>

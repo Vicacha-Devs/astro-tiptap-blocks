@@ -1,0 +1,98 @@
+---
+import { getPropertyClass, renderPropertyClasses, TiptapBlockThemeDefault } from "../../../lib/theme";
+import type {
+  TiptapBlockNode,
+  TiptapBlockTheme,
+  TiptapDetailsContentNode,
+  TiptapDetailsNode,
+  TiptapDetailsSummaryNode,
+} from "../../../types";
+import TiptapInlineNodes from "../items/TiptapInlineNodes/TiptapInlineNodes.astro";
+import TiptapNestedBlocks from "../items/TiptapNestedBlocks/TiptapNestedBlocks.astro";
+
+/**
+ * @component TiptapBlockDetails
+ * @title Tiptap Block Details Accordion
+ * @description Renders a native HTML `<details>` and `<summary>` collapsible accordion block
+ * containing a `detailsSummary` header and nested `detailsContent` blocks.
+ *
+ * @preview
+ *
+ * <TiptapBlockDetails
+ *   attrs={{ open: true }}
+ *   content={[
+ *     { type: "detailsSummary", content: [{ type: "text", text: "Accordion Title" }] },
+ *     { type: "detailsContent", content: [{ type: "paragraph", content: [{ type: "text", text: "Hidden details" }] }] },
+ *   ]}
+ * />
+ *
+ * @usage
+ *
+ * ```astro nocollapse
+ * ---
+ * import TiptapBlockDetails from "@components/blocks/TiptapBlockDetails/TiptapBlockDetails.astro";
+ * ---
+ *
+ * <TiptapBlockDetails
+ *   attrs={{ open: false }}
+ *   content={[
+ *     { type: "detailsSummary", content: [{ type: "text", text: "Click to expand" }] },
+ *     { type: "detailsContent", content: [{ type: "paragraph", content: [{ type: "text", text: "Accordion body" }] }] },
+ *   ]}
+ * />
+ * ```
+ */
+export interface Props {
+  /**
+   * Discriminator node type.
+   * @default "details"
+   */
+  type?: TiptapDetailsNode["type"];
+  /**
+   * Accordion attributes (`open`: whether the `<details>` element is expanded by default).
+   */
+  attrs?: TiptapDetailsNode["attrs"];
+  /**
+   * Child nodes (`detailsSummary` and `detailsContent` or nested block nodes).
+   * @default []
+   */
+  content?: TiptapDetailsNode["content"];
+  /**
+   * Resolved block theme object.
+   * @default TiptapBlockThemeDefault
+   */
+  theme?: TiptapBlockTheme;
+}
+
+const { type = "details", attrs, content = [], theme = TiptapBlockThemeDefault } = Astro.props;
+const detailsClass = renderPropertyClasses(theme.details);
+const summaryClass = getPropertyClass(theme.details.summary);
+const contentClass = getPropertyClass(theme.details.content);
+
+const summaryNode = content.find(
+  (child): child is TiptapDetailsSummaryNode => child.type === "detailsSummary"
+);
+const detailsContentNode = content.find(
+  (child): child is TiptapDetailsContentNode => child.type === "detailsContent"
+);
+const bodyBlocks: TiptapBlockNode[] = detailsContentNode
+  ? detailsContentNode.content || []
+  : (content.filter(
+      (child) => child.type !== "detailsSummary" && child.type !== "detailsContent"
+    ) as TiptapBlockNode[]);
+---
+
+<details open={attrs?.open ? true : undefined} class:list={[detailsClass || undefined]}>
+  <summary class:list={[summaryClass || undefined]}>
+    {
+      summaryNode?.content && summaryNode.content.length > 0 ? (
+        <TiptapInlineNodes nodes={summaryNode.content} theme={theme.paragraph} />
+      ) : (
+        "Details"
+      )
+    }
+  </summary>
+  <div data-type="details-content" class:list={[contentClass || undefined]}>
+    <TiptapNestedBlocks blocks={bodyBlocks} theme={theme} />
+  </div>
+</details>

@@ -1,0 +1,104 @@
+---
+import type {
+  TiptapBlockUserTheme,
+  TiptapContentInput,
+  TiptapInternalLinkResolver,
+} from "../../../types";
+import TiptapBlocks from "../../TiptapBlocks/TiptapBlocks.astro";
+
+/**
+ * @component TiptapLibPreview
+ * @title Tiptap Library Function Preview
+ * @description Helper component used by Storybook `Lib/*` stories to display the raw input,
+ * the computed return value of a library utility function, and an optional live
+ * `<TiptapBlocks />` visual preview.
+ *
+ * @usage
+ *
+ * ```astro nocollapse
+ * ---
+ * import TiptapLibPreview from "@components/blocks/TiptapLibPreview/TiptapLibPreview.astro";
+ * ---
+ *
+ * <TiptapLibPreview
+ *   title="parseTiptapContent(doc)"
+ *   inputPreview="{ ... }"
+ *   outputPreview="{ ... }"
+ * />
+ * ```
+ */
+export interface Props {
+  /**
+   * Title of the library function or scenario being demonstrated.
+   */
+  title: string;
+  /**
+   * Function signature or brief explanation of the test case.
+   */
+  subtitle?: string;
+  /**
+   * Formatted string representation of the input arguments passed to the library function.
+   */
+  inputPreview: string;
+  /**
+   * Formatted string representation of the output returned by the library function.
+   */
+  outputPreview: string;
+  /**
+   * Optional Tiptap content passed to `<TiptapBlocks data={...} />` to show the live rendered result.
+   */
+  renderedContent?: TiptapContentInput;
+  /**
+   * Optional custom user theme (`extend` or `overwrite`) when rendering `renderedContent`.
+   */
+  theme?: TiptapBlockUserTheme;
+  /**
+   * Optional custom internal Strapi link resolver for `renderedContent`.
+   */
+  resolveInternalLink?: TiptapInternalLinkResolver;
+}
+
+const {
+  title,
+  subtitle,
+  inputPreview,
+  outputPreview,
+  renderedContent,
+  theme,
+  resolveInternalLink,
+} = Astro.props;
+---
+
+<div class="space-y-4 rounded-xl border border-slate-200 bg-slate-50/70 p-5 text-slate-900">
+  <div class="border-b border-slate-200 pb-3">
+    <h3 class="text-base font-bold text-slate-900">{title}</h3>
+    {subtitle && <p class="mt-0.5 font-mono text-xs text-slate-600">{subtitle}</p>}
+  </div>
+
+  <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
+    <div class="space-y-1.5">
+      <div class="text-xs font-semibold uppercase tracking-wider text-slate-500">Input</div>
+      <pre class="max-h-72 overflow-auto rounded-lg bg-slate-900 p-3 font-mono text-xs leading-relaxed text-slate-100"><code>{inputPreview}</code></pre>
+    </div>
+
+    <div class="space-y-1.5">
+      <div class="text-xs font-semibold uppercase tracking-wider text-slate-500">Library Output</div>
+      <pre class="max-h-72 overflow-auto rounded-lg bg-slate-900 p-3 font-mono text-xs leading-relaxed text-emerald-300"><code>{outputPreview}</code></pre>
+    </div>
+  </div>
+
+  {renderedContent !== undefined && (
+    <div class="space-y-2 border-t border-slate-200 pt-4">
+      <div class="text-xs font-semibold uppercase tracking-wider text-slate-500">
+        Live Rendered Output (&lt;TiptapBlocks /&gt;)
+      </div>
+      <div class="rounded-lg border border-slate-200 bg-white p-4">
+        <TiptapBlocks
+          data={renderedContent}
+          theme={theme}
+          resolveInternalLink={resolveInternalLink}
+        />
+      </div>
+    </div>
+  )}
+</div>

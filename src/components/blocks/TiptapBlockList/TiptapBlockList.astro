@@ -1,0 +1,131 @@
+---
+import { getPropertyClass, renderPropertyClasses, TiptapBlockThemeDefault } from "../../../lib/theme";
+import type {
+  TiptapBlockBaseAttrs,
+  TiptapBlockTheme,
+  TiptapListItemNode,
+  TiptapTaskItemNode,
+} from "../../../types";
+import TiptapInlineNodes from "../items/TiptapInlineNodes/TiptapInlineNodes.astro";
+
+/**
+ * @component TiptapBlockList
+ * @title Tiptap Block List & Task Checklist
+ * @description Renders unordered (`<ul>`), ordered (`<ol>`), and interactive-styled checklist (`<ul data-type="taskList">`)
+ * lists with support for nested sub-lists and read-only task checkboxes.
+ *
+ * @preview
+ *
+ * <TiptapBlockList
+ *   type="bulletList"
+ *   content={[{ type: "listItem", content: [{ type: "paragraph", content: [{ type: "text", text: "First item" }] }] }]}
+ * />
+ *
+ * @usage
+ *
+ * ```astro nocollapse
+ * ---
+ * import TiptapBlockList from "@components/blocks/TiptapBlockList/TiptapBlockList.astro";
+ * ---
+ *
+ * <TiptapBlockList
+ *   type="taskList"
+ *   content={[
+ *     { type: "taskItem", attrs: { checked: true }, content: [{ type: "paragraph", content: [{ type: "text", text: "Done" }] }] },
+ *   ]}
+ * />
+ * ```
+ */
+export interface Props {
+  /**
+   * List node type (`"bulletList"`, `"orderedList"`, or `"taskList"`).
+   * @default "bulletList"
+   */
+  type: "bulletList" | "orderedList" | "taskList";
+  /**
+   * List attributes including `start` index (for `orderedList`), `indentLevel`, `textAlign`, and `dir`.
+   */
+  attrs?: TiptapBlockBaseAttrs & {
+    start?: number;
+    indentLevel?: number;
+  };
+  /**
+   * List item nodes (`listItem` or `taskItem`).
+   * @default []
+   */
+  content?: Array<TiptapListItemNode | TiptapTaskItemNode>;
+  /**
+   * Resolved block theme object.
+   * @default TiptapBlockThemeDefault
+   */
+  theme?: TiptapBlockTheme;
+}
+
+const { type = "bulletList", attrs, content = [], theme = TiptapBlockThemeDefault } = Astro.props;
+const isOrdered = type === "orderedList";
+const isTask = type === "taskList";
+const ListTag = isOrdered ? "ol" : "ul";
+const listClass = isTask
+  ? renderPropertyClasses(theme.taskList)
+  : renderPropertyClasses(theme.list, isOrdered ? "ordered" : "unordered");
+const itemClass = isTask
+  ? getPropertyClass(theme.taskList.item)
+  : getPropertyClass(theme.list.item);
+const checkboxClass = getPropertyClass(theme.taskList.checkbox);
+const taskContentClass = getPropertyClass(theme.taskList.content);
+const taskCheckedClass = getPropertyClass(theme.taskList.checked);
+const startAttr =
+  isOrdered && attrs && "start" in attrs && attrs.start && attrs.start > 1
+    ? attrs.start
+    : undefined;
+---
+
+<ListTag
+  start={startAttr}
+  data-type={isTask ? "taskList" : undefined}
+  class:list={[listClass || undefined]}
+>
+  {
+    content.map((item) => {
+      const checked = item.type === "taskItem" ? Boolean(item.attrs?.checked) : false;
+      const children = item.content || [];
+      return (
+        <li
+          data-type={isTask ? "taskItem" : undefined}
+          data-checked={isTask ? String(checked) : undefined}
+          class:list={[itemClass || undefined]}
+        >
+          {isTask && (
+            <input
+              type="checkbox"
+              checked={checked ? true : undefined}
+              disabled
+              aria-label="Task item status"
+              class:list={[checkboxClass || undefined]}
+            />
+          )}
+          <div
+            class:list={[
+              isTask ? taskContentClass || undefined : undefined,
+              isTask && checked ? taskCheckedClass || undefined : undefined,
+            ]}
+          >
+            {children.map((child) => {
+              if (child.type === "paragraph" || child.type === "leadParagraph") {
+                return <TiptapInlineNodes nodes={child.content} theme={theme.paragraph} />;
+              }
+              if (
+                child.type === "bulletList" ||
+                child.type === "orderedList" ||
+                child.type === "taskList"
+              ) {
+                return <Astro.self {...child} theme={theme} />;
+              }
+              return null;
+            })}
+          </div>
+        </li>
+      );
+    })
+  }
+</ListTag>

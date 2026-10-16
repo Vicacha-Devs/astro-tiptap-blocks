@@ -1,0 +1,41 @@
+---
+import { renderPropertyClasses, TiptapBlockThemeDefault } from "../../../lib/theme";
+import type { TiptapBlockTheme, TiptapHorizontalRuleNode } from "../../../types";
+
+/**
+ * @component TiptapBlockHr
+ * @title Tiptap Block Horizontal Rule
+ * @description Renders a thematic horizontal rule (`<hr />`) divider styled via `theme.hr`.
+ *
+ * @preview
+ *
+ * <TiptapBlockHr />
+ *
+ * @usage
+ *
+ * ```astro nocollapse
+ * ---
+ * import TiptapBlockHr from "@components/blocks/TiptapBlockHr/TiptapBlockHr.astro";
+ * ---
+ *
+ * <TiptapBlockHr />
+ * ```
+ */
+export interface Props {
+  /**
+   * Discriminator node type.
+   * @default "horizontalRule"
+   */
+  type?: TiptapHorizontalRuleNode["type"];
+  /**
+   * Resolved block theme object.
+   * @default TiptapBlockThemeDefault
+   */
+  theme?: TiptapBlockTheme;
+}
+
+const { type = "horizontalRule", theme = TiptapBlockThemeDefault } = Astro.props;
+const className = renderPropertyClasses(theme.hr);
+---
+
+<hr class:list={[className || undefined]} />

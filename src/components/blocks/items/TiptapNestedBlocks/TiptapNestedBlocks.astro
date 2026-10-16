@@ -1,0 +1,87 @@
+---
+import { TiptapBlockThemeDefault } from "../../../../lib/theme";
+import type { TiptapBlockNode, TiptapBlockTheme } from "../../../../types";
+import TiptapBlockCode from "../../TiptapBlockCode/TiptapBlockCode.astro";
+import TiptapBlockHeading from "../../TiptapBlockHeading/TiptapBlockHeading.astro";
+import TiptapBlockHr from "../../TiptapBlockHr/TiptapBlockHr.astro";
+import TiptapBlockImage from "../../TiptapBlockImage/TiptapBlockImage.astro";
+import TiptapBlockList from "../../TiptapBlockList/TiptapBlockList.astro";
+import TiptapBlockParagraph from "../../TiptapBlockParagraph/TiptapBlockParagraph.astro";
+import TiptapBlockTable from "../../TiptapBlockTable/TiptapBlockTable.astro";
+import TiptapInlineNodes from "../TiptapInlineNodes/TiptapInlineNodes.astro";
+
+/**
+ * @component TiptapNestedBlocks
+ * @title Tiptap Nested Blocks Renderer
+ * @description Renders nested `TiptapBlockNode[]` children inside container blocks
+ * (`blockquote`, `informationPane`, `conversationHistory`, `details`, `layoutColumn`).
+ *
+ * @preview
+ *
+ * <TiptapNestedBlocks
+ *   blocks={[
+ *     { type: "paragraph", content: [{ type: "text", text: "Nested paragraph block." }] },
+ *   ]}
+ * />
+ *
+ * @usage
+ *
+ * ```astro nocollapse
+ * ---
+ * import TiptapNestedBlocks from "@components/blocks/items/TiptapNestedBlocks/TiptapNestedBlocks.astro";
+ * ---
+ *
+ * <TiptapNestedBlocks blocks={containerNode.content} />
+ * ```
+ */
+export interface Props {
+  /**
+   * Array of nested block AST nodes to render.
+   * @default []
+   */
+  blocks?: TiptapBlockNode[];
+  /**
+   * Resolved block theme object.
+   * @default TiptapBlockThemeDefault
+   */
+  theme?: TiptapBlockTheme;
+}
+
+const { blocks = [], theme = TiptapBlockThemeDefault } = Astro.props;
+---
+
+{
+  blocks.map((block) => {
+    switch (block.type) {
+      case "heading":
+        return <TiptapBlockHeading {...block} theme={theme} />;
+      case "paragraph":
+      case "leadParagraph":
+        return <TiptapBlockParagraph {...block} theme={theme} />;
+      case "bulletList":
+      case "orderedList":
+      case "taskList":
+        return <TiptapBlockList {...block} theme={theme} />;
+      case "codeBlock":
+        return <TiptapBlockCode {...block} theme={theme} />;
+      case "image":
+        return <TiptapBlockImage {...block} theme={theme} />;
+      case "table":
+        return <TiptapBlockTable {...block} theme={theme} />;
+      case "horizontalRule":
+        return <TiptapBlockHr {...block} theme={theme} />;
+      case "blockquote":
+        return (
+          <blockquote class="border-s-2 ps-3 italic my-2 opacity-90">
+            {block.content?.map((sub) =>
+              sub.type === "paragraph" || sub.type === "leadParagraph" ? (
+                <p><TiptapInlineNodes nodes={sub.content} theme={theme.paragraph} /></p>
+              ) : null
+            )}
+          </blockquote>
+        );
+      default:
+        return null;
+    }
+  })
+}

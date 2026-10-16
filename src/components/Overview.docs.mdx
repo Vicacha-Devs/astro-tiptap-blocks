@@ -1,0 +1,70 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Overview" />
+
+# `@vicacha-devs/astro-tiptap-blocks`
+
+**Security-first, fully typed Astro component system and multi-format parser for Strapi Tiptap Editor (`@notum-cz/strapi-plugin-tiptap-editor`).**
+
+---
+
+## Architecture Overview
+
+`@vicacha-devs/astro-tiptap-blocks` transforms content produced by Strapi's Tiptap Editor—whether stored as **ProseMirror JSON**, **HTML strings**, **Markdown strings**, or **legacy string arrays**—into strongly typed `TiptapDocNode` AST nodes and renders them through native `.astro` components with **zero raw HTML injection**.
+
+```
+Strapi Tiptap Input (JSON / HTML / Markdown / string[])
+  │
+  ▼
+parseTiptapContent(data, options)
+  ├── JSON AST Normalizer (src/lib/parser.ts)
+  ├── Safe HTML Tokenizer & AST Builder (src/lib/html-parser.ts)
+  ├── Markdown + Lossless Comment Parser (src/lib/markdown-parser.ts)
+  └── Auto-Slugify Headings & Table of Contents Generator
+  │
+  ▼
+<TiptapBlocks /> (src/components/TiptapBlocks/TiptapBlocks.astro)
+  ├── Theme Engine: default / extend / overwrite (src/lib/theme.ts)
+  ├── Security Sanitizers: URLs, Iframes, CSS Colors (src/lib/sanitize.ts)
+  ├── Strapi Relation Resolver: strapi:// -> href (src/lib/relations.ts)
+  └── 19 Native .astro Block & Inline Components
+```
+
+---
+
+## Key Capabilities (Strapi Tiptap Editor PR #40)
+
+| Category | Supported Nodes, Marks & Features |
+| :--- | :--- |
+| **Input Formats** | ProseMirror JSON (`TiptapDocNode`), HTML string (`parseTiptapHtml`), Markdown string (`parseTiptapMarkdown` with lossless `<!-- tiptap-node:... -->` comments), and `string[]` |
+| **Typography & Layout** | `paragraph`, `leadParagraph`, `heading` (levels 1–6, `id`, SEO `tag` override `h1`–`h6`), `blockquote`, `horizontalRule`, `layoutContainer` (`columns`: `1:1`, `1:1:1`, `2:1`, `1:2` with `layoutColumn`), `details` (`detailsSummary`, `detailsContent`), `pageBreak`, `tableOfContents` |
+| **Callouts & History** | `informationPane` (`info`, `success`, `warning`, `danger`, `neutral`, `tip`) and `conversationHistory` (`author`, `timestamp`) |
+| **Lists** | `bulletList`, `orderedList` (`start`, `indentLevel`), `listItem`, `taskList`, and `taskItem` (`checked`) |
+| **Media & Embeds** | `image` (`caption`, `width`, `height`, `data-align`, `data-asset-id`, `data-document-id`), `video` (YouTube/Vimeo `embedType: "embed"` & native `<video controls>`), `audio`, `attachment` (downloadable file card with formatted size), `iframe` (HTTPS-only sandboxed embed) |
+| **Code, Math & Tables** | `codeBlock` (`language`), block & inline `mathematics` (`latex`, `displayMode` with Unicode symbol preview), `table`, `tableRow`, `tableHeader`, `tableCell` (`colspan`, `rowspan`, `colwidth`, `backgroundColor`) |
+| **Inline Marks & Links** | `bold`, `italic`, `underline`, `strike`, `code`, `subscript`, `superscript`, `highlight` (`color`), `textStyle` (`color`, `fontFamily`, `fontSize`, `lineHeight`), `abbr` (`title`), `language` (`lang`, `dir`), `link` (`strapi://` internal relation resolution), and inline `linker` chips |
+
+---
+
+## Quick Start
+
+```astro
+---
+import { TiptapBlocks } from "@vicacha-devs/astro-tiptap-blocks";
+
+const { article } = Astro.props;
+---
+
+<TiptapBlocks
+  data={article.body}
+  theme={{
+    extend: {
+      heading: { h2: "mt-10 text-3xl font-extrabold" },
+      informationPane: { info: "border-indigo-500 bg-indigo-50/80" },
+    },
+  }}
+  resolveInternalLink={({ collectionName, documentId }) =>
+    `/${collectionName.split(".").pop()}s/${documentId}`
+  }
+/>
+```

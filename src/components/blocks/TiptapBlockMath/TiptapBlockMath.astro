@@ -1,0 +1,60 @@
+---
+import { formatLatexPreview } from "../../../lib/sanitize";
+import { getPropertyClass, renderPropertyClasses, TiptapBlockThemeDefault } from "../../../lib/theme";
+import type { TiptapBlockTheme, TiptapMathematicsNode } from "../../../types";
+
+/**
+ * @component TiptapBlockMath
+ * @title Tiptap Block Mathematics
+ * @description Renders a display-mode mathematical formula (`data-type="mathematics"`, `role="math"`)
+ * with accessible `aria-label` and zero-JS Unicode symbol formatting via `formatLatexPreview`.
+ *
+ * @preview
+ *
+ * <TiptapBlockMath attrs={{ latex: "\\int_{-\\infty}^{\\infty} e^{-x^2} dx = \\sqrt{\\pi}", displayMode: "block" }} />
+ *
+ * @usage
+ *
+ * ```astro nocollapse
+ * ---
+ * import TiptapBlockMath from "@components/blocks/TiptapBlockMath/TiptapBlockMath.astro";
+ * ---
+ *
+ * <TiptapBlockMath
+ *   attrs={{ latex: "E = mc^2", displayMode: "block" }}
+ * />
+ * ```
+ */
+export interface Props {
+  /**
+   * Discriminator node type.
+   * @default "mathematics"
+   */
+  type?: TiptapMathematicsNode["type"];
+  /**
+   * Mathematics attributes (`latex`: raw LaTeX expression; `displayMode`: `"block"` | `"inline"` | `boolean`).
+   */
+  attrs: TiptapMathematicsNode["attrs"];
+  /**
+   * Resolved block theme object.
+   * @default TiptapBlockThemeDefault
+   */
+  theme?: TiptapBlockTheme;
+}
+
+const { type = "mathematics", attrs, theme = TiptapBlockThemeDefault } = Astro.props;
+const latex = attrs?.latex || "";
+const wrapperClass = renderPropertyClasses(theme.mathematics);
+const formulaClass = getPropertyClass(theme.mathematics.formula);
+---
+
+<div
+  data-type="mathematics"
+  data-latex={latex}
+  data-display-mode="block"
+  role="math"
+  aria-label={latex}
+  class:list={[wrapperClass || undefined]}
+>
+  <code class:list={[formulaClass || undefined]}>{formatLatexPreview(latex)}</code>
+</div>

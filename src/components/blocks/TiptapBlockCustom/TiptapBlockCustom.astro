@@ -1,0 +1,34 @@
+---
+import type { AstroComponentFactory } from "astro/runtime/server/index.js";
+
+/**
+ * @component TiptapBlockCustom
+ * @title Tiptap Block Custom Override Wrapper
+ * @description Dynamic wrapper component used by `<TiptapBlocks />` to delegate rendering of a specific block node
+ * to a user-provided custom Astro component override via the `blocks` prop.
+ *
+ * @usage
+ *
+ * ```astro nocollapse
+ * ---
+ * import TiptapBlockCustom from "@components/blocks/TiptapBlockCustom/TiptapBlockCustom.astro";
+ * import MyCustomHeading from "./MyCustomHeading.astro";
+ * ---
+ *
+ * <TiptapBlockCustom component={MyCustomHeading} attrs={{ level: 2 }} content={[]} />
+ * ```
+ */
+export interface Props {
+  /**
+   * Custom Astro component factory to render for the block.
+   */
+  component: AstroComponentFactory;
+  [key: string]: any;
+}
+
+const { component: CustomComponent, ...rest } = Astro.props;
+---
+
+<CustomComponent {...rest}>
+  <slot />
+</CustomComponent>

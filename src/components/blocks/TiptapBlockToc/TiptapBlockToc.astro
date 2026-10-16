@@ -1,0 +1,113 @@
+---
+import { slugifyHeadingText } from "../../../lib/sanitize";
+import { getPropertyClass, renderPropertyClasses, TiptapBlockThemeDefault } from "../../../lib/theme";
+import type {
+  TiptapBlockTheme,
+  TiptapTocHeadingItem,
+} from "../../../types";
+
+/**
+ * @component TiptapBlockToc
+ * @title Tiptap Block Table of Contents & Page Break
+ * @description Renders structural navigation and print/pagination blocks:
+ * - `tableOfContents`: `<nav data-type="table-of-contents">` listing document headings with indented anchor links (`#slug`).
+ * - `pageBreak`: `<hr data-type="page-break" role="separator">` print and visual page separator.
+ *
+ * @preview
+ *
+ * <TiptapBlockToc
+ *   type="tableOfContents"
+ *   attrs={{ title: "On this page", headings: [{ id: "intro", text: "Introduction", level: 1 }] }}
+ * />
+ *
+ * @usage
+ *
+ * ```astro nocollapse
+ * ---
+ * import TiptapBlockToc from "@components/blocks/TiptapBlockToc/TiptapBlockToc.astro";
+ * ---
+ *
+ * <TiptapBlockToc
+ *   type="tableOfContents"
+ *   attrs={{
+ *     title: "Contents",
+ *     headings: [
+ *       { id: "overview", text: "Overview", level: 1 },
+ *       { id: "setup", text: "Setup", level: 2 },
+ *     ],
+ *   }}
+ * />
+ * ```
+ */
+export interface Props {
+  /**
+   * Block discriminator (`"tableOfContents"` or `"pageBreak"`).
+   * @default "tableOfContents"
+   */
+  type: "tableOfContents" | "pageBreak";
+  /**
+   * Optional Table of Contents attributes (`headings` array and optional `title`).
+   */
+  attrs?: {
+    headings?: Array<TiptapTocHeadingItem>;
+    title?: string | null;
+  };
+  /**
+   * Resolved block theme object.
+   * @default TiptapBlockThemeDefault
+   */
+  theme?: TiptapBlockTheme;
+}
+
+const { type = "tableOfContents", attrs, theme = TiptapBlockThemeDefault } = Astro.props;
+const isPageBreak = type === "pageBreak";
+
+const pageBreakClass = isPageBreak ? renderPropertyClasses(theme.pageBreak) : "";
+const tocClass = !isPageBreak ? renderPropertyClasses(theme.tableOfContents) : "";
+const tocTitleClass = getPropertyClass(theme.tableOfContents.title);
+const tocListClass = getPropertyClass(theme.tableOfContents.list);
+const tocItemClass = getPropertyClass(theme.tableOfContents.item);
+const tocLinkClass = getPropertyClass(theme.tableOfContents.link);
+
+const headings = !isPageBreak ? attrs?.headings || [] : [];
+const title = !isPageBreak ? attrs?.title || "Table of Contents" : "";
+---
+
+{
+  isPageBreak ? (
+    <hr
+      data-type="page-break"
+      data-page-break="true"
+      role="separator"
+      aria-label="Page break"
+      class:list={[pageBreakClass || undefined]}
+    />
+  ) : (
+    headings.length > 0 && (
+      <nav
+        data-type="table-of-contents"
+        aria-label={title}
+        class:list={[tocClass || undefined]}
+      >
+        <div class:list={[tocTitleClass || undefined]}>{title}</div>
+        <ol class:list={[tocListClass || undefined]}>
+          {headings.map((item) => {
+            const safeSlug = item.id || slugifyHeadingText(item.text);
+            const indentRem = Math.max(0, (item.level - 1) * 0.75);
+            return (
+              <li
+                data-level={item.level}
+                style={indentRem > 0 ? `padding-inline-start: ${indentRem}rem` : undefined}
+                class:list={[tocItemClass || undefined]}
+              >
+                <a href={`#${safeSlug}`} class:list={[tocLinkClass || undefined]}>
+                  {item.text}
+                </a>
+              </li>
+            );
+          })}
+        </ol>
+      </nav>
+    )
+  )
+}

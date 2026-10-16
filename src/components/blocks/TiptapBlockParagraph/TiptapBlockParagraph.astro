@@ -1,0 +1,81 @@
+---
+import { renderPropertyClasses, TiptapBlockThemeDefault } from "../../../lib/theme";
+import type {
+  TiptapBlockBaseAttrs,
+  TiptapBlockTheme,
+  TiptapInlineNode,
+} from "../../../types";
+import TiptapInlineNodes from "../items/TiptapInlineNodes/TiptapInlineNodes.astro";
+
+/**
+ * @component TiptapBlockParagraph
+ * @title Tiptap Block Paragraph
+ * @description Renders a standard `<p>` paragraph or an emphasized lead paragraph (`type: "leadParagraph"`, `data-lead="true"`)
+ * with support for text alignment (`textAlign`), directionality (`dir`), and rich inline marks/nodes.
+ *
+ * @preview
+ *
+ * <TiptapBlockParagraph content={[{ type: "text", text: "Standard body paragraph." }]} />
+ *
+ * @usage
+ *
+ * ```astro nocollapse
+ * ---
+ * import TiptapBlockParagraph from "@components/blocks/TiptapBlockParagraph/TiptapBlockParagraph.astro";
+ * ---
+ *
+ * <TiptapBlockParagraph
+ *   type="leadParagraph"
+ *   content={[{ type: "text", text: "Introductory lead paragraph." }]}
+ * />
+ * ```
+ *
+ * @examples
+ *
+ * ### Lead vs Standard Paragraph
+ *
+ * <TiptapBlockParagraph type="leadParagraph" content={[{ type: "text", text: "Lead paragraph" }]} />
+ * <TiptapBlockParagraph type="paragraph" content={[{ type: "text", text: "Standard paragraph" }]} />
+ */
+export interface Props {
+  /**
+   * Paragraph node type (`"paragraph"` or `"leadParagraph"`).
+   * @default "paragraph"
+   */
+  type?: "paragraph" | "leadParagraph";
+  /**
+   * Block alignment and text direction attributes (`textAlign`, `dir`).
+   */
+  attrs?: TiptapBlockBaseAttrs;
+  /**
+   * Inline child nodes (`text`, `hardBreak`, `linker`, inline `mathematics`).
+   * @default []
+   */
+  content?: Array<TiptapInlineNode>;
+  /**
+   * Resolved block theme object.
+   * @default TiptapBlockThemeDefault
+   */
+  theme?: TiptapBlockTheme;
+}
+
+const { type = "paragraph", attrs, content = [], theme = TiptapBlockThemeDefault } = Astro.props;
+const isLead = type === "leadParagraph";
+const className = isLead
+  ? renderPropertyClasses(theme.leadParagraph)
+  : renderPropertyClasses(theme.paragraph);
+const textAlignStyle =
+  attrs?.textAlign && ["left", "center", "right", "justify"].includes(attrs.textAlign)
+    ? `text-align: ${attrs.textAlign}`
+    : undefined;
+const dirAttr = attrs?.dir || undefined;
+---
+
+<p
+  data-lead={isLead ? "true" : undefined}
+  dir={dirAttr}
+  style={textAlignStyle}
+  class:list={[className || undefined]}
+>
+  <TiptapInlineNodes nodes={content} theme={theme.paragraph} />
+</p>

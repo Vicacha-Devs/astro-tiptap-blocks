@@ -1,22 +1,34 @@
 # Components (`src/components`)
 
-Native Astro block and inline mark components for `@vicacha-devs/astro-tiptap-blocks`.
+Native Astro block and inline mark components for `@vicacha-devs/astro-tiptap-blocks`. Every component lives in its own folder alongside its TypeScript Storybook story (`*.stories.ts`) and Vitest DOM unit test (`*.test.ts`).
 
 ```text
 components/
-├── TiptapBlocks.astro                  # Main entry component (normalizes data, builds theme, dispatches blocks)
+├── Overview.docs.mdx
+├── TiptapBlocks/
+│   ├── TiptapBlocks.astro
+│   ├── TiptapBlocks.stories.ts
+│   └── TiptapBlocks.test.ts
 └── blocks/
-    ├── TiptapBlockCustom.astro         # Renders user-supplied custom Astro component overrides
-    ├── TiptapBlockHeading.astro        # Renders <h1> through <h6> blocks
-    ├── TiptapBlockParagraph.astro      # Renders <p> blocks
-    ├── TiptapBlockQuote.astro          # Renders <blockquote> blocks
-    ├── TiptapBlockList.astro           # Renders <ul> and <ol> lists (including nested sub-lists)
-    ├── TiptapBlockCode.astro           # Renders <pre><code> blocks with per-line <span> elements
-    ├── TiptapBlockImage.astro          # Renders <figure><img><figcaption> blocks with URL sanitization
-    ├── TiptapBlockTable.astro          # Renders <table><thead><tbody><tr><th>/<td> blocks
-    ├── TiptapBlockHr.astro             # Renders <hr /> dividers
+    ├── TiptapBlockCallout/       # .astro + .stories.ts + .test.ts
+    ├── TiptapBlockCode/          # .astro + .stories.ts + .test.ts
+    ├── TiptapBlockColumns/       # .astro + .stories.ts + .test.ts
+    ├── TiptapBlockCustom/        # .astro + .stories.ts + .test.ts
+    ├── TiptapBlockDetails/       # .astro + .stories.ts + .test.ts
+    ├── TiptapBlockHeading/       # .astro + .stories.ts + .test.ts
+    ├── TiptapBlockHr/            # .astro + .stories.ts + .test.ts
+    ├── TiptapBlockImage/         # .astro + .stories.ts + .test.ts
+    ├── TiptapBlockList/          # .astro + .stories.ts + .test.ts
+    ├── TiptapBlockMath/          # .astro + .stories.ts + .test.ts
+    ├── TiptapBlockMedia/         # .astro + .stories.ts + .test.ts
+    ├── TiptapBlockParagraph/     # .astro + .stories.ts + .test.ts
+    ├── TiptapBlockQuote/         # .astro + .stories.ts + .test.ts
+    ├── TiptapBlockTable/         # .astro + .stories.ts + .test.ts
+    ├── TiptapBlockToc/           # .astro + .stories.ts + .test.ts
+    ├── TiptapLibPreview/         # .astro + .test.ts
     └── items/
-        ├── TiptapInlineNodes.astro     # Iterates inline nodes (text, link marks, hardBreak)
-        ├── TiptapTextItem.astro        # Applies bold, italic, underline, strike, code, highlight marks
-        └── TiptapLinkItem.astro        # Renders sanitized <a> tags with rel="noopener noreferrer"
+        ├── TiptapInlineNodes/    # .astro + .stories.ts + .test.ts
+        ├── TiptapLinkItem/       # .astro + .stories.ts + .test.ts
+        ├── TiptapNestedBlocks/   # .astro + .stories.ts + .test.ts
+        └── TiptapTextItem/       # .astro + .stories.ts + .test.ts
 ```

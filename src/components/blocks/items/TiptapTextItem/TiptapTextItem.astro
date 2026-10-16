@@ -1,0 +1,171 @@
+---
+import { buildSafeInlineStyle, sanitizeCssColor } from "../../../../lib/sanitize";
+import { getPropertyClass, TiptapBlockThemeDefault } from "../../../../lib/theme";
+import type { TiptapBlockThemeParagraph } from "../../../../types/theme";
+import type { TiptapMark, TiptapTextNode } from "../../../../types/tiptap";
+
+/**
+ * @component TiptapTextItem
+ * @title Tiptap Text Item & Inline Marks
+ * @description Renders an inline text node with semantic HTML tags and sanitized styles for all Tiptap marks:
+ * `bold` (`<strong>`), `italic` (`<em>`), `underline` (`<u>`), `strike` (`<s>`), `code` (`<code>`),
+ * `subscript` (`<sub>`), `superscript` (`<sup>`), `highlight` (`<mark>`), `abbr` (`<abbr>`),
+ * `language` (`lang`/`dir`), and `textStyle` (`color`, `fontFamily`, `fontSize`, `lineHeight`).
+ *
+ * @preview
+ *
+ * <TiptapTextItem text="Highlighted Bold Text" marks={[{ type: "bold" }, { type: "highlight", attrs: { color: "#fef08a" } }]} />
+ *
+ * @usage
+ *
+ * ```astro nocollapse
+ * ---
+ * import TiptapTextItem from "@components/blocks/items/TiptapTextItem/TiptapTextItem.astro";
+ * ---
+ *
+ * <TiptapTextItem
+ *   text="WCAG 2.2"
+ *   marks={[{ type: "abbr", attrs: { title: "Web Content Accessibility Guidelines 2.2" } }]}
+ * />
+ * ```
+ */
+export interface Props {
+  /**
+   * Discriminator node type.
+   * @default "text"
+   */
+  type?: TiptapTextNode["type"];
+  /**
+   * Text string content to render safely via Astro `{text}`.
+   */
+  text: string;
+  /**
+   * Optional array of inline formatting marks applied to this text node.
+   * @default []
+   */
+  marks?: Array<TiptapMark>;
+  /**
+   * Paragraph/inline theme configuration object.
+   * @default TiptapBlockThemeDefault.paragraph
+   */
+  theme?: TiptapBlockThemeParagraph;
+}
+
+const { type = "text", text, marks = [], theme = TiptapBlockThemeDefault.paragraph } = Astro.props;
+
+const hasMark = (markType: TiptapMark["type"]): boolean =>
+  marks.some((mark) => mark.type === markType);
+
+const isBold = hasMark("bold");
+const isItalic = hasMark("italic");
+const isUnderline = hasMark("underline");
+const isStrike = hasMark("strike");
+const isCode = hasMark("code");
+const isSubscript = hasMark("subscript");
+const isSuperscript = hasMark("superscript");
+const isHighlight = hasMark("highlight");
+const isAbbr = hasMark("abbr");
+const isLanguage = hasMark("language");
+
+const highlightMark = marks.find(
+  (m): m is Extract<TiptapMark, { type: "highlight" }> => m.type === "highlight"
+);
+const textStyleMark = marks.find(
+  (m): m is Extract<TiptapMark, { type: "textStyle" }> => m.type === "textStyle"
+);
+const abbrMark = marks.find(
+  (m): m is Extract<TiptapMark, { type: "abbr" }> => m.type === "abbr"
+);
+const languageMark = marks.find(
+  (m): m is Extract<TiptapMark, { type: "language" }> => m.type === "language"
+);
+
+const highlightColor = sanitizeCssColor(highlightMark?.attrs?.color);
+const highlightStyle = highlightColor ? `background-color: ${highlightColor}` : undefined;
+const textInlineStyle = buildSafeInlineStyle(textStyleMark?.attrs);
+
+const wrapperClasses = [
+  isBold ? getPropertyClass(theme.bold) : "",
+  isItalic ? getPropertyClass(theme.italic) : "",
+  isUnderline ? getPropertyClass(theme.underline) : "",
+  isStrike ? getPropertyClass(theme.strikethrough) : "",
+  isLanguage ? getPropertyClass(theme.language) : "",
+]
+  .filter(Boolean)
+  .join(" ")
+  .trim();
+
+const hasSpanWrapper = Boolean(wrapperClasses || textInlineStyle || isLanguage);
+const codeClass = getPropertyClass(theme.code);
+const highlightClass = getPropertyClass(theme.highlight);
+const subClass = getPropertyClass(theme.subscript);
+const supClass = getPropertyClass(theme.superscript);
+const abbrClass = getPropertyClass(theme.abbr);
+---
+
+{
+  isCode ? (
+    <code class:list={[codeClass || undefined]}>{text}</code>
+  ) : (
+    <Fragment>
+      {hasSpanWrapper ? (
+        <span
+          class:list={[wrapperClasses || undefined]}
+          style={textInlineStyle}
+          lang={languageMark?.attrs?.lang || undefined}
+          dir={languageMark?.attrs?.dir || undefined}
+        >
+          {isAbbr ? (
+            <abbr title={abbrMark?.attrs?.title || undefined} class:list={[abbrClass || undefined]}>
+              {isHighlight ? (
+                <mark data-color={highlightColor || undefined} style={highlightStyle} class:list={[highlightClass || undefined]}>
+                  {isSubscript ? <sub class:list={[subClass || undefined]}>{text}</sub> : isSuperscript ? <sup class:list={[supClass || undefined]}>{text}</sup> : text}
+                </mark>
+              ) : isSubscript ? (
+                <sub class:list={[subClass || undefined]}>{text}</sub>
+              ) : isSuperscript ? (
+                <sup class:list={[supClass || undefined]}>{text}</sup>
+              ) : (
+                text
+              )}
+            </abbr>
+          ) : isHighlight ? (
+            <mark data-color={highlightColor || undefined} style={highlightStyle} class:list={[highlightClass || undefined]}>
+              {isSubscript ? <sub class:list={[subClass || undefined]}>{text}</sub> : isSuperscript ? <sup class:list={[supClass || undefined]}>{text}</sup> : text}
+            </mark>
+          ) : isSubscript ? (
+            <sub class:list={[subClass || undefined]}>{text}</sub>
+          ) : isSuperscript ? (
+            <sup class:list={[supClass || undefined]}>{text}</sup>
+          ) : (
+            text
+          )}
+        </span>
+      ) : isAbbr ? (
+        <abbr title={abbrMark?.attrs?.title || undefined} class:list={[abbrClass || undefined]}>
+          {isHighlight ? (
+            <mark data-color={highlightColor || undefined} style={highlightStyle} class:list={[highlightClass || undefined]}>
+              {isSubscript ? <sub class:list={[subClass || undefined]}>{text}</sub> : isSuperscript ? <sup class:list={[supClass || undefined]}>{text}</sup> : text}
+            </mark>
+          ) : isSubscript ? (
+            <sub class:list={[subClass || undefined]}>{text}</sub>
+          ) : isSuperscript ? (
+            <sup class:list={[supClass || undefined]}>{text}</sup>
+          ) : (
+            text
+          )}
+        </abbr>
+      ) : isHighlight ? (
+        <mark data-color={highlightColor || undefined} style={highlightStyle} class:list={[highlightClass || undefined]}>
+          {isSubscript ? <sub class:list={[subClass || undefined]}>{text}</sub> : isSuperscript ? <sup class:list={[supClass || undefined]}>{text}</sup> : text}
+        </mark>
+      ) : isSubscript ? (
+        <sub class:list={[subClass || undefined]}>{text}</sub>
+      ) : isSuperscript ? (
+        <sup class:list={[supClass || undefined]}>{text}</sup>
+      ) : (
+        text
+      )}
+    </Fragment>
+  )
+}

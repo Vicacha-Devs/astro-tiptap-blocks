@@ -1,0 +1,88 @@
+---
+import { getPropertyClass, renderPropertyClasses, TiptapBlockThemeDefault } from "../../../lib/theme";
+import type { TiptapBlockTheme, TiptapLayoutColumnNode, TiptapLayoutContainerNode } from "../../../types";
+import TiptapNestedBlocks from "../items/TiptapNestedBlocks/TiptapNestedBlocks.astro";
+
+/**
+ * @component TiptapBlockColumns
+ * @title Tiptap Block Columns Layout
+ * @description Renders a multi-column grid layout container (`data-type="layout-container"`) and its
+ * `layoutColumn` children using proportional fractional CSS Grid tracks (`1:1`, `1:1:1`, `2:1`, `1:2`, `1:1:1:1`).
+ *
+ * @preview
+ *
+ * <TiptapBlockColumns
+ *   attrs={{ columns: "1:1" }}
+ *   content={[
+ *     { type: "layoutColumn", content: [{ type: "paragraph", content: [{ type: "text", text: "Column 1" }] }] },
+ *     { type: "layoutColumn", content: [{ type: "paragraph", content: [{ type: "text", text: "Column 2" }] }] },
+ *   ]}
+ * />
+ *
+ * @usage
+ *
+ * ```astro nocollapse
+ * ---
+ * import TiptapBlockColumns from "@components/blocks/TiptapBlockColumns/TiptapBlockColumns.astro";
+ * ---
+ *
+ * <TiptapBlockColumns
+ *   attrs={{ columns: "2:1" }}
+ *   content={[
+ *     { type: "layoutColumn", content: [{ type: "paragraph", content: [{ type: "text", text: "Main (2/3)" }] }] },
+ *     { type: "layoutColumn", content: [{ type: "paragraph", content: [{ type: "text", text: "Sidebar (1/3)" }] }] },
+ *   ]}
+ * />
+ * ```
+ */
+export interface Props {
+  /**
+   * Discriminator node type.
+   * @default "layoutContainer"
+   */
+  type?: TiptapLayoutContainerNode["type"];
+  /**
+   * Layout container attributes (`columns` ratio string, e.g. `"1:1"`, `"2:1"`, `"1:1:1"`).
+   */
+  attrs?: TiptapLayoutContainerNode["attrs"];
+  /**
+   * Array of `layoutColumn` child nodes containing nested blocks.
+   * @default []
+   */
+  content?: Array<TiptapLayoutColumnNode>;
+  /**
+   * Resolved block theme object.
+   * @default TiptapBlockThemeDefault
+   */
+  theme?: TiptapBlockTheme;
+}
+
+const { type = "layoutContainer", attrs, content = [], theme = TiptapBlockThemeDefault } = Astro.props;
+const columnsRatio = attrs?.columns || "1:1";
+const containerClass = renderPropertyClasses(theme.columns);
+const columnClass = getPropertyClass(theme.columns.column);
+
+const ratioParts = columnsRatio
+  .split(":")
+  .map((part) => Number(part.trim()))
+  .filter((n) => !Number.isNaN(n) && n > 0);
+const gridTemplateStyle =
+  ratioParts.length > 1
+    ? `grid-template-columns: ${ratioParts.map((n) => `minmax(0, ${n}fr)`).join(" ")}`
+    : undefined;
+---
+
+<div
+  data-type="layout-container"
+  data-columns={columnsRatio}
+  style={gridTemplateStyle}
+  class:list={[containerClass || undefined]}
+>
+  {
+    content.map((col) => (
+      <div data-type="layout-column" class:list={[columnClass || undefined]}>
+        <TiptapNestedBlocks blocks={col.content} theme={theme} />
+      </div>
+    ))
+  }
+</div>

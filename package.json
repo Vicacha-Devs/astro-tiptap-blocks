@@ -1,7 +1,7 @@
 {
   "name": "@vicacha-devs/astro-tiptap-blocks",
-  "version": "1.0.0",
-  "description": "Zero-JS Astro block components and themeable renderer for Tiptap & Strapi Tiptap Editor (JSON & HTML)",
+  "version": "1.1.0",
+  "description": "Zero-JS Astro block components and themeable renderer for Tiptap & Strapi Tiptap Editor (JSON, HTML & Markdown)",
   "keywords": [
     "astro",
     "tiptap",
@@ -11,36 +11,51 @@
     "rich-text",
     "astro-component",
     "withastro",
-    "tailwindcss"
+    "tailwindcss",
+    "storybook-astro"
   ],
   "type": "module",
-  "main": "./src/components/TiptapBlocks.astro",
+  "main": "./src/components/TiptapBlocks/TiptapBlocks.astro",
   "types": "./src/index.d.ts",
   "exports": {
     ".": "./src/index.ts",
-    "./astro": "./src/components/TiptapBlocks.astro",
+    "./astro": "./src/components/TiptapBlocks/TiptapBlocks.astro",
     "./package.json": "./package.json"
   },
   "files": [
     "src"
   ],
   "scripts": {
+    "dev": "storybook dev -p 6006",
+    "storybook": "storybook dev -p 6006",
+    "build:storybook": "storybook build",
+    "build-storybook": "storybook build",
     "build": "tsc",
     "check": "tsc --noEmit",
     "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
     "test:watch": "vitest"
   },
   "devDependencies": {
+    "@storybook-astro/framework": "1.8.0",
+    "@storybook-astro/renderer": "^1.8.0",
+    "@storybook/addon-docs": "10.4.6",
+    "@storybook/builder-vite": "10.4.6",
+    "@testing-library/dom": "10.4.1",
+    "@testing-library/jest-dom": "6.9.1",
     "@types/node": "^22.0.0",
+    "@vitest/coverage-v8": "4.1.9",
     "astro": "^6.0.0 || ^7.0.0",
-    "typescript": "^5.7.2",
-    "vitest": "^4.1.9"
+    "happy-dom": "20.10.6",
+    "storybook": "10.4.6",
+    "typescript": "6.0.3",
+    "vitest": "4.1.9"
   },
   "peerDependencies": {
     "astro": "^5.0.0 || ^6.0.0 || ^7.0.0"
   },
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=20.16.0"
   },
   "license": "MIT",
   "repository": {

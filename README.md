@@ -80,126 +80,6 @@ const articleContent = {
   }
 />
 ```
----
-
-## Supported Input Formats
-
-`<TiptapBlocks data={...} />` accepts `TiptapContentInput`:
-
-1. **ProseMirror JSON Document (`TiptapDocNode`)**:
-   ```ts
-   const doc = {
-     type: "doc",
-     content: [
-       {
-         type: "heading",
-         attrs: { level: 2 },
-         content: [{ type: "text", text: "Section Title" }],
-       },
-       {
-         type: "paragraph",
-         content: [
-           { type: "text", text: "Important ", marks: [{ type: "bold" }] },
-           { type: "text", text: "announcement." },
-         ],
-       },
-     ],
-   };
-   ```
-2. **Tiptap HTML String**:
-   - Standard HTML output produced by `@notum-cz/strapi-plugin-tiptap-editor` (`<h2>...</h2><p>...</p><table>...</table>`).
-3. **Serialized JSON String**:
-   - JSON string representation of a `TiptapDocNode` or `TiptapBlockNode[]`.
-4. **Paragraph String Array (`string[]`)**:
-   - Array of plain text strings automatically converted into `<p>` blocks.
-
----
-
-## Theme Customization
-
-You can customize the CSS classes applied to every block and inline mark using the `theme` prop:
-
-- **`theme.extend`**: Appends your classes to `TiptapBlockThemeDefault`.
-- **`theme.overwrite`**: Replaces the default classes for the specified properties.
-
-Each property accepts a `string` or `string[]`.
-
-```astro
----
-import { TiptapBlocks, type TiptapBlockUserTheme } from "@vicacha-devs/astro-tiptap-blocks";
-
-const customTheme: TiptapBlockUserTheme = {
-  overwrite: {
-    quote: {
-      default: "border-s-4 border-emerald-600 ps-4 italic my-6 text-slate-700",
-    },
-  },
-  extend: {
-    default: "space-y-4 text-slate-600 dark:text-slate-300",
-    heading: {
-      default: "font-serif text-slate-900 dark:text-white",
-      h2: "text-2xl font-extrabold",
-    },
-    paragraph: {
-      link: "text-emerald-700 font-semibold hover:text-emerald-900",
-    },
-  },
-};
----
-
-<TiptapBlocks data={content} theme={customTheme} />
-```
-
-### Default Theme Structure (`TiptapBlockThemeDefault`)
-
-| Block Key | Sub-keys | Description |
-| :--- | :--- | :--- |
-| `default` | — | Root wrapper `<div>` classes |
-| `heading` | `default`, `h1`, `h2`, `h3`, `h4`, `h5`, `h6` | Heading tags `<h1>` – `<h6>` |
-| `paragraph` | `default`, `link`, `bold`, `italic`, `underline`, `strikethrough`, `code`, `highlight` | Paragraph `<p>` and inline mark classes |
-| `quote` | `default` | `<blockquote>` container |
-| `list` | `default`, `ordered`, `unordered`, `item` | `<ol>`, `<ul>`, and `<li>` elements |
-| `code` | `default`, `line` | `<pre><code>` block and per-line `<span>` |
-| `image` | `default`, `image`, `caption` | `<figure>`, `<img>`, and `<figcaption>` |
-| `table` | `default`, `head`, `body`, `row`, `headerCell`, `cell` | `<table>`, `<thead>`, `<tbody>`, `<tr>`, `<th>`, `<td>` |
-| `hr` | `default` | `<hr />` divider |
-
----
-
-## Custom Block Components
-
-Pass custom Astro components via the `blocks` prop to completely replace the rendering of specific block types (`heading`, `paragraph`, `quote`, `list`, `code`, `image`, `table`, `hr`). Your component receives all AST node properties (`type`, `attrs`, `content`) plus the resolved `theme` object.
-
-```astro
----
-// src/components/CustomCalloutQuote.astro
-import { TiptapBlockParagraph, type TiptapBlockquoteNode, type TiptapBlockTheme } from "@vicacha-devs/astro-tiptap-blocks";
-
-interface Props extends TiptapBlockquoteNode {
-  theme: TiptapBlockTheme;
-}
-
-const { content = [], theme } = Astro.props;
----
-
-<aside class="rounded-2xl bg-amber-50/80 border border-amber-200 p-6 my-6">
-  {content.map((block) => block.type === "paragraph" && <p class="italic text-amber-950">{block.content?.map((n) => n.type === "text" ? n.text : "")}</p>)}
-</aside>
-```
-
-```astro
----
-import { TiptapBlocks } from "@vicacha-devs/astro-tiptap-blocks";
-import CustomCalloutQuote from "./CustomCalloutQuote.astro";
----
-
-<TiptapBlocks
-  data={content}
-  blocks={{
-    quote: CustomCalloutQuote,
-  }}
-/>
-```
 
 ---
 
@@ -223,27 +103,18 @@ import {
 } from "@vicacha-devs/astro-tiptap-blocks";
 ```
 
-- **`parseTiptapContent(input)`**: Normalizes any `TiptapContentInput` into a sanitized `TiptapDocNode`.
-- **`parseTiptapHtml(html)`**: Converts a Tiptap HTML string into a `TiptapDocNode` AST.
-- **`sanitizeTiptapUrl(url)`**: Validates URLs against safe schemes (`http:`, `https:`, `mailto:`, `tel:`, relative paths) and returns `"#"` for unsafe schemes.
-- **`buildThemeObject(userTheme, defaultTheme?)`**: Merges `overwrite` and `extend` theme configurations.
-
 ---
 
-## Security & XSS Prevention
+## Interactive Documentation (Storybook for Astro)
 
-1. **No Raw HTML Injection**: Unlike `set:html` or `dangerouslySetInnerHTML`, `<TiptapBlocks />` parses inputs into a typed AST and renders text nodes via Astro's auto-escaped `{text}` expressions.
-2. **Dangerous Container Stripping**: `<script>`, `<style>`, `<iframe>`, `<object>`, and `<embed>` tags and their contents are stripped during tokenization.
-3. **Strict URL Protocol Allow-List**: `sanitizeTiptapUrl` strips control characters and rejects `javascript:`, `vbscript:`, and `data:` URLs in both `<a href>` and `<img src>`.
-4. **Reverse Tabnabbing Protection**: `<TiptapLinkItem />` automatically enforces `rel="noopener noreferrer"` when `target="_blank"` is set.
-
----
-
-## Development & Testing
+This repository includes a full TypeScript **Storybook for Astro** (`@storybook-astro/framework`) suite with `autodocs` prop tables for every `.astro` component, interactive demos for `src/lib/` utilities, and MDX documentation for `src/types/`.
 
 ```bash
-# Run unit & security PoC tests
-pnpm test
+# Start Storybook dev server on http://localhost:6006
+pnpm storybook
+
+# Build static Storybook site
+pnpm build-storybook
 ```
 
 ---

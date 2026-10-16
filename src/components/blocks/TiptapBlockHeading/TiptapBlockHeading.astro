@@ -1,0 +1,96 @@
+---
+import { slugifyHeadingText } from "../../../lib/sanitize";
+import { renderPropertyClasses, TiptapBlockThemeDefault } from "../../../lib/theme";
+import type {
+  TiptapBlockTheme,
+  TiptapHeadingLevel,
+  TiptapHeadingNode,
+  TiptapHeadingTag,
+  TiptapInlineNode,
+} from "../../../types";
+import TiptapInlineNodes from "../items/TiptapInlineNodes/TiptapInlineNodes.astro";
+
+/**
+ * @component TiptapBlockHeading
+ * @title Tiptap Block Heading
+ * @description Renders a semantic heading (`<h1>`–`<h6>`) with automatic slug `id` generation for Table of Contents anchors,
+ * optional SEO `tag` override (`data-seo-tag`) from `BaseHeadingWithSEOTag`, text alignment, and directionality.
+ *
+ * @preview
+ *
+ * <TiptapBlockHeading attrs={{ level: 2 }} content={[{ type: "text", text: "Section Heading" }]} />
+ *
+ * @usage
+ *
+ * ```astro nocollapse
+ * ---
+ * import TiptapBlockHeading from "@components/blocks/TiptapBlockHeading/TiptapBlockHeading.astro";
+ * ---
+ *
+ * <TiptapBlockHeading
+ *   attrs={{ level: 2, tag: "h3", id: "overview" }}
+ *   content={[{ type: "text", text: "Visual H2 Rendered as H3" }]}
+ * />
+ * ```
+ *
+ * @examples
+ *
+ * ### Centered RTL Heading
+ *
+ * <TiptapBlockHeading
+ *   attrs={{ level: 2, textAlign: "center", dir: "rtl" }}
+ *   content={[{ type: "text", text: "عنوان فرعي" }]}
+ * />
+ */
+export interface Props {
+  /**
+   * Discriminator node type.
+   * @default "heading"
+   */
+  type?: TiptapHeadingNode["type"];
+  /**
+   * Heading attributes including `level` (1–6), optional SEO `tag` (`h1`–`h6`), anchor `id`, `textAlign`, and `dir`.
+   */
+  attrs?: TiptapHeadingNode["attrs"];
+  /**
+   * Inline child nodes rendered inside the heading.
+   * @default []
+   */
+  content?: Array<TiptapInlineNode>;
+  /**
+   * Resolved block theme object providing heading and inline typography classes.
+   * @default TiptapBlockThemeDefault
+   */
+  theme?: TiptapBlockTheme;
+}
+
+const { type = "heading", attrs, content = [], theme = TiptapBlockThemeDefault } = Astro.props;
+const level: TiptapHeadingLevel =
+  attrs?.level && attrs.level >= 1 && attrs.level <= 6 ? attrs.level : 2;
+const validTags = new Set<TiptapHeadingTag>(["h1", "h2", "h3", "h4", "h5", "h6"]);
+const Tag: TiptapHeadingTag =
+  attrs?.tag && validTags.has(attrs.tag) ? attrs.tag : (`h${level}` as TiptapHeadingTag);
+const headingKey = `h${level}` as keyof Omit<typeof theme.heading, "default">;
+const className = renderPropertyClasses(theme.heading, headingKey);
+
+const rawText = content
+  .map((n) => (n.type === "text" ? n.text : n.type === "linker" ? n.attrs.label || "" : ""))
+  .join("");
+const headingId = attrs?.id || (rawText ? slugifyHeadingText(rawText) : undefined);
+const textAlignStyle =
+  attrs?.textAlign && ["left", "center", "right", "justify"].includes(attrs.textAlign)
+    ? `text-align: ${attrs.textAlign}`
+    : undefined;
+const dirAttr = attrs?.dir || undefined;
+---
+
+<Tag
+  id={headingId}
+  dir={dirAttr}
+  data-level={Tag !== `h${level}` ? level : undefined}
+  data-seo-tag={attrs?.tag || undefined}
+  style={textAlignStyle}
+  class:list={[className || undefined]}
+>
+  <TiptapInlineNodes nodes={content} theme={theme.paragraph} />
+</Tag>

@@ -1,0 +1,153 @@
+---
+import { sanitizeCssColor } from "../../../lib/sanitize";
+import { getPropertyClass, renderPropertyClasses, TiptapBlockThemeDefault } from "../../../lib/theme";
+import type { TiptapBlockTheme, TiptapTableCellNode, TiptapTableNode, TiptapTableRowNode } from "../../../types";
+import TiptapBlockList from "../TiptapBlockList/TiptapBlockList.astro";
+import TiptapInlineNodes from "../items/TiptapInlineNodes/TiptapInlineNodes.astro";
+
+/**
+ * @component TiptapBlockTable
+ * @title Tiptap Block Table
+ * @description Renders a semantic `<table>` with `<thead>` and `<tbody>`, supporting `colspan`, `rowspan`,
+ * column widths (`colwidth`), sanitized cell `backgroundColor`, and nested paragraphs/lists inside cells.
+ *
+ * @preview
+ *
+ * <TiptapBlockTable
+ *   content={[
+ *     {
+ *       type: "tableRow",
+ *       content: [
+ *         { type: "tableHeader", content: [{ type: "paragraph", content: [{ type: "text", text: "Column" }] }] },
+ *       ],
+ *     },
+ *   ]}
+ * />
+ *
+ * @usage
+ *
+ * ```astro nocollapse
+ * ---
+ * import TiptapBlockTable from "@components/blocks/TiptapBlockTable/TiptapBlockTable.astro";
+ * ---
+ *
+ * <TiptapBlockTable content={tableNode.content} />
+ * ```
+ */
+export interface Props {
+  /**
+   * Discriminator node type.
+   * @default "table"
+   */
+  type?: TiptapTableNode["type"];
+  /**
+   * Array of `tableRow` nodes containing `tableHeader` and `tableCell` children.
+   * @default []
+   */
+  content?: Array<TiptapTableRowNode>;
+  /**
+   * Resolved block theme object.
+   * @default TiptapBlockThemeDefault
+   */
+  theme?: TiptapBlockTheme;
+}
+
+const { type = "table", content = [], theme = TiptapBlockThemeDefault } = Astro.props;
+const tableClass = renderPropertyClasses(theme.table);
+const headClass = getPropertyClass(theme.table.head);
+const bodyClass = getPropertyClass(theme.table.body);
+const rowClass = getPropertyClass(theme.table.row);
+const headerCellClass = getPropertyClass(theme.table.headerCell);
+const cellClass = getPropertyClass(theme.table.cell);
+
+const hasHeaderRow =
+  content.length > 0 &&
+  (content[0].content || []).every((cell) => cell.type === "tableHeader");
+const headerRows = hasHeaderRow ? [content[0]] : [];
+const bodyRows = hasHeaderRow ? content.slice(1) : content;
+
+const buildCellStyle = (cell: TiptapTableCellNode): string | undefined => {
+  const parts: string[] = [];
+  const bg = sanitizeCssColor(cell.attrs?.backgroundColor);
+  if (bg) parts.push(`background-color: ${bg}`);
+  if (Array.isArray(cell.attrs?.colwidth) && cell.attrs.colwidth[0] && Number(cell.attrs.colwidth[0]) > 0) {
+    parts.push(`width: ${Number(cell.attrs.colwidth[0])}px`);
+  }
+  return parts.length > 0 ? parts.join("; ") : undefined;
+};
+---
+
+<table class:list={[tableClass || undefined]}>
+  {
+    headerRows.length > 0 && (
+      <thead class:list={[headClass || undefined]}>
+        {headerRows.map((row) => (
+          <tr class:list={[rowClass || undefined]}>
+            {(row.content || []).map((cell) => {
+              const cellStyle = buildCellStyle(cell);
+              return (
+                <th
+                  colspan={cell.attrs?.colspan && cell.attrs.colspan > 1 ? cell.attrs.colspan : undefined}
+                  rowspan={cell.attrs?.rowspan && cell.attrs.rowspan > 1 ? cell.attrs.rowspan : undefined}
+                  style={cellStyle}
+                  class:list={[headerCellClass || undefined]}
+                >
+                  {(cell.content || []).map((child) => {
+                    if (child.type === "paragraph" || child.type === "leadParagraph") {
+                      return <TiptapInlineNodes nodes={child.content} theme={theme.paragraph} />;
+                    }
+                    if (
+                      child.type === "bulletList" ||
+                      child.type === "orderedList" ||
+                      child.type === "taskList"
+                    ) {
+                      return <TiptapBlockList {...child} theme={theme} />;
+                    }
+                    return null;
+                  })}
+                </th>
+              );
+            })}
+          </tr>
+        ))}
+      </thead>
+    )
+  }
+  {
+    bodyRows.length > 0 && (
+      <tbody class:list={[bodyClass || undefined]}>
+        {bodyRows.map((row) => (
+          <tr class:list={[rowClass || undefined]}>
+            {(row.content || []).map((cell) => {
+              const isHeader = cell.type === "tableHeader";
+              const CellTag = isHeader ? "th" : "td";
+              const cellStyle = buildCellStyle(cell);
+              return (
+                <CellTag
+                  colspan={cell.attrs?.colspan && cell.attrs.colspan > 1 ? cell.attrs.colspan : undefined}
+                  rowspan={cell.attrs?.rowspan && cell.attrs.rowspan > 1 ? cell.attrs.rowspan : undefined}
+                  style={cellStyle}
+                  class:list={[(isHeader ? headerCellClass : cellClass) || undefined]}
+                >
+                  {(cell.content || []).map((child) => {
+                    if (child.type === "paragraph" || child.type === "leadParagraph") {
+                      return <TiptapInlineNodes nodes={child.content} theme={theme.paragraph} />;
+                    }
+                    if (
+                      child.type === "bulletList" ||
+                      child.type === "orderedList" ||
+                      child.type === "taskList"
+                    ) {
+                      return <TiptapBlockList {...child} theme={theme} />;
+                    }
+                    return null;
+                  })}
+                </CellTag>
+              );
+            })}
+          </tr>
+        ))}
+      </tbody>
+    )
+  }
+</table>
