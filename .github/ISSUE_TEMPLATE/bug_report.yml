@@ -1,0 +1,33 @@
+name: Bug report
+description: Something renders or parses incorrectly
+labels: [bug]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: Describe the bug and what you expected instead.
+    validations:
+      required: true
+  - type: dropdown
+    id: format
+    attributes:
+      label: Input format
+      options: [ProseMirror JSON, HTML, Markdown, string[]]
+    validations:
+      required: true
+  - type: textarea
+    id: content
+    attributes:
+      label: Minimal content sample
+      description: The smallest Tiptap content that reproduces the problem.
+      render: json
+    validations:
+      required: true
+  - type: input
+    id: versions
+    attributes:
+      label: Versions
+      placeholder: "@vicacha-devs/astro-tiptap-blocks 1.2.0, astro 7.x, node 22"
+    validations:
+      required: true

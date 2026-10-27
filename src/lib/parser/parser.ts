@@ -172,7 +172,16 @@ export const parseTiptapContent = (input: TiptapContentInput, options?: TiptapPa
     return { type: "doc", content: populateTocBlocks(sanitizeBlockNodes(input as TiptapBlockNode[], options)) };
   }
   if (typeof input === "object" && "type" in input && input.type === "doc") {
-    return { type: "doc", content: populateTocBlocks(sanitizeBlockNodes(input.content, options)) };
+    const content = populateTocBlocks(sanitizeBlockNodes(input.content, options));
+    return {
+      type: "doc",
+      content,
+      ...(typeof input.words === "number" ? { words: input.words } : {}),
+      ...(typeof input.characters === "number" ? { characters: input.characters } : {}),
+      ...(typeof input.readingTimeMinutes === "number" ? { readingTimeMinutes: input.readingTimeMinutes } : {}),
+      ...(typeof input.readingTime === "string" ? { readingTime: input.readingTime } : {}),
+      ...(input.stats && typeof input.stats === "object" ? { stats: input.stats } : {}),
+    };
   }
   if (typeof input === "string") {
     const trimmed = input.trim();

@@ -2,6 +2,7 @@ import {
   experimental_AstroContainer as AstroContainer,
   type ContainerRenderOptions,
 } from "astro/container";
+import type { ComponentProps } from "astro/types";
 import { Window } from "happy-dom";
 
 type GlobalDomShim = {
@@ -32,15 +33,14 @@ export function installDomGlobals(window: Window, document: Document): void {
     window.KeyboardEvent as unknown as typeof KeyboardEvent;
 }
 
-// Astro's `.astro` module typings and `astro/container` can resolve to different
-// copies of the package, so component factories are loosely typed here.
+type AstroContainerRenderComponent = Parameters<AstroContainer["renderToString"]>[0];
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-type TAstroComponentFactory = any;
+type TAstroComponentFactory = (...args: any[]) => any;
 
-type ComponentContainerRenderOptions = Omit<ContainerRenderOptions, "props"> & {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  props?: Record<string, any>;
-};
+type ComponentContainerRenderOptions<TProps extends TAstroComponentFactory> =
+  Omit<ContainerRenderOptions, "props"> & {
+    props?: ComponentProps<TProps>;
+  };
 
 /**
  * Renders an Astro component to HTML and mounts it into a `happy-dom` document body.
@@ -53,9 +53,11 @@ type ComponentContainerRenderOptions = Omit<ContainerRenderOptions, "props"> & {
  * @param options - Render options passed through to Astro's container renderer.
  * @returns `{ window, root, html, close }` where `root` is the mounted body element.
  */
-export async function renderAstroComponentToDom(
-  Component: TAstroComponentFactory,
-  options: ComponentContainerRenderOptions = {}
+export async function renderAstroComponentToDom<
+  TComponent extends TAstroComponentFactory,
+>(
+  Component: TComponent,
+  options: ComponentContainerRenderOptions<TComponent> = {}
 ): Promise<{
   window: Window;
   root: HTMLElement;
@@ -63,7 +65,10 @@ export async function renderAstroComponentToDom(
   close: () => Promise<void>;
 }> {
   const astroContainer = await AstroContainer.create();
-  const html = await astroContainer.renderToString(Component, options);
+  const html = await astroContainer.renderToString(
+    Component as unknown as AstroContainerRenderComponent,
+    options
+  );
 
   const window = new Window({
     innerHeight: 768,

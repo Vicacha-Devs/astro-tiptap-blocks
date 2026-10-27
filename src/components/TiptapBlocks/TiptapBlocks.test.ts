@@ -37,8 +37,13 @@ describe("TiptapBlocks", () => {
             },
           ],
         },
-        resolveInternalLink: ({ collectionName, documentId }: { collectionName: string; documentId: string }) =>
-          `/cms/${collectionName}/${documentId}`,
+        resolveInternalLink: ({
+          collectionName,
+          documentId,
+        }: {
+          collectionName: string;
+          documentId: string;
+        }) => `/cms/${collectionName}/${documentId}`,
       },
     });
 

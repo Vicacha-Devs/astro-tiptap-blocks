@@ -1,6 +1,9 @@
 {
   "extends": "./tsconfig.json",
-  "include": ["src/**/*.ts"],
+  "compilerOptions": {
+    "declaration": true
+  },
+  "include": ["src/**/*.ts", "vitest.shims.d.ts"],
   "exclude": [
     "node_modules",
     "dist",

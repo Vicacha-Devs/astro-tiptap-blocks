@@ -87,6 +87,12 @@ describe("metadata utilities (lib/metadata)", () => {
     expect(meta.excerpt.endsWith("…")).toBe(true);
     expect(meta.readingTime.minutes).toBe(1);
     expect(meta.headings).toHaveLength(2);
-    expect(meta.relations).toMatchObject({ mediaIds: [], mediaDocumentIds: [], internalLinks: [] });
+    expect(meta.relations).toEqual({
+      mediaIds: [],
+      mediaDocumentIds: [],
+      mediaAssets: [],
+      internalLinks: [],
+      linksByCollection: {},
+    });
   });
 });

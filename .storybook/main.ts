@@ -12,8 +12,12 @@ export default defineMain({
         },
       },
     },
+    "@storybook/addon-a11y",
   ],
   framework: {
     name: "@storybook-astro/framework",
+  },
+  core: {
+    disableTelemetry: true,
   },
 });

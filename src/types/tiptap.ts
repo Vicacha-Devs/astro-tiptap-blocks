@@ -173,7 +173,23 @@ export type TiptapBlockNode =
   | TiptapIframeNode | TiptapMathematicsNode | TiptapTableOfContentsNode | TiptapPageBreakNode
   | TiptapHorizontalRuleNode | TiptapTableNode;
 
-export type TiptapDocNode = { type: "doc"; content: Array<TiptapBlockNode> };
+export type TiptapDocStats = {
+  words: number;
+  characters: number;
+  readingTimeMinutes: number;
+  readingTime?: string;
+  wordsPerMinute?: number;
+};
+
+export type TiptapDocNode = {
+  type: "doc";
+  content: Array<TiptapBlockNode>;
+  words?: number;
+  characters?: number;
+  readingTimeMinutes?: number;
+  readingTime?: string;
+  stats?: TiptapDocStats;
+};
 export type TiptapBlockType =
   | "heading" | "paragraph" | "leadParagraph" | "quote" | "informationPane" | "conversationHistory"
   | "details" | "columns" | "list" | "taskList" | "code" | "image" | "video" | "audio"

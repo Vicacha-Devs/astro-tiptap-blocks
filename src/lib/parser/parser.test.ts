@@ -45,7 +45,16 @@ describe("parseTiptapContent (lib/parser)", () => {
     const payload = JSON.parse(readFileSync(fixturePath, "utf-8"));
     const doc = parseTiptapContent(payload.content);
 
-    const blockTypes = new Set(doc.content.map((b) => b.type));
+    const blockTypes = new Set<string>(doc.content.map((b) => b.type));
+    for (const b of doc.content) {
+      if ("content" in b && Array.isArray(b.content)) {
+        for (const child of b.content) {
+          if (child && typeof child === "object" && "type" in child) {
+            blockTypes.add(child.type);
+          }
+        }
+      }
+    }
     expect(blockTypes.has("tableOfContents")).toBe(true);
     expect(blockTypes.has("leadParagraph")).toBe(true);
     expect(blockTypes.has("informationPane")).toBe(true);
