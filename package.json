@@ -56,11 +56,11 @@
     "test:watch": "vitest"
   },
   "devDependencies": {
-    "@storybook-astro/framework": "1.8.0",
+    "@storybook-astro/framework": "1.13.0",
     "@storybook-astro/renderer": "^1.8.0",
-    "@storybook/addon-a11y": "10.4.6",
-    "@storybook/addon-docs": "10.4.6",
-    "@storybook/builder-vite": "10.4.6",
+    "@storybook/addon-a11y": "10.6.3",
+    "@storybook/addon-docs": "10.6.3",
+    "@storybook/builder-vite": "10.6.3",
     "@testing-library/dom": "10.4.1",
     "@testing-library/jest-dom": "6.9.1",
     "@types/node": "^22.0.0",
@@ -68,7 +68,7 @@
     "astro": "^6.0.0 || ^7.0.0",
     "happy-dom": "20.10.6",
     "remark-gfm": "^4.0.1",
-    "storybook": "10.4.6",
+    "storybook": "10.6.3",
     "typescript": "6.0.3",
     "vitest": "4.1.9"
   },
