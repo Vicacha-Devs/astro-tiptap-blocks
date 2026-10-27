@@ -122,7 +122,7 @@ import {
 
 ## Interactive Documentation & Testing
 
-This repository includes a full TypeScript **Storybook for Astro** (`@storybook-astro/framework` + `@storybook/addon-docs` + `@storybook/addon-a11y`) suite and **Vitest** unit/component tests for every `.astro` component and `src/lib/` module.
+This repository includes a full TypeScript **Storybook for Astro** (`@storybook-astro/framework` + `@storybook/addon-docs` + `@storybook/addon-a11y` + themes, designs, RTL and tag badges) suite and **Vitest** unit/component tests for every `.astro` component and `src/lib/` module.
 
 ```bash
 # Start Storybook dev server on http://localhost:6006
@@ -130,6 +130,9 @@ pnpm storybook
 
 # Run Vitest unit & component tests with coverage
 pnpm test:coverage
+
+# Run every story as a browser test (first run: pnpm exec playwright install chromium)
+pnpm test:stories
 
 # Typecheck & build declaration files
 pnpm check && pnpm build

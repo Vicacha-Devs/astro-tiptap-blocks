@@ -13,6 +13,11 @@ export default defineMain({
       },
     },
     "@storybook/addon-a11y",
+    "@storybook/addon-themes",
+    "@storybook/addon-designs",
+    "@storybook/addon-vitest",
+    "storybook-addon-rtl",
+    "storybook-addon-tag-badges",
   ],
   framework: {
     name: "@storybook-astro/framework",

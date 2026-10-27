@@ -42,5 +42,11 @@ jobs:
       - name: Run Vitest unit & component tests with coverage
         run: pnpm test:coverage
 
+      - name: Install Playwright Chromium
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Run Storybook story tests in the browser
+        run: pnpm test:stories
+
       - name: Build static Storybook documentation
         run: pnpm build-storybook

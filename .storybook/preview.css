@@ -10,11 +10,14 @@ body {
   background-color: #ffffff;
 }
 
-@media (prefers-color-scheme: dark) {
-  body {
-    color: #f8fafc;
-    background-color: #0f172a;
-  }
+[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+[data-theme="dark"] body,
+body[data-theme="dark"] {
+  color: #f8fafc;
+  background-color: #0f172a;
 }
 
 [data-type="layout-container"] {

@@ -35,3 +35,34 @@ describe("TiptapNestedBlocks", () => {
     }
   });
 });
+
+describe("TiptapNestedBlocks remaining block types", () => {
+  it("renders lists, rules, blockquotes and ignores unsupported nodes", async () => {
+    const { root, close } = await renderAstroComponentToDom(TiptapNestedBlocks, {
+      props: {
+        blocks: [
+          {
+            type: "bulletList",
+            content: [
+              { type: "listItem", content: [{ type: "paragraph", content: [{ type: "text", text: "item" }] }] },
+            ],
+          },
+          { type: "horizontalRule" },
+          {
+            type: "blockquote",
+            content: [{ type: "paragraph", content: [{ type: "text", text: "quoted" }] }],
+          },
+          { type: "pageBreak" },
+        ],
+      },
+    });
+
+    try {
+      expect(root.querySelector("ul li")?.textContent).toContain("item");
+      expect(root.querySelector("hr")).not.toBeNull();
+      expect(root.querySelector("blockquote")?.textContent).toContain("quoted");
+    } finally {
+      await close();
+    }
+  });
+});

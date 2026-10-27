@@ -76,3 +76,20 @@ export const MultiParagraphWithListQuote = meta.story({
     ],
   } satisfies TiptapBlockquoteNode,
 });
+
+export const RightToLeftQuote = meta.story({
+  tags: ["rtl"],
+  globals: { addonRtl: "rtl" },
+  parameters: {
+    design: { type: "link", url: "https://www.figma.com/design/REPLACE_ME" },
+  },
+  args: {
+    type: "blockquote",
+    content: [
+      {
+        type: "paragraph",
+        content: [{ type: "text", text: "البساطة شرط الموثوقية." }],
+      },
+    ],
+  },
+});

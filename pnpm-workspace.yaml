@@ -1,2 +1,5 @@
 allowBuilds:
   esbuild: true
+# Temporary: 2.2.1 was published inside minimumReleaseAge. Remove once it ages out.
+overrides:
+  mdast-util-to-markdown: 2.2.0
