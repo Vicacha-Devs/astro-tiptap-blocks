@@ -79,4 +79,37 @@ describe("parseTiptapContent (lib/parser)", () => {
       content: [{ type: "text", text: "First paragraph" }],
     });
   });
+
+  it("preserves generic custom block nodes and sanitizes URL attributes", () => {
+    const doc = parseTiptapContent(
+      {
+        type: "doc",
+        content: [
+          {
+            type: "customWidget",
+            attrs: {
+              imageUrl: "/uploads/sample.jpg",
+              caption: "Custom block",
+            },
+          },
+          {
+            type: "customWidget",
+            attrs: {
+              imageUrl: "javascript:alert(1)",
+            },
+          },
+        ],
+      },
+      { mediaBaseUrl: "https://cms.mezquitabogota.org" }
+    );
+    expect(doc.content).toEqual([
+      {
+        type: "customWidget",
+        attrs: {
+          imageUrl: "https://cms.mezquitabogota.org/uploads/sample.jpg",
+          caption: "Custom block",
+        },
+      },
+    ]);
+  });
 });

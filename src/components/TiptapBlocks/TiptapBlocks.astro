@@ -110,7 +110,9 @@ const doc = parseTiptapContent(data, { allowedIframeDomains, resolveInternalLink
 const theme = buildThemeObject(userTheme, TiptapBlockThemeDefault);
 const wrapperClass = [getPropertyClass(theme.default), className].filter(Boolean).join(" ").trim();
 
-const mapNodeTypeToThemeKey = (nodeType: TiptapBlockNode["type"]): keyof TiptapBlockThemeCustomComponents => {
+const mapNodeTypeToThemeKey = (
+  nodeType: TiptapBlockNode["type"]
+): keyof TiptapBlockThemeCustomComponents | undefined => {
   switch (nodeType) {
     case "heading": return "heading";
     case "paragraph": return "paragraph";
@@ -134,6 +136,7 @@ const mapNodeTypeToThemeKey = (nodeType: TiptapBlockNode["type"]): keyof TiptapB
     case "pageBreak": return "pageBreak";
     case "table": return "table";
     case "horizontalRule": return "hr";
+    default: return undefined;
   }
 };
 ---
@@ -142,7 +145,7 @@ const mapNodeTypeToThemeKey = (nodeType: TiptapBlockNode["type"]): keyof TiptapB
   {
     doc.content.map((block) => {
       const themeKey = mapNodeTypeToThemeKey(block.type);
-      const customComponent = customBlocks[themeKey];
+      const customComponent = (themeKey ? customBlocks[themeKey] : undefined) ?? customBlocks[block.type];
       if (customComponent) {
         return <TiptapBlockCustom component={customComponent} {...block} theme={theme} />;
       }

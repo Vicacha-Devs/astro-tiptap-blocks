@@ -140,20 +140,17 @@ export type TiptapAttachmentNode = {
 
 export type TiptapIframeNode = {
   type: "iframe";
-  attrs: {
-    src: string;
-    title?: string | null;
-    width?: number | string | null;
-    height?: number | string | null;
-    "data-align"?: TiptapElementAlign | null;
-  };
+  attrs: { src: string; title?: string | null; width?: number | string | null; height?: number | string | null; "data-align"?: TiptapElementAlign | null };
+};
+
+export type TiptapCustomBlockNode = {
+  type: string;
+  attrs?: Record<string, unknown>;
+  content?: Array<TiptapBlockNode>;
 };
 
 export type TiptapTocHeadingItem = { id: string; text: string; level: TiptapHeadingLevel };
-export type TiptapTableOfContentsNode = {
-  type: "tableOfContents";
-  attrs?: { headings?: Array<TiptapTocHeadingItem>; title?: string | null };
-};
+export type TiptapTableOfContentsNode = { type: "tableOfContents"; attrs?: { headings?: Array<TiptapTocHeadingItem>; title?: string | null } };
 export type TiptapPageBreakNode = { type: "pageBreak" };
 export type TiptapHorizontalRuleNode = { type: "horizontalRule" };
 
@@ -173,14 +170,7 @@ export type TiptapBlockNode =
   | TiptapIframeNode | TiptapMathematicsNode | TiptapTableOfContentsNode | TiptapPageBreakNode
   | TiptapHorizontalRuleNode | TiptapTableNode;
 
-export type TiptapDocStats = {
-  words: number;
-  characters: number;
-  readingTimeMinutes: number;
-  readingTime?: string;
-  wordsPerMinute?: number;
-};
-
+export type TiptapDocStats = { words: number; characters: number; readingTimeMinutes: number; readingTime?: string; wordsPerMinute?: number };
 export type TiptapDocNode = {
   type: "doc";
   content: Array<TiptapBlockNode>;
@@ -195,7 +185,8 @@ export type TiptapBlockType =
   | "details" | "columns" | "list" | "taskList" | "code" | "image" | "video" | "audio"
   | "attachment" | "iframe" | "mathematics" | "tableOfContents" | "pageBreak" | "table" | "hr";
 export type TiptapContentInput =
-  | TiptapDocNode | Array<TiptapBlockNode> | string | ReadonlyArray<string> | null | undefined;
+  | TiptapDocNode | { type: "doc"; content: Array<TiptapBlockNode | TiptapCustomBlockNode> }
+  | Array<TiptapBlockNode | TiptapCustomBlockNode> | string | ReadonlyArray<string> | null | undefined;
 export type TiptapMediaUrlResolver = (url: string) => string | null | undefined;
 export type TiptapParserOptions = {
   allowedIframeDomains?: ReadonlyArray<string>;

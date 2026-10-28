@@ -23,10 +23,10 @@
   - `metadata/`: `extractPlainTextFromTiptap`, `calculateReadingTime`, `extractHeadingsFromTiptap`, and `extractDocumentMetadata` (`metadata.ts`, `metadata.stories.ts`, `metadata.test.ts`).
   - `relations/`: `extractRelationsFromTiptap`, `parseStrapiLinkUri`, `formatStrapiLinkUri`, and `resolveStrapiLinkHref` (`relations.ts`, `relations.stories.ts`, `relations.test.ts`).
   - `sanitize/`: `sanitizeTiptapUrl`, `resolveTiptapMediaUrl`, `sanitizeTiptapIframeUrl`, `sanitizeCssColor`, `buildSafeInlineStyle`, `slugifyHeadingText`, `formatFileSize`, `formatLatexPreview`, and `decodeHtmlEntities` (`sanitize.ts`, `sanitize.stories.ts`, `sanitize.test.ts`).
-  - `theme/`: `TiptapBlockThemeDefault`, `buildThemeObject`, `getPropertyClass`, and `renderPropertyClasses` (`theme.ts`, `theme.stories.ts`, `theme.test.ts`).
+  - `theme/`: `TiptapBlockThemeDefault`, `buildThemeObject`, `getPropertyClass`, and `renderPropertyClasses` (`theme.ts`, `theme.stories.ts`, `theme.test.ts`, `CustomizingTheme.docs.mdx`).
 - `src/components/` — Organized into dedicated component folders (`<Name>/<Name>.astro`, `<Name>.stories.ts`, `<Name>.test.ts`):
   - `TiptapBlocks/`: Root orchestrator (`TiptapBlocks.astro`, `TiptapBlocks.stories.ts`, `TiptapBlocks.test.ts`).
-  - `blocks/`: Block component folders (`TiptapBlockHeading/`, `TiptapBlockParagraph/`, `TiptapBlockQuote/`, `TiptapBlockCallout/`, `TiptapBlockDetails/`, `TiptapBlockColumns/`, `TiptapBlockList/`, `TiptapBlockCode/`, `TiptapBlockImage/`, `TiptapBlockMedia/`, `TiptapBlockMath/`, `TiptapBlockToc/`, `TiptapBlockTable/`, `TiptapBlockHr/`, `TiptapBlockCustom/`, `TiptapLibPreview/`).
+  - `blocks/`: Block component folders (`TiptapBlockHeading/`, `TiptapBlockParagraph/`, `TiptapBlockQuote/`, `TiptapBlockCallout/`, `TiptapBlockDetails/`, `TiptapBlockColumns/`, `TiptapBlockList/`, `TiptapBlockCode/`, `TiptapBlockImage/`, `TiptapBlockMedia/`, `TiptapBlockMath/`, `TiptapBlockToc/`, `TiptapBlockTable/`, `TiptapBlockHr/`, `TiptapBlockCustom/` + `ExtendingCustomComponents.docs.mdx`, `TiptapLibPreview/`).
   - `blocks/items/`: Inline and nested block component folders (`TiptapInlineNodes/`, `TiptapTextItem/`, `TiptapLinkItem/`, `TiptapNestedBlocks/`).
 - `src/utils/test.helpers.ts` & `vitest.config.ts` — Astro Container + `happy-dom` + `@testing-library/dom` test helper (`renderAstroComponentToDom`) and Vitest configuration.
 - `.storybook/` —

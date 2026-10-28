@@ -98,6 +98,42 @@ export const DangerPane = meta.story({
   } satisfies TiptapInformationPaneNode,
 });
 
+export const TipPane = meta.story({
+  args: {
+    type: "informationPane",
+    attrs: { variant: "tip", title: "Pro Tip" },
+    content: [
+      {
+        type: "paragraph",
+        content: [
+          {
+            type: "text",
+            text: "Pass custom Astro components to the blocks prop to override any default renderer without set:html.",
+          },
+        ],
+      },
+    ],
+  } satisfies TiptapInformationPaneNode,
+});
+
+export const NeutralPane = meta.story({
+  args: {
+    type: "informationPane",
+    attrs: { variant: "neutral", title: "Implementation Reference" },
+    content: [
+      {
+        type: "paragraph",
+        content: [
+          {
+            type: "text",
+            text: "Neutral callout panes are ideal for side notes, specifications, and glossary definitions.",
+          },
+        ],
+      },
+    ],
+  } satisfies TiptapInformationPaneNode,
+});
+
 export const ConversationHistoryEntry = meta.story({
   args: {
     type: "conversationHistory",

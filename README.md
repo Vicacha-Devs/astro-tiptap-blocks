@@ -118,6 +118,29 @@ import {
 } from "@vicacha-devs/astro-tiptap-blocks/lib";
 ```
 
+## Customizing Theme & Extending with Custom Components
+
+- **Theme & CSS (`theme.extend` / `theme.overwrite`)**: Customize Tailwind classes, replace slots with BEM/vanilla CSS, or style via `data-*` selectors. See **Guides / Customizing Theme & Styling** (`src/lib/theme/CustomizingTheme.docs.mdx`).
+- **Custom Block Components (`blocks` prop)**: Override any built-in block renderer (`TiptapBlockUserComponents`) or render custom Strapi Tiptap extensions (`TiptapCustomBlockNode` in JSON/Markdown or `data-tiptap-type="<nodeName>"` in HTML) by passing the custom node `type` key in `blocks`. See **Guides / Extending & Custom Components** (`src/components/blocks/TiptapBlockCustom/ExtendingCustomComponents.docs.mdx`):
+
+```astro
+---
+import { TiptapBlocks } from "@vicacha-devs/astro-tiptap-blocks";
+import BeforeAfterSlider from "./BeforeAfterSlider.astro";
+import CustomCallout from "./CustomCallout.astro";
+import CustomHeading from "./CustomHeading.astro";
+---
+
+<TiptapBlocks
+  data={articleContent}
+  blocks={{
+    heading: CustomHeading,
+    informationPane: CustomCallout,
+    beforeAfterSlider: BeforeAfterSlider,
+  }}
+/>
+```
+
 ---
 
 ## Interactive Documentation & Testing

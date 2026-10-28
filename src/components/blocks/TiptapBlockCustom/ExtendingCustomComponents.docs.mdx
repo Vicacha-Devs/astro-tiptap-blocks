@@ -1,0 +1,159 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Guides/Extending & Custom Components" />
+
+# Extending `@vicacha-devs/astro-tiptap-blocks` with Custom Components
+
+`@vicacha-devs/astro-tiptap-blocks` supports **two levels of extensibility** in consumer Astro projects without modifying the library, while preserving its core security guarantee (**zero `set:html` / `innerHTML`**):
+
+1. **Overriding Built-in Blocks (`blocks` prop)**: Replace any built-in block renderer (`heading`, `paragraph`, `informationPane`, etc.) with your own Astro component.
+2. **Rendering Custom Tiptap Extensions (`TiptapCustomBlockNode`)**: Render any custom ProseMirror/Tiptap block registered via `registerTiptapExtension()` in `@notum-cz/strapi-plugin-tiptap-editor` by passing its node `type` name in `blocks={{ [customNodeType]: YourAstroComponent }}`.
+
+---
+
+## 1. Overriding Built-in Blocks (`blocks` Prop)
+
+Pass a `blocks` map (`TiptapBlockUserComponents`) to `<TiptapBlocks />`. When `TiptapBlocks.astro` encounters a node whose theme key or node `type` is present in `blocks`, it delegates rendering to `TiptapBlockCustom.astro`, forwarding the sanitized AST node (`type`, `attrs`, `content`) plus the resolved `theme` object to your custom Astro component.
+
+### Example: Custom Callout & Heading Overrides
+
+Use `TiptapInlineNodes` (for inline text/marks) or `TiptapNestedBlocks` (for container blocks) so you never need `set:html`:
+
+```astro
+---
+// src/components/richtext/CustomCallout.astro
+import TiptapNestedBlocks from "@vicacha-devs/astro-tiptap-blocks/components/blocks/items/TiptapNestedBlocks/TiptapNestedBlocks.astro";
+import { getPropertyClass, TiptapBlockThemeDefault } from "@vicacha-devs/astro-tiptap-blocks/lib";
+import type { TiptapBlockNode, TiptapBlockTheme, TiptapInformationPaneVariant } from "@vicacha-devs/astro-tiptap-blocks/types";
+
+export interface Props {
+  type?: "informationPane";
+  attrs?: { variant?: TiptapInformationPaneVariant; title?: string | null };
+  content?: TiptapBlockNode[];
+  theme?: TiptapBlockTheme;
+}
+
+const { attrs, content = [], theme = TiptapBlockThemeDefault } = Astro.props;
+const variant = attrs?.variant ?? "info";
+const baseClass = getPropertyClass(theme.informationPane?.default);
+---
+
+<aside role="note" data-callout-variant={variant} class:list={["my-custom-callout", baseClass]}>
+  {attrs?.title && <strong class="block font-bold">{attrs.title}</strong>}
+  <div>
+    <TiptapNestedBlocks blocks={content} theme={theme} />
+  </div>
+</aside>
+```
+
+### Built-in `blocks` Override Keys (`TiptapBlockUserComponents`)
+
+| `blocks` Key                                | Handled AST `node.type`                                | Forwarded Content Helper                        |
+| :------------------------------------------ | :----------------------------------------------------- | :---------------------------------------------- |
+| `heading`                                   | `"heading"`                                            | `<TiptapInlineNodes nodes={content} />`         |
+| `paragraph`                                 | `"paragraph"`                                          | `<TiptapInlineNodes nodes={content} />`         |
+| `leadParagraph`                             | `"leadParagraph"`                                      | `<TiptapInlineNodes nodes={content} />`         |
+| `quote`                                     | `"blockquote"`                                         | `<TiptapNestedBlocks blocks={content} />`       |
+| `informationPane`                           | `"informationPane"`                                    | `<TiptapNestedBlocks blocks={content} />`       |
+| `conversationHistory`                       | `"conversationHistory"`                                | `<TiptapNestedBlocks blocks={content} />`       |
+| `details`                                   | `"details"`                                            | `detailsSummary` + `detailsContent`             |
+| `columns`                                   | `"layoutContainer"`                                    | `layoutColumn[]` with `<TiptapNestedBlocks />`  |
+| `list`                                      | `"bulletList"` \| `"orderedList"`                      | `listItem[]`                                    |
+| `taskList`                                  | `"taskList"`                                           | `taskItem[]` (`attrs.checked`)                  |
+| `code`                                      | `"codeBlock"`                                          | Plain text from `content`                       |
+| `image`                                     | `"image"`                                              | Self-contained (`attrs.src`, `attrs.alt`, etc.) |
+| `video` / `audio` / `attachment` / `iframe` | `"video"` \| `"audio"` \| `"attachment"` \| `"iframe"` | Self-contained (`attrs.src` / `attrs.href`)     |
+| `mathematics`                               | `"mathematics"`                                        | Self-contained (`attrs.latex`)                  |
+| `tableOfContents`                           | `"tableOfContents"`                                    | Self-contained (`attrs.headings`)               |
+| `pageBreak` / `hr`                          | `"pageBreak"` \| `"horizontalRule"`                    | Leaf node (`no content`)                        |
+| `table`                                     | `"table"`                                              | `tableRow[]` -> `tableHeader` / `tableCell`     |
+
+---
+
+## 2. Rendering Custom Tiptap Extensions (Backend + Frontend)
+
+`@vicacha-devs/astro-tiptap-blocks` natively supports custom Tiptap block nodes (`TiptapCustomBlockNode`) across all 3 input formats (**JSON**, **HTML**, and **Markdown**) without requiring changes to this package:
+
+1. **JSON & Markdown (`<!-- tiptap-node:... -->`)**: `parseTiptapContent()` preserves any custom block node `{ type: "<customType>", attrs: { ... }, content?: [...] }` and automatically sanitizes any `src`, `href`, or `*Url` string attributes in `attrs` via `resolveTiptapMediaUrl()` (dropping the block if any URL uses an unsafe protocol like `javascript:`).
+2. **HTML (`data-tiptap-type="<customType>"`)**: When your Tiptap extension's `renderHTML()` outputs `data-tiptap-type="<customType>"` alongside `data-*` attributes (e.g. `data-before-url`, `data-after-url`, `data-caption`), `parseTiptapHtml()` automatically converts the element into `{ type: "<customType>", attrs: { beforeUrl, afterUrl, caption } }` (camelCasing `data-*` attributes) and passes it through `sanitizeBlockNodes()`.
+3. **Astro Dispatcher**: `<TiptapBlocks blocks={{ [customType]: MyAstroComponent }} />` matches `blocks[block.type]` and renders `<MyAstroComponent {...block} theme={theme} />`.
+
+### End-to-End Example: Before / After Image Comparison Slider (`beforeAfterSlider`)
+
+#### Step A — Register the Custom Extension in (`backend/src/admin/app.tsx`)
+
+Import `Node`, `mergeAttributes`, `registerTiptapExtension`, and `MediaLibraryWrapper` directly from `@notum-cz/strapi-plugin-tiptap-editor/strapi-admin`:
+
+```tsx
+// backend/src/admin/tiptap/beforeAfterSlider.tsx
+import React, { useState } from "react";
+import {
+  Node,
+  mergeAttributes,
+  registerTiptapExtension,
+  MediaLibraryWrapper,
+  type CustomExtensionDialogProps,
+  type StrapiFile,
+} from "@notum-cz/strapi-plugin-tiptap-editor/strapi-admin";
+
+export const BeforeAfterNode = Node.create({
+  name: "beforeAfterSlider",
+  group: "block",
+  atom: true,
+  addAttributes() {
+    return {
+      beforeUrl: { default: "" },
+      afterUrl: { default: "" },
+      beforeAlt: { default: "Before" },
+      afterAlt: { default: "After" },
+      caption: { default: "" },
+    };
+  },
+  parseHTML() {
+    return [{ tag: "figure[data-before-after]" }];
+  },
+  renderHTML({ HTMLAttributes }) {
+    return [
+      "figure",
+      mergeAttributes({
+        "data-tiptap-type": "beforeAfterSlider",
+        "data-before-after": "true",
+        "data-before-url": HTMLAttributes.beforeUrl,
+        "data-after-url": HTMLAttributes.afterUrl,
+        "data-before-alt": HTMLAttributes.beforeAlt,
+        "data-after-alt": HTMLAttributes.afterAlt,
+        "data-caption": HTMLAttributes.caption,
+      }),
+      ["img", { src: HTMLAttributes.beforeUrl, alt: HTMLAttributes.beforeAlt }],
+      ["img", { src: HTMLAttributes.afterUrl, alt: HTMLAttributes.afterAlt }],
+      ["figcaption", {}, HTMLAttributes.caption || ""],
+    ];
+  },
+});
+```
+
+#### Step B — Create the Astro Component & Pass It via `blocks` (`frontend`)
+
+```astro
+---
+// frontend/src/components/TiptapContent.astro
+import { TiptapBlocks } from "@vicacha-devs/astro-tiptap-blocks";
+import BeforeAfterSlider from "./BeforeAfterSlider.astro";
+
+const { content } = Astro.props;
+---
+
+<TiptapBlocks
+  data={content}
+  blocks={{
+    beforeAfterSlider: BeforeAfterSlider,
+  }}
+/>
+```
+
+---
+
+## Security Checklist for Custom Components
+
+- **Never use `set:html` or `innerHTML`**: Always render AST text and captions via Astro JSX expressions (`{attrs?.caption}`), `<TiptapInlineNodes />`, or `<TiptapNestedBlocks />`.
+- **Sanitize URLs**: Keep URL attributes named `src`, `href`, or ending in `Url` (`beforeUrl`, `afterUrl`, `imageUrl`) so `parseTiptapContent()` automatically validates and resolves them with `resolveTiptapMediaUrl()`.

@@ -141,6 +141,16 @@ export const convertCustomHtmlElement = (
       },
     ];
   }
+  const customNodeType = el.attrs["data-tiptap-type"];
+  if (customNodeType) {
+    const attrs: Record<string, unknown> = {};
+    for (const [k, v] of Object.entries(el.attrs)) {
+      if (k === "data-tiptap-type" || k === "class") continue;
+      const propKey = k.replace(/^data-/, "").replace(/-([a-z])/g, (_, c: string) => c.toUpperCase());
+      attrs[propKey] = v;
+    }
+    return [{ type: customNodeType, attrs } as unknown as TiptapBlockNode];
+  }
 
   return null;
 };

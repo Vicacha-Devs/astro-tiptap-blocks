@@ -1,12 +1,15 @@
 ---
+import { type BundledLanguage, codeToTokens, type ThemedToken } from "shiki";
+import { sanitizeCssColor } from "../../../lib/sanitize";
 import { getPropertyClass, renderPropertyClasses, TiptapBlockThemeDefault } from "../../../lib/theme";
 import type { TiptapBlockTheme, TiptapCodeBlockNode, TiptapTextNode } from "../../../types";
 
 /**
  * @component TiptapBlockCode
- * @title Tiptap Block Code
- * @description Renders a `<pre><code>` fenced code block with optional `data-language` / `language-*` class,
- * per-line `<span>` wrappers with `data-line-number`, and an optional header toolbar with language badge and copy button.
+ * @title Tiptap Block Code (Shiki Token Renderer)
+ * @description Renders a `<pre><code>` fenced code block highlighted at build/SSR time via Shiki's
+ * `codeToTokens()` AST API (zero `set:html` / `innerHTML`), with dual `github-dark` / `github-light`
+ * theme variables, optional `data-line-number` wrappers, copy toolbar, and plain-text fallback.
  *
  * @preview
  *
@@ -60,25 +63,50 @@ export interface Props {
 }
 
 const {
-  type = "codeBlock",
   attrs,
   content = [],
   theme = TiptapBlockThemeDefault,
   showLineNumbers = false,
   copyable = false,
 } = Astro.props;
-const language = attrs?.language || undefined;
+
+const language = attrs?.language?.trim() || undefined;
 const withLineNumbers = Boolean(showLineNumbers || attrs?.showLineNumbers);
 const isCopyable = Boolean(copyable || attrs?.copyable);
 const preClassName = renderPropertyClasses(theme.code);
 const lineClassName = getPropertyClass(theme.code.line);
 const rawCode = content.map((node) => node.text).join("");
-const lines = rawCode ? rawCode.split("\n") : [];
+const plainLines = rawCode ? rawCode.split("\n") : [];
+
+const buildShikiTokenStyle = (token: ThemedToken): string | undefined => {
+  const parts: string[] = [];
+  const fg = sanitizeCssColor(token.htmlStyle?.color ?? token.color);
+  const lightFg = sanitizeCssColor(token.htmlStyle?.["--shiki-light"]);
+  if (fg) parts.push(`color:${fg}`);
+  if (lightFg) parts.push(`--shiki-light:${lightFg}`);
+  if (token.htmlStyle?.["font-style"] === "italic") parts.push("font-style:italic");
+  if (token.htmlStyle?.["font-weight"] === "bold") parts.push("font-weight:bold");
+  return parts.length > 0 ? parts.join(";") : undefined;
+};
+
+let shikiLines: ThemedToken[][] | null = null;
+if (rawCode && language && language !== "plaintext" && language !== "text") {
+  try {
+    const tokenized = await codeToTokens(rawCode, {
+      lang: language as BundledLanguage,
+      themes: { dark: "github-dark", light: "github-light" },
+      defaultColor: "dark",
+    });
+    shikiLines = tokenized.tokens;
+  } catch {
+    shikiLines = null;
+  }
+}
 ---
 
-{
-  isCopyable ? (
-    <div class="tiptap-code-wrapper my-4">
+<div class:list={[isCopyable ? "tiptap-code-wrapper my-4" : "contents"]}>
+  {
+    isCopyable && (
       <div class="flex items-center justify-between rounded-t-lg border border-b-0 border-slate-700 bg-slate-800 px-4 py-1.5 text-xs text-slate-300">
         <span class="font-mono uppercase tracking-wider">{language || "code"}</span>
         <button
@@ -90,33 +118,29 @@ const lines = rawCode ? rawCode.split("\n") : [];
           Copy
         </button>
       </div>
-      <pre class:list={[preClassName || undefined, "!my-0 !rounded-t-none"]} data-language={language}>
-        <code class:list={[language ? `language-${language}` : undefined]}>
-          {lines.map((line, idx) => (
+    )
+  }
+  <pre
+    class:list={[preClassName || undefined, isCopyable ? "!my-0 !rounded-t-none" : undefined]}
+    data-language={language}
+    data-shiki={shikiLines ? "true" : undefined}
+  ><code class:list={[language ? `language-${language}` : undefined]}>{
+      shikiLines
+        ? shikiLines.map((tokens, idx) => (
             <span
               data-line-number={withLineNumbers ? idx + 1 : undefined}
               class:list={[lineClassName || undefined]}
-            >
-              {line}
-              {"\n"}
-            </span>
-          ))}
-        </code>
-      </pre>
-    </div>
-  ) : (
-    <pre class:list={[preClassName || undefined]} data-language={language}>
-      <code class:list={[language ? `language-${language}` : undefined]}>
-        {lines.map((line, idx) => (
-          <span
-            data-line-number={withLineNumbers ? idx + 1 : undefined}
-            class:list={[lineClassName || undefined]}
-          >
-            {line}
-            {"\n"}
-          </span>
-        ))}
-      </code>
-    </pre>
-  )
-}
+            >{
+              tokens.map((token) => (
+                <span class="shiki-token" style={buildShikiTokenStyle(token)}>{token.content}</span>
+              ))
+            }{"\n"}</span>
+          ))
+        : plainLines.map((line, idx) => (
+            <span
+              data-line-number={withLineNumbers ? idx + 1 : undefined}
+              class:list={[lineClassName || undefined]}
+            >{line}{"\n"}</span>
+          ))
+    }</code></pre>
+</div>

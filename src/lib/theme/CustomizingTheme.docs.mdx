@@ -1,0 +1,161 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Guides/Customizing Theme & Styling" />
+
+# Customizing Theme & Styling (`theme` Prop, Tailwind & CSS)
+
+`@vicacha-devs/astro-tiptap-blocks` ships with a layered styling architecture so you can adapt every block using **Tailwind CSS**, **custom utility/BEM classes**, or **pure CSS `data-*` selectors**.
+
+---
+
+## 1. How the Theme Engine Works (`TiptapBlockUserTheme`)
+
+Every `<TiptapBlocks />` instance resolves its classes through `buildThemeObject(userTheme, TiptapBlockThemeDefault)` (`src/lib/theme/theme.ts`) in three layers:
+
+1. **Base Layer (`TiptapBlockThemeDefault`)**: Default Tailwind utility classes for all 21 block types and their sub-elements.
+2. **Overwrite Layer (`theme.overwrite`)**: **Replaces** only the specific slots you provide while keeping all other default slots intact.
+3. **Extend Layer (`theme.extend`)**: **Appends** your custom classes onto the resolved slot value.
+
+Every slot accepts either a space-separated `string` or a `string[]` array.
+
+### Example: Extending Default Tailwind Classes (`theme.extend`)
+
+```astro
+---
+import { TiptapBlocks } from "@vicacha-devs/astro-tiptap-blocks";
+---
+
+<TiptapBlocks
+  data={article.content}
+  theme={{
+    extend: {
+      default: "max-w-prose mx-auto",
+      heading: {
+        default: "font-serif text-emerald-950 dark:text-emerald-100",
+        h2: "border-b border-emerald-500/20 pb-2",
+      },
+      paragraph: {
+        default: "text-slate-700 dark:text-slate-300",
+        link: ["text-emerald-700", "dark:text-emerald-400", "font-medium"],
+      },
+      informationPane: {
+        tip: "shadow-sm ring-1 ring-purple-500/20",
+      },
+      table: {
+        headerCell: "bg-slate-100 dark:bg-slate-800/70",
+      },
+    },
+  }}
+/>
+```
+
+### Example: Replacing Classes with BEM / Vanilla CSS (`theme.overwrite`)
+
+If your project does not use Tailwind CSS (or uses custom design-system classes for specific blocks), use `overwrite`:
+
+```astro
+<TiptapBlocks
+  data={article.content}
+  theme={{
+    overwrite: {
+      default: "richtext-body",
+      informationPane: {
+        default: "callout",
+        info: "callout--info",
+        success: "callout--success",
+        warning: "callout--warning",
+        danger: "callout--danger",
+        neutral: "callout--neutral",
+        tip: "callout--tip",
+        title: "callout__title",
+        body: "callout__body",
+      },
+      code: {
+        default: "code-block",
+        line: "code-block__line",
+      },
+    },
+  }}
+/>
+```
+
+> You can also combine `overwrite` and `extend` in the same `theme` object—`overwrite` runs first, and `extend` appends on top of it.
+
+---
+
+## 2. Complete Theme Slots Reference (`TiptapBlockTheme`)
+
+| Theme Group | Available Slots (`string \| string[]`) | Default Highlights (`TiptapBlockThemeDefault`) |
+| :--- | :--- | :--- |
+| `(root)` | `default` | `""` (applied to the outer `<div class={...}>` wrapper) |
+| `heading` | `default`, `h1`, `h2`, `h3`, `h4`, `h5`, `h6` | `font-bold tracking-tight`, `h1: text-4xl`, `h2: text-3xl`... |
+| `paragraph` | `default`, `link`, `bold`, `italic`, `underline`, `strikethrough`, `code`, `highlight`, `subscript`, `superscript`, `abbr`, `language`, `linker`, `mathInline` | `text-base leading-relaxed my-4`, inline marks & `linker` chip styles |
+| `leadParagraph` | `default` | `text-xl leading-relaxed my-5 opacity-90 font-normal` |
+| `quote` | `default` | `border-s-4 ps-4 italic my-6 opacity-90` |
+| `informationPane` | `default`, `info`, `success`, `warning`, `danger`, `neutral`, `tip`, `title`, `body` | `my-6 p-4 rounded-lg border-s-4` + per-variant border/bg/text colors |
+| `conversationHistory` | `default`, `header`, `author`, `timestamp`, `body` | `my-6 p-4 rounded-lg border bg-black/[0.02] dark:bg-white/[0.03]` |
+| `details` | `default`, `summary`, `content` | `my-6 rounded-lg border p-4`, `summary: font-semibold cursor-pointer` |
+| `columns` | `default`, `column` | `my-6 grid gap-6 md:grid-cols-2`, `column: min-w-0 space-y-4` |
+| `list` | `default`, `ordered`, `unordered`, `item` | `my-4 ps-6 space-y-2`, `list-decimal` / `list-disc` |
+| `taskList` | `default`, `item`, `checkbox`, `content`, `checked` | `my-4 space-y-2 list-none ps-0`, `checked: line-through opacity-70` |
+| `code` | `default`, `line` | `font-mono text-sm p-4 my-6 rounded-lg overflow-x-auto bg-neutral-900 text-neutral-100` |
+| `image` | `default`, `image`, `caption` | `my-6`, `max-w-full h-auto rounded-lg`, `caption: text-sm opacity-75` |
+| `video` | `default`, `video`, `iframe`, `caption` | `w-full rounded-lg`, `iframe: w-full aspect-video rounded-lg border-0` |
+| `audio` | `default`, `audio`, `caption` | `my-6`, `audio: w-full` |
+| `attachment` | `default`, `badge`, `title`, `meta`, `button` | `my-4 flex items-center justify-between gap-4 p-3.5 rounded-lg border` |
+| `iframe` | `default`, `iframe` | `my-6`, `iframe: w-full rounded-lg border` |
+| `mathematics` | `default`, `formula` | `my-6 p-4 rounded-lg bg-black/[0.03] dark:bg-white/[0.04] text-center` |
+| `tableOfContents` | `default`, `title`, `list`, `item`, `link` | `my-6 p-4 rounded-lg border`, `title: font-semibold text-sm uppercase` |
+| `pageBreak` | `default` | `my-8 border-t-2 border-dashed opacity-30 print:break-after-page` |
+| `table` | `default`, `head`, `body`, `row`, `headerCell`, `cell` | `w-full border-collapse my-6 text-sm`, `px-4 py-3` |
+| `hr` | `default` | `my-8 border-t opacity-20` |
+
+---
+
+## 3. Styling via Semantic `data-*` Attributes & CSS Variables
+
+Every component also emits semantic `data-*` attributes so you can style blocks in global/scoped CSS without modifying the `theme` prop:
+
+```css
+/* Target callout variants directly in CSS */
+[data-type="information-pane"][data-variant="tip"] {
+  border-inline-start-color: #8b5cf6;
+}
+
+/* Switch Shiki code tokens from dark palette to light palette when desired */
+pre[data-shiki="true"].light-code-block .shiki-token {
+  color: var(--shiki-light) !important;
+}
+
+/* Style line numbers emitted by showCodeLineNumbers */
+pre code [data-line-number]::before {
+  content: attr(data-line-number);
+  display: inline-block;
+  width: 2rem;
+  margin-inline-end: 0.75rem;
+  text-align: end;
+  opacity: 0.45;
+  user-select: none;
+}
+```
+
+---
+
+## 4. Programmatic Theme Helpers (`@vicacha-devs/astro-tiptap-blocks/lib`)
+
+When building custom block components (`blocks` prop), use the exported theme utilities so your custom components honor the user's `theme`:
+
+```ts
+import {
+  TiptapBlockThemeDefault,
+  buildThemeObject,
+  getPropertyClass,
+  renderPropertyClasses,
+} from "@vicacha-devs/astro-tiptap-blocks/lib";
+
+// Combine `default` + variant slot (e.g., `informationPane.default` + `informationPane.warning`)
+const calloutClass = renderPropertyClasses(theme.informationPane, "warning");
+
+// Read a single sub-slot (string or string[]) as a normalized class string
+const titleClass = getPropertyClass(theme.informationPane.title);
+```
