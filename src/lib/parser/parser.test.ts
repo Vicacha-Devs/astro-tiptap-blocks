@@ -6,7 +6,7 @@ import { parseTiptapContent } from "./parser";
 const currentDir = dirname(fileURLToPath(import.meta.url));
 const fixturePath = resolve(
   currentDir,
-  "../../../../strapi-plugin-tiptap-editor/fixtures/all-features-payload.json"
+  "../../fixtures/all-features-payload.json"
 );
 
 describe("parseTiptapContent (lib/parser)", () => {

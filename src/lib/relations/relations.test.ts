@@ -11,7 +11,7 @@ import {
 const currentDir = dirname(fileURLToPath(import.meta.url));
 const fixturePath = resolve(
   currentDir,
-  "../../../../strapi-plugin-tiptap-editor/fixtures/all-features-payload.json"
+  "../../fixtures/all-features-payload.json"
 );
 
 describe("relations utilities (lib/relations)", () => {
