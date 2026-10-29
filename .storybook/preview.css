@@ -33,6 +33,21 @@ body[data-theme="dark"],
   color: inherit;
 }
 
+/* Storybook docs tables/inline code keep their light-theme colors; align them with the dark theme */
+[data-theme="dark"] .sbdocs table tr,
+[data-theme="dark"] .sbdocs table tr:nth-of-type(2n) {
+  color: inherit;
+  background-color: transparent;
+}
+[data-theme="dark"] .sbdocs table tr:nth-of-type(2n) {
+  background-color: rgba(148, 163, 184, 0.08);
+}
+[data-theme="dark"] .sbdocs :is(h1, h2, h3, h4, h5, h6, p, li, td, th) code {
+  color: #e2e8f0;
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(148, 163, 184, 0.25);
+}
+
 [data-type="layout-container"] {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
