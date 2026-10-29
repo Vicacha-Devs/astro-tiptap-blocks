@@ -1,0 +1,45 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "printWidth": 100,
+  "arrowParens": "always",
+  "semi": true,
+  "tabWidth": 2,
+  "trailingComma": "es5",
+  "useTabs": false,
+  "quoteProps": "consistent",
+  "bracketSameLine": false,
+  "endOfLine": "lf",
+  "insertFinalNewline": true,
+  "astro": {
+    "allowShorthand": true,
+    "compressHTML": "none",
+    "skipFrontmatter": false
+  },
+  "sortImports": {
+    "groups": [
+      ["type-import"],
+      ["builtin", "external"],
+      ["internal"],
+      ["parent", "sibling", "index"],
+      ["style"]
+    ],
+    "newlinesBetween": true,
+    "internalPattern": ["^@(.*)$"]
+  },
+  "ignorePatterns": [
+    "coverage",
+    "dist",
+    "storybook-static",
+    "node_modules",
+    "yarn.lock",
+    "package-lock.json",
+    "pnpm-lock.yaml",
+    "src/**/*.mdx",
+    "CHANGELOG.md",
+    "CLAUDE.md",
+    "README.md"
+  ],
+  "sortPackageJson": {
+    "sortScripts": true
+  }
+}

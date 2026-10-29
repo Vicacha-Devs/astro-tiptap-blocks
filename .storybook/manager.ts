@@ -1,3 +1,4 @@
+import { defaultConfig } from "storybook-addon-tag-badges/manager-helpers";
 import {
   DOCS_RENDERED,
   GLOBALS_UPDATED,
@@ -7,7 +8,6 @@ import {
 } from "storybook/internal/core-events";
 import { addons } from "storybook/manager-api";
 import { create } from "storybook/theming";
-import { defaultConfig } from "storybook-addon-tag-badges/manager-helpers";
 
 const REGISTER_THEMES_EVENT = "storybook/themes/REGISTER_THEMES";
 
@@ -65,6 +65,13 @@ addons.setConfig({
   tagBadges,
 });
 
+const applyManagerTheme = (themeName?: string) => {
+  addons.setConfig({
+    theme: themeName === "dark" ? darkTheme : lightTheme,
+    tagBadges,
+  });
+};
+
 addons.register("astro-tiptap-blocks/theme-sync", (api) => {
   const channel = api.getChannel();
   if (!channel) return;
@@ -73,13 +80,6 @@ addons.register("astro-tiptap-blocks/theme-sync", (api) => {
     channel.emit(REGISTER_THEMES_EVENT, {
       defaultTheme: "light",
       themes: ["light", "dark"],
-    });
-  };
-
-  const applyManagerTheme = (themeName?: string) => {
-    addons.setConfig({
-      theme: themeName === "dark" ? darkTheme : lightTheme,
-      tagBadges,
     });
   };
 

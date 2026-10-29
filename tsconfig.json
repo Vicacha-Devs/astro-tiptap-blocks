@@ -17,6 +17,6 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["src/**/*.ts", ".storybook/**/*.ts", "vitest.shims.d.ts"],
-  "exclude": ["node_modules", "dist", "coverage"]
+  "include": ["src/**/*.ts", ".storybook/**/*.ts", "*.ts"],
+  "exclude": ["node_modules", "dist", "coverage", "storybook-static"]
 }
