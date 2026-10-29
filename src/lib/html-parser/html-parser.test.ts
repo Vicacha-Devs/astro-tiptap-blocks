@@ -46,12 +46,19 @@ describe("parseTiptapHtml (lib/html-parser)", () => {
 
     const doc = parseTiptapHtml(maliciousHtml);
     expect(doc.content).toHaveLength(2);
-    const p = doc.content[0];
-    if (p.type === "paragraph" && p.content?.[0]?.type === "text") {
-      expect(p.content[0].marks?.[0]).toEqual({
-        type: "link",
-        attrs: { href: "#", target: null, rel: null, title: null, class: null },
-      });
-    }
+    expect(doc.content[0]).toMatchObject({
+      type: "paragraph",
+      content: [
+        {
+          type: "text",
+          marks: [
+            {
+              type: "link",
+              attrs: { href: "#", target: null, rel: null, title: null, class: null },
+            },
+          ],
+        },
+      ],
+    });
   });
 });

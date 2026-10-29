@@ -1,7 +1,12 @@
 ---
 import { type BundledLanguage, codeToTokens, type ThemedToken } from "shiki";
+
 import { sanitizeCssColor } from "../../../lib/sanitize";
-import { getPropertyClass, renderPropertyClasses, TiptapBlockThemeDefault } from "../../../lib/theme";
+import {
+  getPropertyClass,
+  renderPropertyClasses,
+  TiptapBlockThemeDefault,
+} from "../../../lib/theme";
 import type { TiptapBlockTheme, TiptapCodeBlockNode, TiptapTextNode } from "../../../types";
 
 /**
@@ -102,45 +107,49 @@ if (rawCode && language && language !== "plaintext" && language !== "text") {
     shikiLines = null;
   }
 }
+const NEWLINE = "\n";
 ---
 
 <div class:list={[isCopyable ? "tiptap-code-wrapper my-4" : "contents"]}>
-  {
-    isCopyable && (
-      <div class="flex items-center justify-between rounded-t-lg border border-b-0 border-slate-700 bg-slate-800 px-4 py-1.5 text-xs text-slate-300">
-        <span class="font-mono uppercase tracking-wider">{language || "code"}</span>
-        <button
-          type="button"
-          data-copy-code={rawCode}
-          aria-label="Copy code to clipboard"
-          class="rounded bg-slate-700 px-2 py-0.5 font-medium text-slate-200 hover:bg-slate-600"
-        >
-          Copy
-        </button>
-      </div>
-    )
-  }
+  {isCopyable && <div
+    class="flex items-center justify-between rounded-t-lg border border-b-0 border-slate-700 bg-slate-800 px-4 py-1.5 text-xs text-slate-300"
+  >
+    <span class="font-mono uppercase tracking-wider">{language || "code"}</span>
+    <button
+      type="button"
+      data-copy-code={rawCode}
+      aria-label="Copy code to clipboard"
+      class="rounded bg-slate-700 px-2 py-0.5 font-medium text-slate-200 hover:bg-slate-600"
+    >
+      Copy
+    </button>
+  </div>}
   <pre
     class:list={[preClassName || undefined, isCopyable ? "!my-0 !rounded-t-none" : undefined]}
     data-language={language}
     data-shiki={shikiLines ? "true" : undefined}
-  ><code class:list={[language ? `language-${language}` : undefined]}>{
-      shikiLines
-        ? shikiLines.map((tokens, idx) => (
-            <span
-              data-line-number={withLineNumbers ? idx + 1 : undefined}
-              class:list={[lineClassName || undefined]}
-            >{
-              tokens.map((token) => (
-                <span class="shiki-token" style={buildShikiTokenStyle(token)}>{token.content}</span>
-              ))
-            }{"\n"}</span>
-          ))
-        : plainLines.map((line, idx) => (
-            <span
-              data-line-number={withLineNumbers ? idx + 1 : undefined}
-              class:list={[lineClassName || undefined]}
-            >{line}{"\n"}</span>
-          ))
-    }</code></pre>
+  >
+    <code class:list={[language ? `language-${language}` : undefined]}>
+      {shikiLines && shikiLines.map((tokens, idx) => (
+        <span
+          data-line-number={withLineNumbers ? idx + 1 : undefined}
+          class:list={[lineClassName || undefined]}
+        >
+          {tokens.map((token) => (
+            <span class="shiki-token" style={buildShikiTokenStyle(token)}>{token.content}</span>
+          ))}
+          {NEWLINE}
+        </span>
+      ))}
+      {!shikiLines && plainLines.map((line, idx) => (
+        <span
+          data-line-number={withLineNumbers ? idx + 1 : undefined}
+          class:list={[lineClassName || undefined]}
+        >
+          {line}
+          {NEWLINE}
+        </span>
+      ))}
+    </code>
+  </pre>
 </div>

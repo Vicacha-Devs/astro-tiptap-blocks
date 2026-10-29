@@ -1,11 +1,11 @@
 import preview from "@storybook/preview";
+
 import type {
   TiptapAttachmentNode,
   TiptapAudioNode,
   TiptapIframeNode,
   TiptapVideoNode,
 } from "../../../types";
-
 import TiptapBlockMedia from "./TiptapBlockMedia.astro";
 
 const meta = preview.meta({

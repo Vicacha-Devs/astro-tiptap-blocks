@@ -4,16 +4,16 @@ import { renderAstroComponentToDom } from "@utils/test.helpers";
 import TiptapBlockImage from "./TiptapBlockImage.astro";
 
 describe("TiptapBlockImage", () => {
-  it("renders figure, img, and figcaption with Strapi asset metadata and mediaBaseUrl", async () => {
+  it("renders figure, img, and figcaption with asset metadata and mediaBaseUrl", async () => {
     const { root, close } = await renderAstroComponentToDom(TiptapBlockImage, {
       props: {
         mediaBaseUrl: "https://cms.mezquitabogota.org",
         attrs: {
-          src: "/uploads/photo.jpg",
-          alt: "Architecture diagram",
-          caption: "Figure 1: Overview",
-          loading: "eager",
-          fetchpriority: "high",
+          "src": "/uploads/photo.jpg",
+          "alt": "Architecture diagram",
+          "caption": "Figure 1: Overview",
+          "loading": "eager",
+          "fetchpriority": "high",
           "data-align": "center",
           "data-asset-id": 42,
           "data-document-id": "asset-doc-42",

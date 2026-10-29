@@ -1,17 +1,16 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
+    "rootDir": "./src",
     "declaration": true
   },
-  "include": ["src/**/*.ts", "vitest.shims.d.ts"],
+  "include": ["src/lib/**/*.ts", "src/types/**/*.ts"],
   "exclude": [
     "node_modules",
     "dist",
     "coverage",
     ".storybook",
     "src/**/*.stories.ts",
-    "src/**/*.test.ts",
-    "src/vitest.setup.ts",
-    "src/utils/test.helpers.ts"
+    "src/**/*.test.ts"
   ]
 }

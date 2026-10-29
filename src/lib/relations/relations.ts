@@ -26,25 +26,26 @@ export interface ExtractedRelationsResult {
 }
 
 const MEDIA_NODE_TYPES = new Set<string>(["image", "video", "audio", "attachment"]);
-const STRAPI_URI_RE = /^strapi:\/\/([a-zA-Z0-9_.:-]+)\/([a-zA-Z0-9_.:-]+)(?:\?.*)?$/;
+const INTERNAL_URI_RE =
+  /^(?:tiptap|internal|cms|doc):\/\/([a-zA-Z0-9_.:-]+)\/([a-zA-Z0-9_.:-]+)(?:\?.*)?$/;
 
-export const parseStrapiLinkUri = (
+export const parseInternalLinkUri = (
   href: string | null | undefined
 ): { collectionName: string; documentId: string } | null => {
   if (!href || typeof href !== "string") return null;
-  const match = STRAPI_URI_RE.exec(href.trim());
+  const match = INTERNAL_URI_RE.exec(href.trim());
   if (!match) return null;
   return { collectionName: match[1], documentId: match[2] };
 };
 
-export const formatStrapiLinkUri = (collectionName: string, documentId: string): string =>
-  `strapi://${collectionName.trim()}/${documentId.trim()}`;
+export const formatInternalLinkUri = (collectionName: string, documentId: string): string =>
+  `tiptap://${collectionName.trim()}/${documentId.trim()}`;
 
 /**
- * Resolves a `strapi://collectionName/documentId` URI (or linker attributes) into a safe frontend href.
+ * Resolves an internal link URI (`tiptap://collectionName/documentId` or `linker` attributes) into a safe frontend href.
  * Uses `resolveInternalLink` when provided, or defaults to `/<shortCollection>/<documentId>`.
  */
-export const resolveStrapiLinkHref = (
+export const resolveInternalLinkHref = (
   input: {
     href?: string | null;
     collectionName?: string | null;
@@ -53,12 +54,12 @@ export const resolveStrapiLinkHref = (
   },
   resolver?: TiptapInternalLinkResolver
 ): string => {
-  const parsedFromHref = parseStrapiLinkUri(input.href);
+  const parsedFromHref = parseInternalLinkUri(input.href);
   const collectionName = (input.collectionName || parsedFromHref?.collectionName || "").trim();
   const documentId = (input.documentId || parsedFromHref?.documentId || "").trim();
 
   if (collectionName && documentId) {
-    const rawUri = formatStrapiLinkUri(collectionName, documentId);
+    const rawUri = formatInternalLinkUri(collectionName, documentId);
     if (resolver) {
       return sanitizeTiptapUrl(
         resolver({
@@ -69,7 +70,7 @@ export const resolveStrapiLinkHref = (
         })
       );
     }
-    if (input.href && !input.href.trim().startsWith("strapi://")) {
+    if (input.href && !/^(?:tiptap|internal|cms|doc):\/\//.test(input.href.trim())) {
       return sanitizeTiptapUrl(input.href);
     }
     const shortCollection = collectionName.includes(".")
@@ -82,10 +83,12 @@ export const resolveStrapiLinkHref = (
 };
 
 /**
- * Extracts all referenced Strapi Media assets (`image`, `video`, `audio`, `attachment`)
- * and internal links (`linker` nodes and `strapi://` link marks) from a Tiptap document.
+ * Extracts all referenced media assets (`image`, `video`, `audio`, `attachment`)
+ * and internal links (`linker` nodes and internal `tiptap://` link marks) from a Tiptap document.
  */
-export const extractRelationsFromTiptap = (doc: TiptapContentInput | unknown): ExtractedRelationsResult => {
+export const extractRelationsFromTiptap = (
+  doc: TiptapContentInput | unknown
+): ExtractedRelationsResult => {
   const mediaIdsSet = new Set<number>();
   const mediaDocIdsSet = new Set<string>();
   const mediaAssets: ExtractedMediaReference[] = [];
@@ -100,7 +103,7 @@ export const extractRelationsFromTiptap = (doc: TiptapContentInput | unknown): E
       internalLinksMap.set(key, {
         collectionName: cleanCollection,
         documentId: cleanDocId,
-        href: formatStrapiLinkUri(cleanCollection, cleanDocId),
+        href: formatInternalLinkUri(cleanCollection, cleanDocId),
         ...(label ? { label } : {}),
       });
     }
@@ -129,7 +132,8 @@ export const extractRelationsFromTiptap = (doc: TiptapContentInput | unknown): E
           : typeof rawId === "string" && /^\d+$/.test(rawId)
             ? parseInt(rawId, 10)
             : null;
-      const validAssetId = typeof parsedId === "number" && !Number.isNaN(parsedId) ? parsedId : null;
+      const validAssetId =
+        typeof parsedId === "number" && !Number.isNaN(parsedId) ? parsedId : null;
       const rawDocId = attrs["data-document-id"] ?? attrs.documentId;
       const validDocId = typeof rawDocId === "string" && rawDocId.trim() ? rawDocId.trim() : null;
       const rawSrc = attrs.src ?? attrs.href;
@@ -155,7 +159,7 @@ export const extractRelationsFromTiptap = (doc: TiptapContentInput | unknown): E
       if (col && docId) {
         addInternalLink(col, docId, label);
       } else if (typeof attrs.href === "string") {
-        const parsed = parseStrapiLinkUri(attrs.href);
+        const parsed = parseInternalLinkUri(attrs.href);
         if (parsed) addInternalLink(parsed.collectionName, parsed.documentId, label);
       }
     }
@@ -163,9 +167,13 @@ export const extractRelationsFromTiptap = (doc: TiptapContentInput | unknown): E
     if (Array.isArray(n.marks)) {
       for (const mark of n.marks) {
         if (mark?.type === "link" && mark.attrs) {
-          const parsed = parseStrapiLinkUri(mark.attrs.href as string | undefined);
+          const parsed = parseInternalLinkUri(mark.attrs.href as string | undefined);
           if (parsed) {
-            addInternalLink(parsed.collectionName, parsed.documentId, typeof n.text === "string" ? n.text : undefined);
+            addInternalLink(
+              parsed.collectionName,
+              parsed.documentId,
+              typeof n.text === "string" ? n.text : undefined
+            );
           }
         }
       }

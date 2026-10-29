@@ -1,45 +1,68 @@
-import { readFileSync } from "node:fs";
-import { dirname, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
 import {
   extractRelationsFromTiptap,
-  formatStrapiLinkUri,
-  parseStrapiLinkUri,
-  resolveStrapiLinkHref,
+  formatInternalLinkUri,
+  parseInternalLinkUri,
+  resolveInternalLinkHref,
 } from "./relations";
 
-const currentDir = dirname(fileURLToPath(import.meta.url));
-const fixturePath = resolve(
-  currentDir,
-  "../../../../strapi-plugin-tiptap-editor/fixtures/all-features-payload.json"
-);
-
 describe("relations utilities (lib/relations)", () => {
-  it("extracts Strapi media asset references and internal content links via extractRelationsFromTiptap", () => {
-    const payload = JSON.parse(readFileSync(fixturePath, "utf-8"));
-    const relations = extractRelationsFromTiptap(payload.content);
+  it("extracts media asset references and internal content links via extractRelationsFromTiptap", () => {
+    const doc = {
+      type: "doc",
+      content: [
+        {
+          type: "paragraph",
+          content: [
+            {
+              type: "linker",
+              attrs: {
+                collectionName: "article",
+                documentId: "doc-article-99",
+                label: "Architecture Guide",
+              },
+            },
+          ],
+        },
+        {
+          type: "image",
+          attrs: {
+            "src": "https://mezquitabogota.org/uploads/hero.webp",
+            "data-asset-id": 42,
+            "data-document-id": "doc-img-42",
+          },
+        },
+        {
+          type: "video",
+          attrs: {
+            "src": "https://mezquitabogota.org/uploads/tour.mp4",
+            "data-asset-id": 99,
+            "data-document-id": "doc-vid-99",
+          },
+        },
+      ],
+    };
 
-    expect(relations.mediaIds).toEqual([42, 99, 100, 201, 202, 203]);
-    expect(relations.mediaDocumentIds).toContain("doc-img-42");
+    const relations = extractRelationsFromTiptap(doc);
+
+    expect(relations.mediaIds).toEqual([42, 99]);
+    expect(relations.mediaDocumentIds).toEqual(["doc-img-42", "doc-vid-99"]);
     expect(relations.internalLinks).toHaveLength(1);
-    expect(relations.linksByCollection["api::article.article"]).toEqual([
-      { documentId: "doc-article-99" },
-    ]);
+    expect(relations.linksByCollection["article"]).toEqual([{ documentId: "doc-article-99" }]);
   });
 
-  it("parses, formats, and resolves strapi:// relation URIs", () => {
-    const uri = formatStrapiLinkUri("api::page.page", "home-1");
-    expect(uri).toBe("strapi://api::page.page/home-1");
-    expect(parseStrapiLinkUri(uri)).toEqual({
-      collectionName: "api::page.page",
+  it("parses, formats, and resolves tiptap:// internal relation URIs", () => {
+    const uri = formatInternalLinkUri("page", "home-1");
+    expect(uri).toBe("tiptap://page/home-1");
+    expect(parseInternalLinkUri(uri)).toEqual({
+      collectionName: "page",
       documentId: "home-1",
     });
-    expect(resolveStrapiLinkHref({ href: uri })).toBe("/page/home-1");
+    expect(resolveInternalLinkHref({ href: uri })).toBe("/page/home-1");
     expect(
-      resolveStrapiLinkHref(
+      resolveInternalLinkHref(
         { href: uri },
         ({ collectionName, documentId }) => `/cms/${collectionName}/${documentId}`
       )
-    ).toBe("/cms/api::page.page/home-1");
+    ).toBe("/cms/page/home-1");
   });
 });

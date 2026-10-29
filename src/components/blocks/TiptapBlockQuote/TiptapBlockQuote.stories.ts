@@ -1,6 +1,6 @@
 import preview from "@storybook/preview";
-import type { TiptapBlockquoteNode } from "../../../types";
 
+import type { TiptapBlockquoteNode } from "../../../types";
 import TiptapBlockQuote from "./TiptapBlockQuote.astro";
 
 const meta = preview.meta({
@@ -65,11 +65,18 @@ export const MultiParagraphWithListQuote = meta.story({
         content: [
           {
             type: "listItem",
-            content: [{ type: "paragraph", content: [{ type: "text", text: "Native Astro component rendering" }] }],
+            content: [
+              {
+                type: "paragraph",
+                content: [{ type: "text", text: "Native Astro component rendering" }],
+              },
+            ],
           },
           {
             type: "listItem",
-            content: [{ type: "paragraph", content: [{ type: "text", text: "Protocol-whitelisted URLs" }] }],
+            content: [
+              { type: "paragraph", content: [{ type: "text", text: "Protocol-whitelisted URLs" }] },
+            ],
           },
         ],
       },

@@ -1,11 +1,21 @@
 import type {
-  TiptapElementAlign, TiptapHeadingLevel, TiptapHeadingTag, TiptapInlineNode,
-  TiptapInternalLinkResolver, TiptapMathematicsNode, TiptapTextAlign, TiptapTextDirection, TiptapTextNode,
+  TiptapElementAlign,
+  TiptapHeadingLevel,
+  TiptapHeadingTag,
+  TiptapInlineNode,
+  TiptapInternalLinkResolver,
+  TiptapMathematicsNode,
+  TiptapTextAlign,
+  TiptapTextDirection,
+  TiptapTextNode,
 } from "./tiptap-inline";
 
 export * from "./tiptap-inline";
 
-export type TiptapBlockBaseAttrs = { textAlign?: TiptapTextAlign | null; dir?: TiptapTextDirection | null };
+export type TiptapBlockBaseAttrs = {
+  textAlign?: TiptapTextAlign | null;
+  dir?: TiptapTextDirection | null;
+};
 
 export type TiptapHeadingNode = {
   type: "heading";
@@ -18,11 +28,29 @@ export type TiptapHeadingNode = {
   content?: Array<TiptapInlineNode>;
 };
 
-export type TiptapParagraphNode = { type: "paragraph"; attrs?: TiptapBlockBaseAttrs; content?: Array<TiptapInlineNode> };
-export type TiptapLeadParagraphNode = { type: "leadParagraph"; attrs?: TiptapBlockBaseAttrs; content?: Array<TiptapInlineNode> };
-export type TiptapBlockquoteNode = { type: "blockquote"; attrs?: TiptapBlockBaseAttrs; content?: Array<TiptapBlockNode> };
+export type TiptapParagraphNode = {
+  type: "paragraph";
+  attrs?: TiptapBlockBaseAttrs;
+  content?: Array<TiptapInlineNode>;
+};
+export type TiptapLeadParagraphNode = {
+  type: "leadParagraph";
+  attrs?: TiptapBlockBaseAttrs;
+  content?: Array<TiptapInlineNode>;
+};
+export type TiptapBlockquoteNode = {
+  type: "blockquote";
+  attrs?: TiptapBlockBaseAttrs;
+  content?: Array<TiptapBlockNode>;
+};
 
-export type TiptapInformationPaneVariant = "info" | "success" | "warning" | "danger" | "neutral" | "tip";
+export type TiptapInformationPaneVariant =
+  | "info"
+  | "success"
+  | "warning"
+  | "danger"
+  | "neutral"
+  | "tip";
 export type TiptapInformationPaneNode = {
   type: "informationPane";
   attrs?: { variant?: TiptapInformationPaneVariant | null; title?: string | null };
@@ -35,7 +63,10 @@ export type TiptapConversationHistoryNode = {
   content?: Array<TiptapBlockNode>;
 };
 
-export type TiptapDetailsSummaryNode = { type: "detailsSummary"; content?: Array<TiptapInlineNode> };
+export type TiptapDetailsSummaryNode = {
+  type: "detailsSummary";
+  content?: Array<TiptapInlineNode>;
+};
 export type TiptapDetailsContentNode = { type: "detailsContent"; content?: Array<TiptapBlockNode> };
 export type TiptapDetailsNode = {
   type: "details";
@@ -140,7 +171,13 @@ export type TiptapAttachmentNode = {
 
 export type TiptapIframeNode = {
   type: "iframe";
-  attrs: { src: string; title?: string | null; width?: number | string | null; height?: number | string | null; "data-align"?: TiptapElementAlign | null };
+  attrs: {
+    "src": string;
+    "title"?: string | null;
+    "width"?: number | string | null;
+    "height"?: number | string | null;
+    "data-align"?: TiptapElementAlign | null;
+  };
 };
 
 export type TiptapCustomBlockNode = {
@@ -150,27 +187,57 @@ export type TiptapCustomBlockNode = {
 };
 
 export type TiptapTocHeadingItem = { id: string; text: string; level: TiptapHeadingLevel };
-export type TiptapTableOfContentsNode = { type: "tableOfContents"; attrs?: { headings?: Array<TiptapTocHeadingItem>; title?: string | null } };
+export type TiptapTableOfContentsNode = {
+  type: "tableOfContents";
+  attrs?: { headings?: Array<TiptapTocHeadingItem>; title?: string | null };
+};
 export type TiptapPageBreakNode = { type: "pageBreak" };
 export type TiptapHorizontalRuleNode = { type: "horizontalRule" };
 
 export type TiptapTableCellNode = {
   type: "tableHeader" | "tableCell";
-  attrs?: { colspan?: number; rowspan?: number; colwidth?: Array<number> | null; backgroundColor?: string | null };
+  attrs?: {
+    colspan?: number;
+    rowspan?: number;
+    colwidth?: Array<number> | null;
+    backgroundColor?: string | null;
+  };
   content?: Array<TiptapBlockNode>;
 };
 export type TiptapTableRowNode = { type: "tableRow"; content?: Array<TiptapTableCellNode> };
 export type TiptapTableNode = { type: "table"; content?: Array<TiptapTableRowNode> };
 
 export type TiptapBlockNode =
-  | TiptapHeadingNode | TiptapParagraphNode | TiptapLeadParagraphNode | TiptapBlockquoteNode
-  | TiptapInformationPaneNode | TiptapConversationHistoryNode | TiptapDetailsNode
-  | TiptapLayoutContainerNode | TiptapBulletListNode | TiptapOrderedListNode | TiptapTaskListNode
-  | TiptapCodeBlockNode | TiptapImageNode | TiptapVideoNode | TiptapAudioNode | TiptapAttachmentNode
-  | TiptapIframeNode | TiptapMathematicsNode | TiptapTableOfContentsNode | TiptapPageBreakNode
-  | TiptapHorizontalRuleNode | TiptapTableNode;
+  | TiptapHeadingNode
+  | TiptapParagraphNode
+  | TiptapLeadParagraphNode
+  | TiptapBlockquoteNode
+  | TiptapInformationPaneNode
+  | TiptapConversationHistoryNode
+  | TiptapDetailsNode
+  | TiptapLayoutContainerNode
+  | TiptapBulletListNode
+  | TiptapOrderedListNode
+  | TiptapTaskListNode
+  | TiptapCodeBlockNode
+  | TiptapImageNode
+  | TiptapVideoNode
+  | TiptapAudioNode
+  | TiptapAttachmentNode
+  | TiptapIframeNode
+  | TiptapMathematicsNode
+  | TiptapTableOfContentsNode
+  | TiptapPageBreakNode
+  | TiptapHorizontalRuleNode
+  | TiptapTableNode;
 
-export type TiptapDocStats = { words: number; characters: number; readingTimeMinutes: number; readingTime?: string; wordsPerMinute?: number };
+export type TiptapDocStats = {
+  words: number;
+  characters: number;
+  readingTimeMinutes: number;
+  readingTime?: string;
+  wordsPerMinute?: number;
+};
 export type TiptapDocNode = {
   type: "doc";
   content: Array<TiptapBlockNode>;
@@ -181,12 +248,35 @@ export type TiptapDocNode = {
   stats?: TiptapDocStats;
 };
 export type TiptapBlockType =
-  | "heading" | "paragraph" | "leadParagraph" | "quote" | "informationPane" | "conversationHistory"
-  | "details" | "columns" | "list" | "taskList" | "code" | "image" | "video" | "audio"
-  | "attachment" | "iframe" | "mathematics" | "tableOfContents" | "pageBreak" | "table" | "hr";
+  | "heading"
+  | "paragraph"
+  | "leadParagraph"
+  | "quote"
+  | "informationPane"
+  | "conversationHistory"
+  | "details"
+  | "columns"
+  | "list"
+  | "taskList"
+  | "code"
+  | "image"
+  | "video"
+  | "audio"
+  | "attachment"
+  | "iframe"
+  | "mathematics"
+  | "tableOfContents"
+  | "pageBreak"
+  | "table"
+  | "hr";
 export type TiptapContentInput =
-  | TiptapDocNode | { type: "doc"; content: Array<TiptapBlockNode | TiptapCustomBlockNode> }
-  | Array<TiptapBlockNode | TiptapCustomBlockNode> | string | ReadonlyArray<string> | null | undefined;
+  | TiptapDocNode
+  | { type: "doc"; content: Array<TiptapBlockNode | TiptapCustomBlockNode> }
+  | Array<TiptapBlockNode | TiptapCustomBlockNode>
+  | string
+  | ReadonlyArray<string>
+  | null
+  | undefined;
 export type TiptapMediaUrlResolver = (url: string) => string | null | undefined;
 export type TiptapParserOptions = {
   allowedIframeDomains?: ReadonlyArray<string>;

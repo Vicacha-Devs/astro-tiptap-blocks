@@ -97,7 +97,13 @@ export const buildElementTree = (tokens: HtmlToken[]): Array<SimpleElement | str
 
 export const extractRawText = (nodes: Array<SimpleElement | string>): string =>
   nodes
-    .map((n) => (typeof n === "string" ? decodeHtmlEntities(n) : n.tag === "br" ? "\n" : extractRawText(n.children)))
+    .map((n) =>
+      typeof n === "string"
+        ? decodeHtmlEntities(n)
+        : n.tag === "br"
+          ? "\n"
+          : extractRawText(n.children)
+    )
     .join("");
 
 export const parseInlineStyleProps = (style?: string): Record<string, string> => {
@@ -119,7 +125,11 @@ export const collectInlineNodes = (
     if (typeof node === "string") {
       const decoded = decodeHtmlEntities(node);
       if (decoded.length > 0) {
-        result.push({ type: "text", text: decoded, ...(activeMarks.length > 0 ? { marks: [...activeMarks] } : {}) });
+        result.push({
+          type: "text",
+          text: decoded,
+          ...(activeMarks.length > 0 ? { marks: [...activeMarks] } : {}),
+        });
       }
       continue;
     }
@@ -132,7 +142,10 @@ export const collectInlineNodes = (
       result.push({ type: "mathematics", attrs: { latex, displayMode: "inline" } });
       continue;
     }
-    if (node.tag === "a" && (node.attrs["data-type"] === "linker" || node.attrs["data-collection"])) {
+    if (
+      node.tag === "a" &&
+      (node.attrs["data-type"] === "linker" || node.attrs["data-collection"])
+    ) {
       result.push({
         type: "linker",
         attrs: {
@@ -150,11 +163,13 @@ export const collectInlineNodes = (
     if (node.tag === "strong" || node.tag === "b") nextMarks.push({ type: "bold" });
     else if (node.tag === "em" || node.tag === "i") nextMarks.push({ type: "italic" });
     else if (node.tag === "u") nextMarks.push({ type: "underline" });
-    else if (node.tag === "s" || node.tag === "strike" || node.tag === "del") nextMarks.push({ type: "strike" });
+    else if (node.tag === "s" || node.tag === "strike" || node.tag === "del")
+      nextMarks.push({ type: "strike" });
     else if (node.tag === "code") nextMarks.push({ type: "code" });
     else if (node.tag === "sub") nextMarks.push({ type: "subscript" });
     else if (node.tag === "sup") nextMarks.push({ type: "superscript" });
-    else if (node.tag === "abbr") nextMarks.push({ type: "abbr", attrs: { title: node.attrs.title || null } });
+    else if (node.tag === "abbr")
+      nextMarks.push({ type: "abbr", attrs: { title: node.attrs.title || null } });
     else if (node.tag === "mark") {
       const color = sanitizeCssColor(node.attrs["data-color"] || styles["background-color"]);
       nextMarks.push({ type: "highlight", ...(color ? { attrs: { color } } : {}) });
@@ -171,7 +186,13 @@ export const collectInlineNodes = (
       });
     }
     if (node.attrs.lang || node.attrs.dir) {
-      nextMarks.push({ type: "language", attrs: { lang: node.attrs.lang || null, dir: (node.attrs.dir as TiptapTextDirection) || null } });
+      nextMarks.push({
+        type: "language",
+        attrs: {
+          lang: node.attrs.lang || null,
+          dir: (node.attrs.dir as TiptapTextDirection) || null,
+        },
+      });
     }
     const color = sanitizeCssColor(styles.color);
     const fontFamily = sanitizeCssFontFamily(styles["font-family"]);

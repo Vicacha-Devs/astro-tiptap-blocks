@@ -1,6 +1,6 @@
 import preview from "@storybook/preview";
-import type { TiptapInlineNode } from "../../../../types";
 
+import type { TiptapInlineNode } from "../../../../types";
 import TiptapInlineNodes from "./TiptapInlineNodes.astro";
 
 const meta = preview.meta({
@@ -25,13 +25,13 @@ export const MixedInlineSequence = meta.story({
     nodes: [
       { type: "text", text: "Inline sequence combining " },
       { type: "text", text: "bold text", marks: [{ type: "bold" }] },
-      { type: "text", text: ", an inline Strapi linker chip " },
+      { type: "text", text: ", an inline linker chip " },
       {
         type: "linker",
         attrs: {
-          collectionName: "api::article.article",
-          documentId: "strapi-v5-tiptap",
-          label: "Strapi v5 Tiptap Guide",
+          collectionName: "article",
+          documentId: "tiptap-astro-guide",
+          label: "Tiptap & Astro Guide",
         },
       },
       { type: "text", text: ", a hard break:" },

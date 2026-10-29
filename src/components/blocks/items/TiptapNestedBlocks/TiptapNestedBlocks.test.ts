@@ -44,7 +44,10 @@ describe("TiptapNestedBlocks remaining block types", () => {
           {
             type: "bulletList",
             content: [
-              { type: "listItem", content: [{ type: "paragraph", content: [{ type: "text", text: "item" }] }] },
+              {
+                type: "listItem",
+                content: [{ type: "paragraph", content: [{ type: "text", text: "item" }] }],
+              },
             ],
           },
           { type: "horizontalRule" },

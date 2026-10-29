@@ -1,6 +1,6 @@
 import preview from "@storybook/preview";
-import type { TiptapLinkMark, TiptapMark } from "../../../../types";
 
+import type { TiptapLinkMark, TiptapMark } from "../../../../types";
 import TiptapLinkItem from "./TiptapLinkItem.astro";
 
 const meta = preview.meta({
@@ -47,14 +47,14 @@ export const ExternalLinkWithBlankTarget = meta.story({
   },
 });
 
-export const InternalStrapiRelationUriLink = meta.story({
+export const InternalRelationUriLink = meta.story({
   args: {
     type: "text",
-    text: "Internal Strapi Article (strapi://api::article.article/doc-99)",
+    text: "Internal Article (tiptap://article/doc-99)",
     linkMark: {
       type: "link",
       attrs: {
-        href: "strapi://api::article.article/doc-99",
+        href: "tiptap://article/doc-99",
       },
     } satisfies TiptapLinkMark,
   },

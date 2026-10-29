@@ -57,13 +57,18 @@ export const blockNodesToText = (blocks?: TiptapBlockNode[]): string => {
         break;
       }
       case "codeBlock": {
-        const code = (block.content ?? []).map((n) => n.text).join("").trim();
+        const code = (block.content ?? [])
+          .map((n) => n.text)
+          .join("")
+          .trim();
         if (code) chunks.push(code);
         break;
       }
       case "table": {
         const rows = (block.content ?? [])
-          .flatMap((row) => (row.content ?? []).map((cell) => blockNodesToText(cell.content).trim()))
+          .flatMap((row) =>
+            (row.content ?? []).map((cell) => blockNodesToText(cell.content).trim())
+          )
           .filter(Boolean);
         if (rows.length > 0) chunks.push(rows.join(" "));
         break;

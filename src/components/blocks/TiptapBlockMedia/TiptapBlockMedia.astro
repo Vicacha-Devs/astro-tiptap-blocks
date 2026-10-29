@@ -1,12 +1,16 @@
 ---
 import { formatFileSize, sanitizeTiptapIframeUrl, sanitizeTiptapUrl } from "../../../lib/sanitize";
-import { getPropertyClass, renderPropertyClasses, TiptapBlockThemeDefault } from "../../../lib/theme";
+import {
+  getPropertyClass,
+  renderPropertyClasses,
+  TiptapBlockThemeDefault,
+} from "../../../lib/theme";
 import type { TiptapBlockTheme, TiptapElementAlign } from "../../../types";
 
 /**
  * @component TiptapBlockMedia
  * @title Tiptap Block Media & Sandboxed Embeds
- * @description Renders rich media and sandboxed embed blocks from `@notum-cz/strapi-plugin-tiptap-editor`:
+ * @description Renders rich media and sandboxed embed blocks:
  * - `video`: Sandboxed YouTube/Vimeo `<iframe>` (`embedType: "embed"`) or HTML5 `<video controls>` (`embedType: "file"`).
  * - `audio`: HTML5 `<audio controls>` player inside a `<figure>` with optional `<figcaption>`.
  * - `attachment`: Downloadable file card with file extension badge, formatted byte size, and `<a download>`.
@@ -36,17 +40,17 @@ export interface Props {
    * Media/embed attributes (`src`, `href`, `embedType`, `title`, `caption`, `filename`, `size`, `ext`, `width`, `height`, `data-align`, `data-asset-id`, `data-document-id`).
    */
   attrs: {
-    src?: string;
-    href?: string;
-    embedType?: "embed" | "file" | null;
-    title?: string | null;
-    caption?: string | null;
-    filename?: string | null;
-    size?: number | string | null;
-    mime?: string | null;
-    ext?: string | null;
-    width?: number | string | null;
-    height?: number | string | null;
+    "src"?: string;
+    "href"?: string;
+    "embedType"?: "embed" | "file" | null;
+    "title"?: string | null;
+    "caption"?: string | null;
+    "filename"?: string | null;
+    "size"?: number | string | null;
+    "mime"?: string | null;
+    "ext"?: string | null;
+    "width"?: number | string | null;
+    "height"?: number | string | null;
     "data-align"?: TiptapElementAlign | null;
     "data-asset-id"?: string | number | null;
     "data-document-id"?: string | null;
@@ -68,131 +72,131 @@ const assetId = attrs?.["data-asset-id"] != null ? String(attrs["data-asset-id"]
 const documentId = attrs?.["data-document-id"] || undefined;
 ---
 
-{
-  (() => {
-    if (type === "video") {
-      const isEmbed =
-        attrs?.embedType === "embed" ||
-        Boolean(attrs?.src && /youtube\.com|youtu\.be|vimeo\.com/i.test(attrs.src));
-      const safeSrc = isEmbed
-        ? sanitizeTiptapIframeUrl(attrs?.src, allowedIframeDomains)
-        : sanitizeTiptapUrl(attrs?.src);
-      if (safeSrc === "#") return null;
-      return (
-        <figure
-          data-type="video"
-          data-align={align}
-          data-asset-id={assetId}
-          data-document-id={documentId}
-          class:list={[renderPropertyClasses(theme.video) || undefined]}
-        >
-          {isEmbed ? (
-            <iframe
-              src={safeSrc}
-              title={attrs?.title || "Embedded video"}
-              width={attrs?.width || undefined}
-              height={attrs?.height || undefined}
-              loading="lazy"
-              sandbox="allow-scripts allow-same-origin allow-presentation"
-              referrerpolicy="no-referrer"
-              allowfullscreen
-              class:list={[getPropertyClass(theme.video.iframe) || undefined]}
-            />
-          ) : (
-            <video
-              src={safeSrc}
-              controls
-              preload="metadata"
-              width={attrs?.width || undefined}
-              height={attrs?.height || undefined}
-              class:list={[getPropertyClass(theme.video.video) || undefined]}
-            />
-          )}
-          {attrs?.caption && (
-            <figcaption class:list={[getPropertyClass(theme.video.caption) || undefined]}>
-              {attrs.caption}
-            </figcaption>
-          )}
-        </figure>
-      );
-    }
-
-    if (type === "audio") {
-      const safeSrc = sanitizeTiptapUrl(attrs?.src);
-      if (safeSrc === "#") return null;
-      return (
-        <figure
-          data-type="audio"
-          data-align={align}
-          data-asset-id={assetId}
-          data-document-id={documentId}
-          class:list={[renderPropertyClasses(theme.audio) || undefined]}
-        >
-          <audio
-            src={safeSrc}
-            controls
-            preload="metadata"
-            class:list={[getPropertyClass(theme.audio.audio) || undefined]}
-          />
-          {(attrs?.caption || attrs?.title) && (
-            <figcaption class:list={[getPropertyClass(theme.audio.caption) || undefined]}>
-              {attrs.caption || attrs.title}
-            </figcaption>
-          )}
-        </figure>
-      );
-    }
-
-    if (type === "attachment") {
-      const safeHref = sanitizeTiptapUrl(attrs?.href || attrs?.src);
-      if (safeHref === "#") return null;
-      const displayTitle = attrs?.title || attrs?.filename || "Download file";
-      const formattedSize = formatFileSize(attrs?.size);
-      const extLabel = (attrs?.ext || "").replace(/^\./, "").toUpperCase() || "FILE";
-      return (
-        <div
-          data-type="attachment"
-          data-asset-id={assetId}
-          data-document-id={documentId}
-          class:list={[renderPropertyClasses(theme.attachment) || undefined]}
-        >
-          <div class="flex items-center gap-3 min-w-0">
-            <span class:list={[getPropertyClass(theme.attachment.badge) || undefined]}>{extLabel}</span>
-            <div class="min-w-0">
-              <div class:list={[getPropertyClass(theme.attachment.title) || undefined]}>{displayTitle}</div>
-              {formattedSize && (
-                <div class:list={[getPropertyClass(theme.attachment.meta) || undefined]}>{formattedSize}</div>
-              )}
-            </div>
-          </div>
-          <a
-            href={safeHref}
-            download={attrs?.filename || true}
-            target="_blank"
-            rel="noopener noreferrer"
-            class:list={[getPropertyClass(theme.attachment.button) || undefined]}
-          >
-            Download
-          </a>
-        </div>
-      );
-    }
-
-    const safeIframeSrc = sanitizeTiptapIframeUrl(attrs?.src, allowedIframeDomains);
-    if (safeIframeSrc === "#") return null;
-    return (
-      <div data-type="iframe" data-align={align} class:list={[renderPropertyClasses(theme.iframe) || undefined]}>
+{(() => {
+  if (type === "video") {
+    const isEmbed =
+      attrs?.embedType === "embed" ||
+      Boolean(attrs?.src && /youtube\.com|youtu\.be|vimeo\.com/i.test(attrs.src));
+    const safeSrc = isEmbed
+      ? sanitizeTiptapIframeUrl(attrs?.src, allowedIframeDomains)
+      : sanitizeTiptapUrl(attrs?.src);
+    if (safeSrc === "#") return null;
+    return <figure
+      data-type="video"
+      data-align={align}
+      data-asset-id={assetId}
+      data-document-id={documentId}
+      class:list={[renderPropertyClasses(theme.video) || undefined]}
+    >
+      {isEmbed ? (
         <iframe
-          src={safeIframeSrc}
-          title={attrs?.title || "Embedded content"}
-          width={attrs?.width || "100%"}
-          height={attrs?.height || "400"}
+          src={safeSrc}
+          title={attrs?.title || "Embedded video"}
+          width={attrs?.width || undefined}
+          height={attrs?.height || undefined}
           loading="lazy"
-          sandbox="allow-scripts allow-same-origin"
+          sandbox="allow-scripts allow-same-origin allow-presentation"
           referrerpolicy="no-referrer"
-          class:list={[getPropertyClass(theme.iframe.iframe) || undefined]}
+          allowfullscreen
+          class:list={[getPropertyClass(theme.video.iframe) || undefined]}
         />
+      ) : (
+        <video
+          src={safeSrc}
+          controls
+          preload="metadata"
+          width={attrs?.width || undefined}
+          height={attrs?.height || undefined}
+          class:list={[getPropertyClass(theme.video.video) || undefined]}
+        />
+      )}
+      {attrs?.caption && <figcaption
+        class:list={[getPropertyClass(theme.video.caption) || undefined]}
+      >
+        {attrs.caption}
+      </figcaption>}
+    </figure>;
+  }
+
+  if (type === "audio") {
+    const safeSrc = sanitizeTiptapUrl(attrs?.src);
+    if (safeSrc === "#") return null;
+    return <figure
+      data-type="audio"
+      data-align={align}
+      data-asset-id={assetId}
+      data-document-id={documentId}
+      class:list={[renderPropertyClasses(theme.audio) || undefined]}
+    >
+      <audio
+        src={safeSrc}
+        controls
+        preload="metadata"
+        class:list={[getPropertyClass(theme.audio.audio) || undefined]}
+      />
+      {(attrs?.caption || attrs?.title) && <figcaption
+        class:list={[getPropertyClass(theme.audio.caption) || undefined]}
+      >
+        {attrs.caption || attrs.title}
+      </figcaption>}
+    </figure>;
+  }
+
+  if (type === "attachment") {
+    const safeHref = sanitizeTiptapUrl(attrs?.href || attrs?.src);
+    if (safeHref === "#") return null;
+    const displayTitle = attrs?.title || attrs?.filename || "Download file";
+    const formattedSize = formatFileSize(attrs?.size);
+    const extLabel = (attrs?.ext || "").replace(/^\./, "").toUpperCase() || "FILE";
+    return <div
+      data-type="attachment"
+      data-asset-id={assetId}
+      data-document-id={documentId}
+      class:list={[renderPropertyClasses(theme.attachment) || undefined]}
+    >
+      <div class="flex items-center gap-3 min-w-0">
+        <span class:list={[getPropertyClass(theme.attachment.badge) || undefined]}>
+          {extLabel}
+        </span>
+        <div class="min-w-0">
+          <div class:list={[getPropertyClass(theme.attachment.title) || undefined]}>
+            {displayTitle}
+          </div>
+          {formattedSize && <div
+            class:list={[getPropertyClass(theme.attachment.meta) || undefined]}
+          >
+            {formattedSize}
+          </div>}
+        </div>
       </div>
-    );
-  })()
-}
+      <a
+        href={safeHref}
+        download={attrs?.filename || true}
+        target="_blank"
+        rel="noopener noreferrer"
+        class:list={[getPropertyClass(theme.attachment.button) || undefined]}
+      >
+        Download
+      </a>
+    </div>;
+  }
+
+  const safeIframeSrc = sanitizeTiptapIframeUrl(attrs?.src, allowedIframeDomains);
+  if (safeIframeSrc === "#") return null;
+  return <div
+    data-type="iframe"
+    data-align={align}
+    class:list={[renderPropertyClasses(theme.iframe) || undefined]}
+  >
+    <iframe
+      src={safeIframeSrc}
+      title={attrs?.title || "Embedded content"}
+      width={attrs?.width || "100%"}
+      height={attrs?.height || "400"}
+      loading="lazy"
+      sandbox="allow-scripts allow-same-origin"
+      referrerpolicy="no-referrer"
+      class:list={[getPropertyClass(theme.iframe.iframe) || undefined]}
+    />
+  </div>;
+})()}

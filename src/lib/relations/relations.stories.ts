@@ -1,12 +1,12 @@
 import preview from "@storybook/preview";
+
 import TiptapLibPreview from "../../components/blocks/TiptapLibPreview/TiptapLibPreview.astro";
 import type { TiptapDocNode } from "../../types";
-
 import {
   extractRelationsFromTiptap,
-  formatStrapiLinkUri,
-  parseStrapiLinkUri,
-  resolveStrapiLinkHref,
+  formatInternalLinkUri,
+  parseInternalLinkUri,
+  resolveInternalLinkHref,
 } from "./relations";
 
 const docWithRelations: TiptapDocNode = {
@@ -22,7 +22,7 @@ const docWithRelations: TiptapDocNode = {
           marks: [
             {
               type: "link",
-              attrs: { href: "strapi://api::article.article/astro-getting-started" },
+              attrs: { href: "tiptap://article/astro-getting-started" },
             },
           ],
         },
@@ -30,7 +30,7 @@ const docWithRelations: TiptapDocNode = {
         {
           type: "linker",
           attrs: {
-            collectionName: "api::product.product",
+            collectionName: "product",
             documentId: "starter-kit-pro",
             label: "Starter Kit Pro",
           },
@@ -40,8 +40,9 @@ const docWithRelations: TiptapDocNode = {
     {
       type: "image",
       attrs: {
-        src: "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80",
-        alt: "Architecture diagram",
+        "src":
+          "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80",
+        "alt": "Architecture diagram",
         "data-asset-id": 108,
         "data-document-id": "media-arch-108",
       },
@@ -50,8 +51,8 @@ const docWithRelations: TiptapDocNode = {
 };
 
 const extracted = extractRelationsFromTiptap(docWithRelations);
-const sampleUri = "strapi://api::article.article/astro-getting-started";
-const parsedUri = parseStrapiLinkUri(sampleUri);
+const sampleUri = "tiptap://article/astro-getting-started";
+const parsedUri = parseInternalLinkUri(sampleUri);
 
 const meta = preview.meta({
   title: "Lib/relations",
@@ -59,7 +60,7 @@ const meta = preview.meta({
   tags: ["autodocs", "version:1.1.0"],
   args: {
     title: "extractRelationsFromTiptap(doc)",
-    subtitle: "Extracts deduplicated internal Strapi relation links and media asset references.",
+    subtitle: "Extracts deduplicated internal relation links and media asset references.",
     inputPreview: JSON.stringify(docWithRelations, null, 2),
     outputPreview: JSON.stringify(extracted, null, 2),
     renderedContent: docWithRelations,
@@ -69,32 +70,32 @@ const meta = preview.meta({
 export const ExtractLinksAndMediaFromDocument = meta.story({
   args: {
     title: "extractRelationsFromTiptap(doc)",
-    subtitle: "Extracts deduplicated internal Strapi relation links and media asset references.",
+    subtitle: "Extracts deduplicated internal relation links and media asset references.",
     inputPreview: JSON.stringify(docWithRelations, null, 2),
     outputPreview: JSON.stringify(extracted, null, 2),
     renderedContent: docWithRelations,
   },
 });
 
-export const ParseAndFormatStrapiUri = meta.story({
+export const ParseAndFormatInternalUri = meta.story({
   args: {
-    title: "parseStrapiLinkUri() & resolveStrapiLinkHref()",
-    subtitle: "Parses strapi://<collectionName>/<documentId> and resolves public route URLs.",
+    title: "parseInternalLinkUri() & resolveInternalLinkHref()",
+    subtitle: "Parses tiptap://<collectionName>/<documentId> and resolves public route URLs.",
     inputPreview: sampleUri,
     outputPreview: JSON.stringify(
       {
         parsed: parsedUri,
         reformatted: parsedUri
-          ? formatStrapiLinkUri(parsedUri.collectionName, parsedUri.documentId)
+          ? formatInternalLinkUri(parsedUri.collectionName, parsedUri.documentId)
           : null,
-        defaultResolvedHref: resolveStrapiLinkHref({ href: sampleUri }),
-        customResolvedHref: resolveStrapiLinkHref(
+        defaultResolvedHref: resolveInternalLinkHref({ href: sampleUri }),
+        customResolvedHref: resolveInternalLinkHref(
           { href: sampleUri },
-          (ref) => `/blog/${ref.collectionName.split(".").pop()}/${ref.documentId}`,
+          (ref) => `/blog/${ref.collectionName.split(".").pop()}/${ref.documentId}`
         ),
       },
       null,
-      2,
+      2
     ),
   },
 });

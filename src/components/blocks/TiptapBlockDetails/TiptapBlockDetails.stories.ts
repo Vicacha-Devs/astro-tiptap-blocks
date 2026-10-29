@@ -1,6 +1,6 @@
 import preview from "@storybook/preview";
-import type { TiptapDetailsNode } from "../../../types";
 
+import type { TiptapDetailsNode } from "../../../types";
 import TiptapBlockDetails from "./TiptapBlockDetails.astro";
 
 const meta = preview.meta({
@@ -13,14 +13,19 @@ const meta = preview.meta({
     content: [
       {
         type: "detailsSummary",
-        content: [{ type: "text", text: "How does Strapi internal relation resolution work?" }],
+        content: [{ type: "text", text: "How does internal relation resolution work?" }],
       },
       {
         type: "detailsContent",
         content: [
           {
             type: "paragraph",
-            content: [{ type: "text", text: "Links stored as strapi:// are resolved via resolveInternalLink." }],
+            content: [
+              {
+                type: "text",
+                text: "Links stored as tiptap:// are resolved via resolveInternalLink.",
+              },
+            ],
           },
         ],
       },
@@ -46,7 +51,7 @@ export const CollapsedAccordion = meta.story({
     content: [
       {
         type: "detailsSummary",
-        content: [{ type: "text", text: "How does Strapi internal relation resolution work?" }],
+        content: [{ type: "text", text: "How does internal relation resolution work?" }],
       },
       {
         type: "detailsContent",
@@ -56,7 +61,7 @@ export const CollapsedAccordion = meta.story({
             content: [
               {
                 type: "text",
-                text: "Links stored as strapi://api::article.article/doc-123 are parsed and resolved via resolveInternalLink.",
+                text: "Links stored as tiptap://article/doc-123 are parsed and resolved via resolveInternalLink.",
               },
             ],
           },
@@ -80,22 +85,39 @@ export const ExpandedAccordionWithRichContent = meta.story({
         content: [
           {
             type: "paragraph",
-            content: [{ type: "text", text: "You can pass any of the following directly to <TiptapBlocks />:" }],
+            content: [
+              {
+                type: "text",
+                text: "You can pass any of the following directly to <TiptapBlocks />:",
+              },
+            ],
           },
           {
             type: "bulletList",
             content: [
               {
                 type: "listItem",
-                content: [{ type: "paragraph", content: [{ type: "text", text: "ProseMirror JSON doc" }] }],
+                content: [
+                  { type: "paragraph", content: [{ type: "text", text: "ProseMirror JSON doc" }] },
+                ],
               },
               {
                 type: "listItem",
-                content: [{ type: "paragraph", content: [{ type: "text", text: "HTML string from Strapi" }] }],
+                content: [
+                  {
+                    type: "paragraph",
+                    content: [{ type: "text", text: "HTML string from Tiptap" }],
+                  },
+                ],
               },
               {
                 type: "listItem",
-                content: [{ type: "paragraph", content: [{ type: "text", text: "Markdown string with callouts" }] }],
+                content: [
+                  {
+                    type: "paragraph",
+                    content: [{ type: "text", text: "Markdown string with callouts" }],
+                  },
+                ],
               },
             ],
           },

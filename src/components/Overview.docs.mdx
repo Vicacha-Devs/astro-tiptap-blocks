@@ -4,35 +4,35 @@ import { Meta } from "@storybook/addon-docs/blocks";
 
 # `@vicacha-devs/astro-tiptap-blocks`
 
-**Security-first, fully typed Astro component system and multi-format parser for Strapi Tiptap Editor (`@notum-cz/strapi-plugin-tiptap-editor`).**
+**Security-first, fully typed Astro component system and multi-format parser for Tiptap & ProseMirror rich text.**
 
 ---
 
 ## Architecture Overview
 
-`@vicacha-devs/astro-tiptap-blocks` transforms content produced by Strapi's Tiptap Editor—whether stored as **ProseMirror JSON**, **HTML strings**, **Markdown strings**, or **legacy string arrays**—into strongly typed `TiptapDocNode` AST nodes and renders them through native `.astro` components with **zero raw HTML injection**.
+`@vicacha-devs/astro-tiptap-blocks` transforms Tiptap and ProseMirror content—whether stored as **ProseMirror JSON**, **HTML strings**, **Markdown strings**, or **legacy string arrays**—into strongly typed `TiptapDocNode` AST nodes and renders them through native `.astro` components with **zero raw HTML injection**.
 
 ```
-Strapi Tiptap Input (JSON / HTML / Markdown / string[])
+Tiptap Rich-Text Input (JSON / HTML / Markdown / string[])
   │
   ▼
 parseTiptapContent(data, options)
-  ├── JSON AST Normalizer (src/lib/parser.ts)
-  ├── Safe HTML Tokenizer & AST Builder (src/lib/html-parser.ts)
-  ├── Markdown + Lossless Comment Parser (src/lib/markdown-parser.ts)
+  ├── JSON AST Normalizer (src/lib/parser/parser.ts)
+  ├── Safe HTML Tokenizer & AST Builder (src/lib/html-parser/html-parser.ts)
+  ├── Markdown + Lossless Comment Parser (src/lib/markdown-parser/markdown-parser.ts)
   └── Auto-Slugify Headings & Table of Contents Generator
   │
   ▼
 <TiptapBlocks /> (src/components/TiptapBlocks/TiptapBlocks.astro)
-  ├── Theme Engine: default / extend / overwrite (src/lib/theme.ts)
-  ├── Security Sanitizers: URLs, Iframes, CSS Colors (src/lib/sanitize.ts)
-  ├── Strapi Relation Resolver: strapi:// -> href (src/lib/relations.ts)
+  ├── Theme Engine: default / extend / overwrite (src/lib/theme/theme.ts)
+  ├── Security Sanitizers: URLs, Iframes, CSS Colors (src/lib/sanitize/sanitize.ts)
+  ├── Internal Relation Resolver: tiptap:// -> href (src/lib/relations/relations.ts)
   └── 19 Native .astro Block & Inline Components
 ```
 
 ---
 
-## Key Capabilities (Strapi Tiptap Editor PR #40)
+## Key Capabilities
 
 | Category | Supported Nodes, Marks & Features |
 | :--- | :--- |
@@ -42,7 +42,7 @@ parseTiptapContent(data, options)
 | **Lists** | `bulletList`, `orderedList` (`start`, `indentLevel`), `listItem`, `taskList`, and `taskItem` (`checked`) |
 | **Media & Embeds** | `image` (`caption`, `width`, `height`, `data-align`, `data-asset-id`, `data-document-id`), `video` (YouTube/Vimeo `embedType: "embed"` & native `<video controls>`), `audio`, `attachment` (downloadable file card with formatted size), `iframe` (HTTPS-only sandboxed embed) |
 | **Code, Math & Tables** | `codeBlock` (`language`), block & inline `mathematics` (`latex`, `displayMode` with Unicode symbol preview), `table`, `tableRow`, `tableHeader`, `tableCell` (`colspan`, `rowspan`, `colwidth`, `backgroundColor`) |
-| **Inline Marks & Links** | `bold`, `italic`, `underline`, `strike`, `code`, `subscript`, `superscript`, `highlight` (`color`), `textStyle` (`color`, `fontFamily`, `fontSize`, `lineHeight`), `abbr` (`title`), `language` (`lang`, `dir`), `link` (`strapi://` internal relation resolution), and inline `linker` chips |
+| **Inline Marks & Links** | `bold`, `italic`, `underline`, `strike`, `code`, `subscript`, `superscript`, `highlight` (`color`), `textStyle` (`color`, `fontFamily`, `fontSize`, `lineHeight`), `abbr` (`title`), `language` (`lang`, `dir`), `link` (`tiptap://` internal relation resolution), and inline `linker` chips |
 
 ---
 

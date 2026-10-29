@@ -1,4 +1,5 @@
 import type { AstroComponentFactory } from "astro/runtime/server/index.js";
+
 import type {
   TiptapBlockUserComponents,
   TiptapBlockUserTheme,
@@ -7,6 +8,7 @@ import type {
   TiptapMediaUrlResolver,
 } from "./types";
 
+export * from "./components/index.d.ts";
 export * from "./lib";
 export * from "./types";
 

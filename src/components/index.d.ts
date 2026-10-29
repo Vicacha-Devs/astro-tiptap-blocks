@@ -1,0 +1,22 @@
+import type { AstroComponentFactory } from "astro/runtime/server/index.js";
+
+export declare const TiptapBlocks: AstroComponentFactory;
+export declare const TiptapBlockCallout: AstroComponentFactory;
+export declare const TiptapBlockCode: AstroComponentFactory;
+export declare const TiptapBlockColumns: AstroComponentFactory;
+export declare const TiptapBlockCustom: AstroComponentFactory;
+export declare const TiptapBlockDetails: AstroComponentFactory;
+export declare const TiptapBlockHeading: AstroComponentFactory;
+export declare const TiptapBlockHr: AstroComponentFactory;
+export declare const TiptapBlockImage: AstroComponentFactory;
+export declare const TiptapBlockList: AstroComponentFactory;
+export declare const TiptapBlockMath: AstroComponentFactory;
+export declare const TiptapBlockMedia: AstroComponentFactory;
+export declare const TiptapBlockParagraph: AstroComponentFactory;
+export declare const TiptapBlockQuote: AstroComponentFactory;
+export declare const TiptapBlockTable: AstroComponentFactory;
+export declare const TiptapBlockToc: AstroComponentFactory;
+export declare const TiptapInlineNodes: AstroComponentFactory;
+export declare const TiptapLinkItem: AstroComponentFactory;
+export declare const TiptapNestedBlocks: AstroComponentFactory;
+export declare const TiptapTextItem: AstroComponentFactory;

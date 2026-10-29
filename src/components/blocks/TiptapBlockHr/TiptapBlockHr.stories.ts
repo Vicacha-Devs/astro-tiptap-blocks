@@ -1,6 +1,6 @@
 import preview from "@storybook/preview";
-import type { TiptapHorizontalRuleNode } from "../../../types";
 
+import type { TiptapHorizontalRuleNode } from "../../../types";
 import TiptapBlockHr from "./TiptapBlockHr.astro";
 
 const meta = preview.meta({

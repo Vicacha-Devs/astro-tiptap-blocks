@@ -1,6 +1,6 @@
 import preview from "@storybook/preview";
-import type { TiptapLeadParagraphNode, TiptapParagraphNode } from "../../../types";
 
+import type { TiptapLeadParagraphNode, TiptapParagraphNode } from "../../../types";
 import TiptapBlockParagraph from "./TiptapBlockParagraph.astro";
 
 const meta = preview.meta({
@@ -53,7 +53,7 @@ export const LeadParagraph = meta.story({
     content: [
       {
         type: "text",
-        text: "Lead paragraphs introduce articles with larger typography and muted contrast, matching the Strapi Tiptap Editor LeadParagraph extension.",
+        text: "Lead paragraphs introduce articles with larger typography and muted contrast, matching the Tiptap LeadParagraph extension.",
       },
     ],
   } satisfies TiptapLeadParagraphNode,

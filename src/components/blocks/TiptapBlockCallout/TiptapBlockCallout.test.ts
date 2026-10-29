@@ -9,7 +9,9 @@ describe("TiptapBlockCallout", () => {
       props: {
         type: "informationPane",
         attrs: { variant: "warning", title: "Migration Notice" },
-        content: [{ type: "paragraph", content: [{ type: "text", text: "Backup before migrating." }] }],
+        content: [
+          { type: "paragraph", content: [{ type: "text", text: "Backup before migrating." }] },
+        ],
       },
     });
 

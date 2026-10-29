@@ -1,6 +1,6 @@
 import preview from "@storybook/preview";
-import type { TiptapPageBreakNode, TiptapTableOfContentsNode } from "../../../types";
 
+import type { TiptapPageBreakNode, TiptapTableOfContentsNode } from "../../../types";
 import TiptapBlockToc from "./TiptapBlockToc.astro";
 
 const meta = preview.meta({

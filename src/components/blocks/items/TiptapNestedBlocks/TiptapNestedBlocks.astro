@@ -1,20 +1,28 @@
 ---
-import { TiptapBlockThemeDefault } from "../../../../lib/theme";
-import type { TiptapBlockNode, TiptapBlockTheme } from "../../../../types";
+import { renderPropertyClasses, TiptapBlockThemeDefault } from "../../../../lib/theme";
+import type {
+  TiptapBlockNode,
+  TiptapBlockTheme,
+  TiptapBlockUserComponents,
+  TiptapCustomBlockNode,
+} from "../../../../types";
 import TiptapBlockCode from "../../TiptapBlockCode/TiptapBlockCode.astro";
+import TiptapBlockCustom from "../../TiptapBlockCustom/TiptapBlockCustom.astro";
 import TiptapBlockHeading from "../../TiptapBlockHeading/TiptapBlockHeading.astro";
 import TiptapBlockHr from "../../TiptapBlockHr/TiptapBlockHr.astro";
 import TiptapBlockImage from "../../TiptapBlockImage/TiptapBlockImage.astro";
 import TiptapBlockList from "../../TiptapBlockList/TiptapBlockList.astro";
+import TiptapBlockMath from "../../TiptapBlockMath/TiptapBlockMath.astro";
+import TiptapBlockMedia from "../../TiptapBlockMedia/TiptapBlockMedia.astro";
 import TiptapBlockParagraph from "../../TiptapBlockParagraph/TiptapBlockParagraph.astro";
 import TiptapBlockTable from "../../TiptapBlockTable/TiptapBlockTable.astro";
-import TiptapInlineNodes from "../TiptapInlineNodes/TiptapInlineNodes.astro";
 
 /**
  * @component TiptapNestedBlocks
  * @title Tiptap Nested Blocks Renderer
  * @description Renders nested `TiptapBlockNode[]` children inside container blocks
- * (`blockquote`, `informationPane`, `conversationHistory`, `details`, `layoutColumn`).
+ * (`blockquote`, `informationPane`, `conversationHistory`, `details`, `layoutColumn`),
+ * including headings, paragraphs, lists, code blocks, images, media, math, tables, and custom blocks.
  *
  * @preview
  *
@@ -39,49 +47,59 @@ export interface Props {
    * Array of nested block AST nodes to render.
    * @default []
    */
-  blocks?: TiptapBlockNode[];
+  blocks?: Array<TiptapBlockNode | TiptapCustomBlockNode>;
   /**
    * Resolved block theme object.
    * @default TiptapBlockThemeDefault
    */
   theme?: TiptapBlockTheme;
+  /**
+   * Optional custom Astro block component overrides.
+   * @default {}
+   */
+  customBlocks?: TiptapBlockUserComponents;
 }
 
-const { blocks = [], theme = TiptapBlockThemeDefault } = Astro.props;
+const { blocks = [], theme = TiptapBlockThemeDefault, customBlocks = {} } = Astro.props;
+const quoteClass = renderPropertyClasses(theme.quote);
 ---
 
-{
-  blocks.map((block) => {
-    switch (block.type) {
-      case "heading":
-        return <TiptapBlockHeading {...block} theme={theme} />;
-      case "paragraph":
-      case "leadParagraph":
-        return <TiptapBlockParagraph {...block} theme={theme} />;
-      case "bulletList":
-      case "orderedList":
-      case "taskList":
-        return <TiptapBlockList {...block} theme={theme} />;
-      case "codeBlock":
-        return <TiptapBlockCode {...block} theme={theme} />;
-      case "image":
-        return <TiptapBlockImage {...block} theme={theme} />;
-      case "table":
-        return <TiptapBlockTable {...block} theme={theme} />;
-      case "horizontalRule":
-        return <TiptapBlockHr {...block} theme={theme} />;
-      case "blockquote":
-        return (
-          <blockquote class="border-s-2 ps-3 italic my-2 opacity-90">
-            {block.content?.map((sub) =>
-              sub.type === "paragraph" || sub.type === "leadParagraph" ? (
-                <p><TiptapInlineNodes nodes={sub.content} theme={theme.paragraph} /></p>
-              ) : null
-            )}
-          </blockquote>
-        );
-      default:
-        return null;
-    }
-  })
-}
+{blocks.map((block) => {
+  const customComponent = customBlocks[block.type];
+  if (customComponent) {
+    return <TiptapBlockCustom component={customComponent} {...block} {theme} />;
+  }
+  const typedBlock = block as TiptapBlockNode;
+  switch (typedBlock.type) {
+    case "heading":
+      return <TiptapBlockHeading {...typedBlock} {theme} />;
+    case "paragraph":
+    case "leadParagraph":
+      return <TiptapBlockParagraph {...typedBlock} {theme} />;
+    case "bulletList":
+    case "orderedList":
+    case "taskList":
+      return <TiptapBlockList {...typedBlock} {theme} />;
+    case "codeBlock":
+      return <TiptapBlockCode {...typedBlock} {theme} />;
+    case "image":
+      return <TiptapBlockImage {...typedBlock} {theme} />;
+    case "video":
+    case "audio":
+    case "attachment":
+    case "iframe":
+      return <TiptapBlockMedia {...typedBlock} {theme} />;
+    case "mathematics":
+      return <TiptapBlockMath {...typedBlock} {theme} />;
+    case "table":
+      return <TiptapBlockTable {...typedBlock} {theme} />;
+    case "horizontalRule":
+      return <TiptapBlockHr {...typedBlock} {theme} />;
+    case "blockquote":
+      return <blockquote class:list={[quoteClass || undefined]}>
+        <Astro.self blocks={typedBlock.content} {theme} {customBlocks} />
+      </blockquote>;
+    default:
+      return null;
+  }
+})}

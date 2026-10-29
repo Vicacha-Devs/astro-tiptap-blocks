@@ -1,5 +1,9 @@
 ---
-import { getPropertyClass, renderPropertyClasses, TiptapBlockThemeDefault } from "../../../lib/theme";
+import {
+  getPropertyClass,
+  renderPropertyClasses,
+  TiptapBlockThemeDefault,
+} from "../../../lib/theme";
 import type {
   TiptapBlockNode,
   TiptapBlockTheme,
@@ -10,7 +14,7 @@ import TiptapNestedBlocks from "../items/TiptapNestedBlocks/TiptapNestedBlocks.a
 /**
  * @component TiptapBlockCallout
  * @title Tiptap Block Callout & Conversation History
- * @description Renders callout and log containers from `@notum-cz/strapi-plugin-tiptap-editor`:
+ * @description Renders callout and log containers:
  * - `informationPane`: `<aside role="note" data-type="information-pane">` with variants (`info`, `success`, `warning`, `danger`, `neutral`, `tip`).
  * - `conversationHistory`: `<div data-type="conversation-history">` with author and timestamp metadata header.
  *
@@ -63,7 +67,12 @@ export interface Props {
   theme?: TiptapBlockTheme;
 }
 
-const { type = "informationPane", attrs, content = [], theme = TiptapBlockThemeDefault } = Astro.props;
+const {
+  type = "informationPane",
+  attrs,
+  content = [],
+  theme = TiptapBlockThemeDefault,
+} = Astro.props;
 const isConversation = type === "conversationHistory";
 
 const validVariants = new Set<TiptapInformationPaneVariant>([
@@ -78,57 +87,47 @@ const rawVariant = !isConversation ? attrs?.variant : null;
 const variant: TiptapInformationPaneVariant =
   rawVariant && validVariants.has(rawVariant) ? rawVariant : "info";
 const paneTitle = !isConversation ? attrs?.title : null;
-const paneClass = !isConversation
-  ? renderPropertyClasses(theme.informationPane, variant)
-  : "";
+const paneClass = !isConversation ? renderPropertyClasses(theme.informationPane, variant) : "";
 const paneTitleClass = getPropertyClass(theme.informationPane.title);
 const paneBodyClass = getPropertyClass(theme.informationPane.body);
 
 const author = isConversation ? attrs?.author : null;
 const timestamp = isConversation ? attrs?.timestamp : null;
-const convClass = isConversation
-  ? renderPropertyClasses(theme.conversationHistory)
-  : "";
+const convClass = isConversation ? renderPropertyClasses(theme.conversationHistory) : "";
 const convHeaderClass = getPropertyClass(theme.conversationHistory.header);
 const convAuthorClass = getPropertyClass(theme.conversationHistory.author);
 const convTimestampClass = getPropertyClass(theme.conversationHistory.timestamp);
 const convBodyClass = getPropertyClass(theme.conversationHistory.body);
 ---
 
-{
-  isConversation ? (
-    <div
-      data-type="conversation-history"
-      data-author={author || undefined}
-      data-timestamp={timestamp || undefined}
-      class:list={[convClass || undefined]}
-    >
-      {(author || timestamp) && (
-        <div class:list={[convHeaderClass || undefined]}>
-          {author && <span class:list={[convAuthorClass || undefined]}>{author}</span>}
-          {timestamp && (
-            <time datetime={timestamp} class:list={[convTimestampClass || undefined]}>
-              {timestamp}
-            </time>
-          )}
-        </div>
-      )}
-      <div class:list={[convBodyClass || undefined]}>
-        <TiptapNestedBlocks blocks={content} theme={theme} />
-      </div>
+{isConversation ? (
+  <div
+    data-type="conversation-history"
+    data-author={author || undefined}
+    data-timestamp={timestamp || undefined}
+    class:list={[convClass || undefined]}
+  >
+    {(author || timestamp) && <div class:list={[convHeaderClass || undefined]}>
+      {author && <span class:list={[convAuthorClass || undefined]}>{author}</span>}
+      {timestamp && <time datetime={timestamp} class:list={[convTimestampClass || undefined]}>
+        {timestamp}
+      </time>}
+    </div>}
+    <div class:list={[convBodyClass || undefined]}>
+      <TiptapNestedBlocks blocks={content} {theme} />
     </div>
-  ) : (
-    <aside
-      role="note"
-      data-type="information-pane"
-      data-variant={variant}
-      data-title={paneTitle || undefined}
-      class:list={[paneClass || undefined]}
-    >
-      {paneTitle && <strong class:list={[paneTitleClass || undefined]}>{paneTitle}</strong>}
-      <div class:list={[paneBodyClass || undefined]}>
-        <TiptapNestedBlocks blocks={content} theme={theme} />
-      </div>
-    </aside>
-  )
-}
+  </div>
+) : (
+  <aside
+    role="note"
+    data-type="information-pane"
+    data-variant={variant}
+    data-title={paneTitle || undefined}
+    class:list={[paneClass || undefined]}
+  >
+    {paneTitle && <strong class:list={[paneTitleClass || undefined]}>{paneTitle}</strong>}
+    <div class:list={[paneBodyClass || undefined]}>
+      <TiptapNestedBlocks blocks={content} {theme} />
+    </div>
+  </aside>
+)}

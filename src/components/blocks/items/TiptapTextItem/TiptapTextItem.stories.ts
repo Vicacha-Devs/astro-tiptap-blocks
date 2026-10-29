@@ -1,6 +1,6 @@
 import preview from "@storybook/preview";
-import type { TiptapTextNode } from "../../../../types";
 
+import type { TiptapTextNode } from "../../../../types";
 import TiptapTextItem from "./TiptapTextItem.astro";
 
 const meta = preview.meta({

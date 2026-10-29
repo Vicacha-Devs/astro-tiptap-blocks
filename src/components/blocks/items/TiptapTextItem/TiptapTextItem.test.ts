@@ -4,20 +4,32 @@ import { renderAstroComponentToDom } from "@utils/test.helpers";
 import TiptapTextItem from "./TiptapTextItem.astro";
 
 describe("TiptapTextItem", () => {
-  it("renders inline bold, italic, and underline marks", async () => {
+  it("renders inline bold, italic, underline, and strike marks with semantic tags and classes", async () => {
     const { root, close } = await renderAstroComponentToDom(TiptapTextItem, {
       props: {
         text: "Formatted span",
-        marks: [{ type: "bold" }, { type: "italic" }, { type: "underline" }],
+        marks: [{ type: "bold" }, { type: "italic" }, { type: "underline" }, { type: "strike" }],
       },
     });
 
     try {
       const el = getByText(root, "Formatted span");
       expect(el).toBeInTheDocument();
-      expect(el.className).toContain("font-bold");
-      expect(el.className).toContain("italic");
-      expect(el.className).toContain("underline");
+      expect(el.tagName.toLowerCase()).toBe("s");
+      expect(el.className).toContain("line-through");
+
+      const uEl = el.closest("u");
+      expect(uEl).not.toBeNull();
+      expect(uEl?.className).toContain("underline");
+
+      const emEl = el.closest("em");
+      expect(emEl).not.toBeNull();
+      expect(emEl?.className).toContain("italic");
+
+      const strongEl = el.closest("strong");
+      expect(strongEl).not.toBeNull();
+      expect(strongEl?.className).toContain("font-bold");
+      expect(root.querySelector("span")).toBeNull();
     } finally {
       await close();
     }

@@ -1,6 +1,6 @@
 # Core Library (`src/lib`)
 
-Parsing, sanitization, Strapi relation extraction, document metadata/reading-time analysis, and theme resolution utilities for `@vicacha-devs/astro-tiptap-blocks`. Every library module lives in its own dedicated folder containing its implementation (`<module>.ts` + `index.ts`), TypeScript Storybook story (`<module>.stories.ts`), and Vitest unit test (`<module>.test.ts`).
+Parsing, sanitization, internal link & media relation extraction, document metadata/reading-time analysis, and theme resolution utilities for `@vicacha-devs/astro-tiptap-blocks`. Every library module lives in its own dedicated folder containing its implementation (`<module>.ts` + `index.ts`), TypeScript Storybook story (`<module>.stories.ts`), and Vitest unit test (`<module>.test.ts`).
 
 ```text
 lib/

@@ -1,14 +1,18 @@
 ---
 import { resolveTiptapMediaUrl } from "../../../lib/sanitize";
-import { getPropertyClass, renderPropertyClasses, TiptapBlockThemeDefault } from "../../../lib/theme";
+import {
+  getPropertyClass,
+  renderPropertyClasses,
+  TiptapBlockThemeDefault,
+} from "../../../lib/theme";
 import type { TiptapBlockTheme, TiptapImageNode, TiptapMediaUrlResolver } from "../../../types";
 
 /**
  * @component TiptapBlockImage
  * @title Tiptap Block Image
  * @description Renders a sanitized `<figure><img><figcaption>` image block supporting responsive `srcset`/`sizes`,
- * configurable `loading` (`lazy` | `eager`), `decoding`, `fetchpriority`, Strapi `mediaBaseUrl` resolution,
- * captions (`caption` or `title`), alignment (`data-align`), and Strapi Media Library metadata (`data-asset-id`, `data-document-id`).
+ * configurable `loading` (`lazy` | `eager`), `decoding`, `fetchpriority`, `mediaBaseUrl` resolution,
+ * captions (`caption` or `title`), alignment (`data-align`), and asset metadata (`data-asset-id`, `data-document-id`).
  *
  * @preview
  *
@@ -51,7 +55,7 @@ export interface Props {
    */
   theme?: TiptapBlockTheme;
   /**
-   * Optional Strapi media base URL prefixed to relative `/uploads/...` image URLs.
+   * Optional media base URL prefixed to relative `/uploads/...` image URLs.
    */
   mediaBaseUrl?: string;
   /**
@@ -75,7 +79,8 @@ const align = attrs?.["data-align"] || undefined;
 const assetId = attrs?.["data-asset-id"] ?? undefined;
 const documentId = attrs?.["data-document-id"] || undefined;
 const loadingAttr = attrs?.loading === "eager" ? "eager" : "lazy";
-const decodingAttr = attrs?.decoding && ["async", "sync", "auto"].includes(attrs.decoding) ? attrs.decoding : "async";
+const decodingAttr =
+  attrs?.decoding && ["async", "sync", "auto"].includes(attrs.decoding) ? attrs.decoding : "async";
 const fetchPriorityAttr =
   attrs?.fetchpriority && ["high", "low", "auto"].includes(attrs.fetchpriority)
     ? attrs.fetchpriority
@@ -83,33 +88,32 @@ const fetchPriorityAttr =
 
 const alignClass =
   align === "center" ? "mx-auto text-center" : align === "right" ? "ms-auto text-end" : "";
-const figureClass = [renderPropertyClasses(theme.image), alignClass].filter(Boolean).join(" ").trim();
+const figureClass = [renderPropertyClasses(theme.image), alignClass]
+  .filter(Boolean)
+  .join(" ")
+  .trim();
 const imgClass = getPropertyClass(theme.image.image);
 const captionClass = getPropertyClass(theme.image.caption);
 ---
 
-{
-  safeSrc !== "#" && (
-    <figure
-      data-align={align}
-      data-asset-id={assetId !== undefined ? String(assetId) : undefined}
-      data-document-id={documentId}
-      class:list={[figureClass || undefined]}
-    >
-      <img
-        src={safeSrc}
-        srcset={attrs?.srcset || undefined}
-        sizes={attrs?.sizes || undefined}
-        alt={alt}
-        title={title}
-        width={attrs?.width || undefined}
-        height={attrs?.height || undefined}
-        loading={loadingAttr}
-        decoding={decodingAttr}
-        fetchpriority={fetchPriorityAttr}
-        class:list={[imgClass || undefined]}
-      />
-      {captionText && <figcaption class:list={[captionClass || undefined]}>{captionText}</figcaption>}
-    </figure>
-  )
-}
+{safeSrc !== "#" && <figure
+  data-align={align}
+  data-asset-id={assetId !== undefined ? String(assetId) : undefined}
+  data-document-id={documentId}
+  class:list={[figureClass || undefined]}
+>
+  <img
+    src={safeSrc}
+    srcset={attrs?.srcset || undefined}
+    sizes={attrs?.sizes || undefined}
+    {alt}
+    {title}
+    width={attrs?.width || undefined}
+    height={attrs?.height || undefined}
+    loading={loadingAttr}
+    decoding={decodingAttr}
+    fetchpriority={fetchPriorityAttr}
+    class:list={[imgClass || undefined]}
+  />
+  {captionText && <figcaption class:list={[captionClass || undefined]}>{captionText}</figcaption>}
+</figure>}

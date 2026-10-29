@@ -12,7 +12,10 @@ describe("text extraction (lib/metadata/text)", () => {
       inlineNodesToText([
         { type: "text", text: "a" },
         { type: "hardBreak" },
-        { type: "linker", attrs: { collectionName: "x", documentId: "1", label: "L", href: "strapi://x/1" } },
+        {
+          type: "linker",
+          attrs: { collectionName: "x", documentId: "1", label: "L", href: "tiptap://x/1" },
+        },
         { type: "mathematics", attrs: { latex: "x^2", displayMode: "inline" } },
       ])
     ).toBe("a\nLx^2");
@@ -35,7 +38,13 @@ describe("text extraction (lib/metadata/text)", () => {
           { type: "detailsContent", content: [p("Hidden")] },
         ],
       },
-      { type: "bulletList", content: [{ type: "listItem", content: [p("one")] }, { type: "listItem", content: [p("two")] }] },
+      {
+        type: "bulletList",
+        content: [
+          { type: "listItem", content: [p("one")] },
+          { type: "listItem", content: [p("two")] },
+        ],
+      },
       { type: "codeBlock", content: [{ type: "text", text: "const a = 1" }] },
       {
         type: "table",

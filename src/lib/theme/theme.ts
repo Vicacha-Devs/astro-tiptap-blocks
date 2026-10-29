@@ -30,8 +30,10 @@ export const TiptapBlockThemeDefault: TiptapBlockTheme = {
     superscript: "text-xs align-super",
     abbr: "underline decoration-dotted cursor-help",
     language: "",
-    linker: "inline-flex items-center gap-1 underline underline-offset-4 font-medium hover:opacity-80",
-    mathInline: "font-mono text-sm px-1.5 py-0.5 rounded bg-indigo-500/10 text-indigo-700 dark:text-indigo-300",
+    linker:
+      "inline-flex items-center gap-1 underline underline-offset-4 font-medium hover:opacity-80",
+    mathInline:
+      "font-mono text-sm px-1.5 py-0.5 rounded bg-indigo-500/10 text-indigo-700 dark:text-indigo-300",
   },
   leadParagraph: { default: "text-xl leading-relaxed my-5 opacity-90 font-normal" },
   quote: { default: "border-s-4 ps-4 italic my-6 opacity-90" },
@@ -76,7 +78,8 @@ export const TiptapBlockThemeDefault: TiptapBlockTheme = {
     checked: "line-through opacity-70",
   },
   code: {
-    default: "font-mono text-sm p-4 my-6 rounded-lg overflow-x-auto bg-neutral-900 text-neutral-100",
+    default:
+      "font-mono text-sm p-4 my-6 rounded-lg overflow-x-auto bg-neutral-900 text-neutral-100",
     line: "block",
   },
   image: {
@@ -138,7 +141,9 @@ export const renderPropertyClasses = <T extends TiptapBlockThemeProperty>(
   const keys = key ? (Array.isArray(key) ? key : [key]) : [];
   return [
     getPropertyClass(theme.default),
-    ...keys.map((propertyKey) => getPropertyClass(theme[propertyKey as keyof T] as TiptapBlockThemePropertyValue)),
+    ...keys.map((propertyKey) =>
+      getPropertyClass(theme[propertyKey as keyof T] as TiptapBlockThemePropertyValue)
+    ),
   ]
     .filter(Boolean)
     .join(" ")
@@ -176,13 +181,19 @@ export const buildThemeObject = (
   >;
   for (const key of groupKeys) resolved[key] = { ...defaultTheme[key] };
 
-  const applyLayer = (layer: DeepPartial<TiptapBlockTheme> | undefined, mode: "overwrite" | "extend") => {
+  const applyLayer = (
+    layer: DeepPartial<TiptapBlockTheme> | undefined,
+    mode: "overwrite" | "extend"
+  ) => {
     if (!layer) return;
     if (layer.default !== undefined) {
       resolved.default =
         mode === "overwrite"
           ? (layer.default as TiptapBlockThemePropertyValue)
-          : [getPropertyClass(resolved.default), getPropertyClass(layer.default as TiptapBlockThemePropertyValue)]
+          : [
+              getPropertyClass(resolved.default),
+              getPropertyClass(layer.default as TiptapBlockThemePropertyValue),
+            ]
               .filter(Boolean)
               .join(" ")
               .trim();
