@@ -1,6 +1,6 @@
 import preview from "@storybook/preview";
-import type { TiptapLayoutContainerNode } from "../../../types";
 
+import type { TiptapLayoutContainerNode } from "../../../types";
 import TiptapBlockColumns from "./TiptapBlockColumns.astro";
 
 const meta = preview.meta({
@@ -71,21 +71,36 @@ export const ThreeEqualColumns = meta.story({
         type: "layoutColumn",
         content: [
           { type: "heading", attrs: { level: 4 }, content: [{ type: "text", text: "1. Parse" }] },
-          { type: "paragraph", content: [{ type: "text", text: "Normalize JSON, HTML, or Markdown into AST." }] },
+          {
+            type: "paragraph",
+            content: [{ type: "text", text: "Normalize JSON, HTML, or Markdown into AST." }],
+          },
         ],
       },
       {
         type: "layoutColumn",
         content: [
-          { type: "heading", attrs: { level: 4 }, content: [{ type: "text", text: "2. Sanitize" }] },
-          { type: "paragraph", content: [{ type: "text", text: "Validate protocols, iframe URLs, and CSS colors." }] },
+          {
+            type: "heading",
+            attrs: { level: 4 },
+            content: [{ type: "text", text: "2. Sanitize" }],
+          },
+          {
+            type: "paragraph",
+            content: [{ type: "text", text: "Validate protocols, iframe URLs, and CSS colors." }],
+          },
         ],
       },
       {
         type: "layoutColumn",
         content: [
           { type: "heading", attrs: { level: 4 }, content: [{ type: "text", text: "3. Render" }] },
-          { type: "paragraph", content: [{ type: "text", text: "Render native Astro components with Tailwind theme." }] },
+          {
+            type: "paragraph",
+            content: [
+              { type: "text", text: "Render native Astro components with Tailwind theme." },
+            ],
+          },
         ],
       },
     ],
@@ -100,7 +115,11 @@ export const AsymmetricTwoToOne = meta.story({
       {
         type: "layoutColumn",
         content: [
-          { type: "heading", attrs: { level: 3 }, content: [{ type: "text", text: "Main Content Column (2/3)" }] },
+          {
+            type: "heading",
+            attrs: { level: 3 },
+            content: [{ type: "text", text: "Main Content Column (2/3)" }],
+          },
           {
             type: "paragraph",
             content: [
@@ -115,7 +134,11 @@ export const AsymmetricTwoToOne = meta.story({
       {
         type: "layoutColumn",
         content: [
-          { type: "heading", attrs: { level: 4 }, content: [{ type: "text", text: "Sidebar Column (1/3)" }] },
+          {
+            type: "heading",
+            attrs: { level: 4 },
+            content: [{ type: "text", text: "Sidebar Column (1/3)" }],
+          },
           {
             type: "paragraph",
             content: [{ type: "text", text: "Ideal for callouts, metadata, or quick links." }],

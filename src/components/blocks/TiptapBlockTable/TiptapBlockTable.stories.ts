@@ -1,6 +1,6 @@
 import preview from "@storybook/preview";
-import type { TiptapTableNode } from "../../../types";
 
+import type { TiptapTableNode } from "../../../types";
 import TiptapBlockTable from "./TiptapBlockTable.astro";
 
 const meta = preview.meta({
@@ -48,11 +48,15 @@ export const FeatureMatrixTable = meta.story({
         content: [
           {
             type: "tableCell",
-            content: [{ type: "paragraph", content: [{ type: "text", text: "Callouts & Conversation" }] }],
+            content: [
+              { type: "paragraph", content: [{ type: "text", text: "Callouts & Conversation" }] },
+            ],
           },
           {
             type: "tableCell",
-            content: [{ type: "paragraph", content: [{ type: "text", text: "JSON, HTML, Markdown" }] }],
+            content: [
+              { type: "paragraph", content: [{ type: "text", text: "JSON, HTML, Markdown" }] },
+            ],
           },
           {
             type: "tableCell",
@@ -66,11 +70,16 @@ export const FeatureMatrixTable = meta.story({
         content: [
           {
             type: "tableCell",
-            content: [{ type: "paragraph", content: [{ type: "text", text: "Strapi Internal Linker" }] }],
+            content: [{ type: "paragraph", content: [{ type: "text", text: "Internal Linker" }] }],
           },
           {
             type: "tableCell",
-            content: [{ type: "paragraph", content: [{ type: "text", text: "strapi:// URI & JSON attrs" }] }],
+            content: [
+              {
+                type: "paragraph",
+                content: [{ type: "text", text: "tiptap:// URI & JSON attrs" }],
+              },
+            ],
           },
           {
             type: "tableCell",
@@ -93,7 +102,12 @@ export const MergedCellsTable = meta.story({
           {
             type: "tableHeader",
             attrs: { colspan: 2, backgroundColor: "#e0e7ff" },
-            content: [{ type: "paragraph", content: [{ type: "text", text: "Merged Header (colspan = 2)" }] }],
+            content: [
+              {
+                type: "paragraph",
+                content: [{ type: "text", text: "Merged Header (colspan = 2)" }],
+              },
+            ],
           },
         ],
       },

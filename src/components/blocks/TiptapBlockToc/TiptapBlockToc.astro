@@ -1,10 +1,11 @@
 ---
 import { slugifyHeadingText } from "../../../lib/sanitize";
-import { getPropertyClass, renderPropertyClasses, TiptapBlockThemeDefault } from "../../../lib/theme";
-import type {
-  TiptapBlockTheme,
-  TiptapTocHeadingItem,
-} from "../../../types";
+import {
+  getPropertyClass,
+  renderPropertyClasses,
+  TiptapBlockThemeDefault,
+} from "../../../lib/theme";
+import type { TiptapBlockTheme, TiptapTocHeadingItem } from "../../../types";
 
 /**
  * @component TiptapBlockToc
@@ -73,41 +74,35 @@ const headings = !isPageBreak ? attrs?.headings || [] : [];
 const title = !isPageBreak ? attrs?.title || "Table of Contents" : "";
 ---
 
-{
-  isPageBreak ? (
-    <hr
-      data-type="page-break"
-      data-page-break="true"
-      role="separator"
-      aria-label="Page break"
-      class:list={[pageBreakClass || undefined]}
-    />
-  ) : (
-    headings.length > 0 && (
-      <nav
-        data-type="table-of-contents"
-        aria-label={title}
-        class:list={[tocClass || undefined]}
-      >
-        <div class:list={[tocTitleClass || undefined]}>{title}</div>
-        <ol class:list={[tocListClass || undefined]}>
-          {headings.map((item) => {
-            const safeSlug = item.id || slugifyHeadingText(item.text);
-            const indentRem = Math.max(0, (item.level - 1) * 0.75);
-            return (
-              <li
-                data-level={item.level}
-                style={indentRem > 0 ? `padding-inline-start: ${indentRem}rem` : undefined}
-                class:list={[tocItemClass || undefined]}
-              >
-                <a href={`#${safeSlug}`} class:list={[tocLinkClass || undefined]}>
-                  {item.text}
-                </a>
-              </li>
-            );
-          })}
-        </ol>
-      </nav>
-    )
-  )
-}
+{isPageBreak ? (
+  <hr
+    data-type="page-break"
+    data-page-break="true"
+    role="separator"
+    aria-label="Page break"
+    class:list={[pageBreakClass || undefined]}
+  />
+) : (
+  headings.length > 0 && <nav
+    data-type="table-of-contents"
+    aria-label={title}
+    class:list={[tocClass || undefined]}
+  >
+    <div class:list={[tocTitleClass || undefined]}>{title}</div>
+    <ol class:list={[tocListClass || undefined]}>
+      {headings.map((item) => {
+        const safeSlug = item.id || slugifyHeadingText(item.text);
+        const indentRem = Math.max(0, (item.level - 1) * 0.75);
+        return <li
+          data-level={item.level}
+          style={indentRem > 0 ? `padding-inline-start: ${indentRem}rem` : undefined}
+          class:list={[tocItemClass || undefined]}
+        >
+          <a href={`#${safeSlug}`} class:list={[tocLinkClass || undefined]}>
+            {item.text}
+          </a>
+        </li>;
+      })}
+    </ol>
+  </nav>
+)}

@@ -1,5 +1,9 @@
 ---
-import { getPropertyClass, renderPropertyClasses, TiptapBlockThemeDefault } from "../../../lib/theme";
+import {
+  getPropertyClass,
+  renderPropertyClasses,
+  TiptapBlockThemeDefault,
+} from "../../../lib/theme";
 import type {
   TiptapBlockNode,
   TiptapBlockTheme,
@@ -84,15 +88,13 @@ const bodyBlocks: TiptapBlockNode[] = detailsContentNode
 
 <details open={attrs?.open ? true : undefined} class:list={[detailsClass || undefined]}>
   <summary class:list={[summaryClass || undefined]}>
-    {
-      summaryNode?.content && summaryNode.content.length > 0 ? (
-        <TiptapInlineNodes nodes={summaryNode.content} theme={theme.paragraph} />
-      ) : (
-        "Details"
-      )
-    }
+    {summaryNode?.content && summaryNode.content.length > 0 ? (
+      <TiptapInlineNodes nodes={summaryNode.content} theme={theme.paragraph} />
+    ) : (
+      "Details"
+    )}
   </summary>
   <div data-type="details-content" class:list={[contentClass || undefined]}>
-    <TiptapNestedBlocks blocks={bodyBlocks} theme={theme} />
+    <TiptapNestedBlocks blocks={bodyBlocks} {theme} />
   </div>
 </details>

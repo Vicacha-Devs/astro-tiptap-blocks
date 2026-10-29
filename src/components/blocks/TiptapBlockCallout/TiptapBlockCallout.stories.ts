@@ -1,6 +1,6 @@
 import preview from "@storybook/preview";
-import type { TiptapConversationHistoryNode, TiptapInformationPaneNode } from "../../../types";
 
+import type { TiptapConversationHistoryNode, TiptapInformationPaneNode } from "../../../types";
 import TiptapBlockCallout from "./TiptapBlockCallout.astro";
 
 const meta = preview.meta({
@@ -141,7 +141,9 @@ export const ConversationHistoryEntry = meta.story({
     content: [
       {
         type: "paragraph",
-        content: [{ type: "text", text: "Added the new SEO heading tag overrides and math formulas." }],
+        content: [
+          { type: "text", text: "Added the new SEO heading tag overrides and math formulas." },
+        ],
       },
     ],
   } satisfies TiptapConversationHistoryNode,

@@ -1,6 +1,6 @@
 import preview from "@storybook/preview";
-import type { TiptapHeadingNode } from "../../../types";
 
+import type { TiptapHeadingNode } from "../../../types";
 import TiptapBlockHeading from "./TiptapBlockHeading.astro";
 
 const meta = preview.meta({
@@ -49,7 +49,11 @@ export const HeadingLevel3WithInlineMarks = meta.story({
       { type: "text", text: "Heading Level 3 with " },
       { type: "text", text: "inline code", marks: [{ type: "code" }] },
       { type: "text", text: " and " },
-      { type: "text", text: "highlight", marks: [{ type: "highlight", attrs: { color: "#fef08a" } }] },
+      {
+        type: "text",
+        text: "highlight",
+        marks: [{ type: "highlight", attrs: { color: "#fef08a" } }],
+      },
     ],
   } satisfies TiptapHeadingNode,
 });

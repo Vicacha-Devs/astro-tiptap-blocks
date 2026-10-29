@@ -1,5 +1,9 @@
 ---
-import { getPropertyClass, renderPropertyClasses, TiptapBlockThemeDefault } from "../../../lib/theme";
+import {
+  getPropertyClass,
+  renderPropertyClasses,
+  TiptapBlockThemeDefault,
+} from "../../../lib/theme";
 import type {
   TiptapBlockBaseAttrs,
   TiptapBlockTheme,
@@ -85,47 +89,43 @@ const startAttr =
   data-type={isTask ? "taskList" : undefined}
   class:list={[listClass || undefined]}
 >
-  {
-    content.map((item) => {
-      const checked = item.type === "taskItem" ? Boolean(item.attrs?.checked) : false;
-      const children = item.content || [];
-      return (
-        <li
-          data-type={isTask ? "taskItem" : undefined}
-          data-checked={isTask ? String(checked) : undefined}
-          class:list={[itemClass || undefined]}
-        >
-          {isTask && (
-            <input
-              type="checkbox"
-              checked={checked ? true : undefined}
-              disabled
-              aria-label="Task item status"
-              class:list={[checkboxClass || undefined]}
-            />
-          )}
-          <div
-            class:list={[
-              isTask ? taskContentClass || undefined : undefined,
-              isTask && checked ? taskCheckedClass || undefined : undefined,
-            ]}
-          >
-            {children.map((child) => {
-              if (child.type === "paragraph" || child.type === "leadParagraph") {
-                return <TiptapInlineNodes nodes={child.content} theme={theme.paragraph} />;
-              }
-              if (
-                child.type === "bulletList" ||
-                child.type === "orderedList" ||
-                child.type === "taskList"
-              ) {
-                return <Astro.self {...child} theme={theme} />;
-              }
-              return null;
-            })}
-          </div>
-        </li>
-      );
-    })
-  }
+  {content.map((item) => {
+    const checked = item.type === "taskItem" ? Boolean(item.attrs?.checked) : false;
+    const children = item.content || [];
+    return <li
+      data-type={isTask ? "taskItem" : undefined}
+      data-checked={isTask ? String(checked) : undefined}
+      class:list={[itemClass || undefined]}
+    >
+      {isTask && (
+        <input
+          type="checkbox"
+          checked={checked ? true : undefined}
+          disabled
+          aria-label="Task item status"
+          class:list={[checkboxClass || undefined]}
+        />
+      )}
+      <div
+        class:list={[
+          isTask ? taskContentClass || undefined : undefined,
+          isTask && checked ? taskCheckedClass || undefined : undefined,
+        ]}
+      >
+        {children.map((child) => {
+          if (child.type === "paragraph" || child.type === "leadParagraph") {
+            return <TiptapInlineNodes nodes={child.content} theme={theme.paragraph} />;
+          }
+          if (
+            child.type === "bulletList" ||
+            child.type === "orderedList" ||
+            child.type === "taskList"
+          ) {
+            return <Astro.self {...child} {theme} />;
+          }
+          return null;
+        })}
+      </div>
+    </li>;
+  })}
 </ListTag>

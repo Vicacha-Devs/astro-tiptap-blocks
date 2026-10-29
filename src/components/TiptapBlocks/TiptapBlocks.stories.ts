@@ -1,6 +1,6 @@
 import preview from "@storybook/preview";
-import type { TiptapDocNode } from "../../types";
 
+import type { TiptapDocNode } from "../../types";
 import TiptapBlocks from "./TiptapBlocks.astro";
 
 const kitchenSinkDoc: TiptapDocNode = {
@@ -13,7 +13,7 @@ const kitchenSinkDoc: TiptapDocNode = {
     {
       type: "heading",
       attrs: { level: 1 },
-      content: [{ type: "text", text: "Strapi Tiptap Editor Kitchen Sink" }],
+      content: [{ type: "text", text: "Tiptap Blocks Kitchen Sink" }],
     },
     {
       type: "leadParagraph",
@@ -32,14 +32,22 @@ const kitchenSinkDoc: TiptapDocNode = {
           type: "paragraph",
           content: [
             { type: "text", text: "Every mark—including " },
-            { type: "text", text: "highlighted text", marks: [{ type: "highlight", attrs: { color: "#fef08a" } }] },
+            {
+              type: "text",
+              text: "highlighted text",
+              marks: [{ type: "highlight", attrs: { color: "#fef08a" } }],
+            },
             { type: "text", text: ", " },
-            { type: "text", text: "CMS", marks: [{ type: "abbr", attrs: { title: "Content Management System" } }] },
+            {
+              type: "text",
+              text: "CMS",
+              marks: [{ type: "abbr", attrs: { title: "Content Management System" } }],
+            },
             { type: "text", text: ", and internal " },
             {
               type: "linker",
               attrs: {
-                collectionName: "api::article.article",
+                collectionName: "article",
                 documentId: "astro-5-guide",
                 label: "Astro 5 Migration Guide",
               },
@@ -71,12 +79,22 @@ const kitchenSinkDoc: TiptapDocNode = {
                 {
                   type: "taskItem",
                   attrs: { checked: true },
-                  content: [{ type: "paragraph", content: [{ type: "text", text: "Multi-format input parser" }] }],
+                  content: [
+                    {
+                      type: "paragraph",
+                      content: [{ type: "text", text: "Multi-format input parser" }],
+                    },
+                  ],
                 },
                 {
                   type: "taskItem",
                   attrs: { checked: false },
-                  content: [{ type: "paragraph", content: [{ type: "text", text: "Visual regression review" }] }],
+                  content: [
+                    {
+                      type: "paragraph",
+                      content: [{ type: "text", text: "Visual regression review" }],
+                    },
+                  ],
                 },
               ],
             },
@@ -87,7 +105,10 @@ const kitchenSinkDoc: TiptapDocNode = {
           content: [
             {
               type: "mathematics",
-              attrs: { latex: "\\int_{-\\infty}^{\\infty} e^{-x^2} dx = \\sqrt{\\pi}", displayMode: "block" },
+              attrs: {
+                latex: "\\int_{-\\infty}^{\\infty} e^{-x^2} dx = \\sqrt{\\pi}",
+                displayMode: "block",
+              },
             },
           ],
         },
@@ -127,8 +148,7 @@ export const KitchenSinkJSON = meta.story({
 
 export const FromHTMLString = meta.story({
   args: {
-    data:
-      '<h2 data-seo-tag="h3">HTML Input Mode</h2><p data-lead="true">Parsed directly from Strapi HTML output with <mark data-color="#bbf7d0">highlighted marks</mark> and <span data-type="mathematics" data-latex="E = mc^2"></span>.</p><aside data-type="information-pane" data-variant="success" data-title="HTML Callout"><p>Safe HTML tokenizer strips scripts and event attributes automatically.</p></aside>',
+    data: '<h2 data-seo-tag="h3">HTML Input Mode</h2><p data-lead="true">Parsed directly from Tiptap HTML output with <mark data-color="#bbf7d0">highlighted marks</mark> and <span data-type="mathematics" data-latex="E = mc^2"></span>.</p><aside data-type="information-pane" data-variant="success" data-title="HTML Callout"><p>Safe HTML tokenizer strips scripts and event attributes automatically.</p></aside>',
   },
 });
 

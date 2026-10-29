@@ -1,6 +1,14 @@
 ---
-import { getPropertyClass, renderPropertyClasses, TiptapBlockThemeDefault } from "../../../lib/theme";
-import type { TiptapBlockTheme, TiptapLayoutColumnNode, TiptapLayoutContainerNode } from "../../../types";
+import {
+  getPropertyClass,
+  renderPropertyClasses,
+  TiptapBlockThemeDefault,
+} from "../../../lib/theme";
+import type {
+  TiptapBlockTheme,
+  TiptapLayoutColumnNode,
+  TiptapLayoutContainerNode,
+} from "../../../types";
 import TiptapNestedBlocks from "../items/TiptapNestedBlocks/TiptapNestedBlocks.astro";
 
 /**
@@ -57,7 +65,12 @@ export interface Props {
   theme?: TiptapBlockTheme;
 }
 
-const { type = "layoutContainer", attrs, content = [], theme = TiptapBlockThemeDefault } = Astro.props;
+const {
+  type = "layoutContainer",
+  attrs,
+  content = [],
+  theme = TiptapBlockThemeDefault,
+} = Astro.props;
 const columnsRatio = attrs?.columns || "1:1";
 const containerClass = renderPropertyClasses(theme.columns);
 const columnClass = getPropertyClass(theme.columns.column);
@@ -78,11 +91,7 @@ const gridTemplateStyle =
   style={gridTemplateStyle}
   class:list={[containerClass || undefined]}
 >
-  {
-    content.map((col) => (
-      <div data-type="layout-column" class:list={[columnClass || undefined]}>
-        <TiptapNestedBlocks blocks={col.content} theme={theme} />
-      </div>
-    ))
-  }
+  {content.map((col) => <div data-type="layout-column" class:list={[columnClass || undefined]}>
+    <TiptapNestedBlocks blocks={col.content} {theme} />
+  </div>)}
 </div>

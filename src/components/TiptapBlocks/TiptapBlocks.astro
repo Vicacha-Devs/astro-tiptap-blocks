@@ -10,7 +10,6 @@ import type {
   TiptapInternalLinkResolver,
   TiptapMediaUrlResolver,
 } from "../../types";
-
 import TiptapBlockCallout from "../blocks/TiptapBlockCallout/TiptapBlockCallout.astro";
 import TiptapBlockCode from "../blocks/TiptapBlockCode/TiptapBlockCode.astro";
 import TiptapBlockColumns from "../blocks/TiptapBlockColumns/TiptapBlockColumns.astro";
@@ -69,9 +68,9 @@ export interface Props {
   class?: string;
   /** Optional domain allowlist for HTTPS `<iframe>` and video embeds (e.g. `["youtube.com", "player.vimeo.com"]`). */
   allowedIframeDomains?: ReadonlyArray<string>;
-  /** Optional callback to resolve Strapi internal links (`strapi://collectionName/documentId` and `linker` nodes) into frontend URLs. */
+  /** Optional callback to resolve internal links (`tiptap://collectionName/documentId` and `linker` nodes) into frontend URLs. */
   resolveInternalLink?: TiptapInternalLinkResolver;
-  /** Optional Strapi media base URL prefixed to relative `/uploads/...` media URLs. */
+  /** Optional media base URL prefixed to relative `/uploads/...` media URLs. */
   mediaBaseUrl?: string;
   /** Optional custom resolver for media URLs (`image`, `video`, `audio`, `attachment`) before sanitization. */
   resolveMediaUrl?: TiptapMediaUrlResolver;
@@ -106,7 +105,12 @@ const {
   copyableCodeBlocks = false,
 } = Astro.props;
 
-const doc = parseTiptapContent(data, { allowedIframeDomains, resolveInternalLink, mediaBaseUrl, resolveMediaUrl });
+const doc = parseTiptapContent(data, {
+  allowedIframeDomains,
+  resolveInternalLink,
+  mediaBaseUrl,
+  resolveMediaUrl,
+});
 const theme = buildThemeObject(userTheme, TiptapBlockThemeDefault);
 const wrapperClass = [getPropertyClass(theme.default), className].filter(Boolean).join(" ").trim();
 
@@ -114,81 +118,109 @@ const mapNodeTypeToThemeKey = (
   nodeType: TiptapBlockNode["type"]
 ): keyof TiptapBlockThemeCustomComponents | undefined => {
   switch (nodeType) {
-    case "heading": return "heading";
-    case "paragraph": return "paragraph";
-    case "leadParagraph": return "leadParagraph";
-    case "blockquote": return "quote";
-    case "informationPane": return "informationPane";
-    case "conversationHistory": return "conversationHistory";
-    case "details": return "details";
-    case "layoutContainer": return "columns";
+    case "heading":
+      return "heading";
+    case "paragraph":
+      return "paragraph";
+    case "leadParagraph":
+      return "leadParagraph";
+    case "blockquote":
+      return "quote";
+    case "informationPane":
+      return "informationPane";
+    case "conversationHistory":
+      return "conversationHistory";
+    case "details":
+      return "details";
+    case "layoutContainer":
+      return "columns";
     case "bulletList":
-    case "orderedList": return "list";
-    case "taskList": return "taskList";
-    case "codeBlock": return "code";
-    case "image": return "image";
-    case "video": return "video";
-    case "audio": return "audio";
-    case "attachment": return "attachment";
-    case "iframe": return "iframe";
-    case "mathematics": return "mathematics";
-    case "tableOfContents": return "tableOfContents";
-    case "pageBreak": return "pageBreak";
-    case "table": return "table";
-    case "horizontalRule": return "hr";
-    default: return undefined;
+    case "orderedList":
+      return "list";
+    case "taskList":
+      return "taskList";
+    case "codeBlock":
+      return "code";
+    case "image":
+      return "image";
+    case "video":
+      return "video";
+    case "audio":
+      return "audio";
+    case "attachment":
+      return "attachment";
+    case "iframe":
+      return "iframe";
+    case "mathematics":
+      return "mathematics";
+    case "tableOfContents":
+      return "tableOfContents";
+    case "pageBreak":
+      return "pageBreak";
+    case "table":
+      return "table";
+    case "horizontalRule":
+      return "hr";
+    default:
+      return undefined;
   }
 };
 ---
 
 <div class:list={[wrapperClass || undefined]}>
-  {
-    doc.content.map((block) => {
-      const themeKey = mapNodeTypeToThemeKey(block.type);
-      const customComponent = (themeKey ? customBlocks[themeKey] : undefined) ?? customBlocks[block.type];
-      if (customComponent) {
-        return <TiptapBlockCustom component={customComponent} {...block} theme={theme} />;
-      }
-      switch (block.type) {
-        case "heading":
-          return <TiptapBlockHeading {...block} theme={theme} anchorLink={headingAnchors} />;
-        case "paragraph":
-        case "leadParagraph":
-          return <TiptapBlockParagraph {...block} theme={theme} />;
-        case "blockquote":
-          return <TiptapBlockQuote {...block} theme={theme} />;
-        case "informationPane":
-        case "conversationHistory":
-          return <TiptapBlockCallout {...block} theme={theme} />;
-        case "details":
-          return <TiptapBlockDetails {...block} theme={theme} />;
-        case "layoutContainer":
-          return <TiptapBlockColumns {...block} theme={theme} />;
-        case "bulletList":
-        case "orderedList":
-        case "taskList":
-          return <TiptapBlockList {...block} theme={theme} />;
-        case "codeBlock":
-          return <TiptapBlockCode {...block} theme={theme} showLineNumbers={showCodeLineNumbers} copyable={copyableCodeBlocks} />;
-        case "image":
-          return <TiptapBlockImage {...block} theme={theme} mediaBaseUrl={mediaBaseUrl} resolveMediaUrl={resolveMediaUrl} />;
-        case "video":
-        case "audio":
-        case "attachment":
-        case "iframe":
-          return <TiptapBlockMedia {...block} theme={theme} allowedIframeDomains={allowedIframeDomains} />;
-        case "mathematics":
-          return <TiptapBlockMath {...block} theme={theme} />;
-        case "tableOfContents":
-        case "pageBreak":
-          return <TiptapBlockToc {...block} theme={theme} />;
-        case "table":
-          return <TiptapBlockTable {...block} theme={theme} />;
-        case "horizontalRule":
-          return <TiptapBlockHr {...block} theme={theme} />;
-        default:
-          return null;
-      }
-    })
-  }
+  {doc.content.map((block) => {
+    const themeKey = mapNodeTypeToThemeKey(block.type);
+    const customComponent =
+      (themeKey ? customBlocks[themeKey] : undefined) ?? customBlocks[block.type];
+    if (customComponent) {
+      return <TiptapBlockCustom component={customComponent} {...block} {theme} />;
+    }
+    switch (block.type) {
+      case "heading":
+        return <TiptapBlockHeading {...block} {theme} anchorLink={headingAnchors} />;
+      case "paragraph":
+      case "leadParagraph":
+        return <TiptapBlockParagraph {...block} {theme} />;
+      case "blockquote":
+        return <TiptapBlockQuote {...block} {theme} />;
+      case "informationPane":
+      case "conversationHistory":
+        return <TiptapBlockCallout {...block} {theme} />;
+      case "details":
+        return <TiptapBlockDetails {...block} {theme} />;
+      case "layoutContainer":
+        return <TiptapBlockColumns {...block} {theme} />;
+      case "bulletList":
+      case "orderedList":
+      case "taskList":
+        return <TiptapBlockList {...block} {theme} />;
+      case "codeBlock":
+        return (
+          <TiptapBlockCode
+            {...block}
+            {theme}
+            showLineNumbers={showCodeLineNumbers}
+            copyable={copyableCodeBlocks}
+          />
+        );
+      case "image":
+        return <TiptapBlockImage {...block} {theme} {mediaBaseUrl} {resolveMediaUrl} />;
+      case "video":
+      case "audio":
+      case "attachment":
+      case "iframe":
+        return <TiptapBlockMedia {...block} {theme} {allowedIframeDomains} />;
+      case "mathematics":
+        return <TiptapBlockMath {...block} {theme} />;
+      case "tableOfContents":
+      case "pageBreak":
+        return <TiptapBlockToc {...block} {theme} />;
+      case "table":
+        return <TiptapBlockTable {...block} {theme} />;
+      case "horizontalRule":
+        return <TiptapBlockHr {...block} {theme} />;
+      default:
+        return null;
+    }
+  })}
 </div>

@@ -1,6 +1,10 @@
 import preview from "@storybook/preview";
-import type { TiptapBulletListNode, TiptapOrderedListNode, TiptapTaskListNode } from "../../../types";
 
+import type {
+  TiptapBulletListNode,
+  TiptapOrderedListNode,
+  TiptapTaskListNode,
+} from "../../../types";
 import TiptapBlockList from "./TiptapBlockList.astro";
 
 const meta = preview.meta({
@@ -31,15 +35,27 @@ export const BulletList = meta.story({
     content: [
       {
         type: "listItem",
-        content: [{ type: "paragraph", content: [{ type: "text", text: "ProseMirror JSON document input" }] }],
+        content: [
+          {
+            type: "paragraph",
+            content: [{ type: "text", text: "ProseMirror JSON document input" }],
+          },
+        ],
       },
       {
         type: "listItem",
-        content: [{ type: "paragraph", content: [{ type: "text", text: "Strapi HTML output mode" }] }],
+        content: [
+          { type: "paragraph", content: [{ type: "text", text: "Tiptap HTML output mode" }] },
+        ],
       },
       {
         type: "listItem",
-        content: [{ type: "paragraph", content: [{ type: "text", text: "Markdown with lossless metadata comments" }] }],
+        content: [
+          {
+            type: "paragraph",
+            content: [{ type: "text", text: "Markdown with lossless metadata comments" }],
+          },
+        ],
       },
     ],
   } satisfies TiptapBulletListNode,
@@ -52,11 +68,21 @@ export const OrderedListWithCustomStart = meta.story({
     content: [
       {
         type: "listItem",
-        content: [{ type: "paragraph", content: [{ type: "text", text: "Step three: Configure theme extend/overwrite" }] }],
+        content: [
+          {
+            type: "paragraph",
+            content: [{ type: "text", text: "Step three: Configure theme extend/overwrite" }],
+          },
+        ],
       },
       {
         type: "listItem",
-        content: [{ type: "paragraph", content: [{ type: "text", text: "Step four: Provide resolveInternalLink" }] }],
+        content: [
+          {
+            type: "paragraph",
+            content: [{ type: "text", text: "Step four: Provide resolveInternalLink" }],
+          },
+        ],
       },
     ],
   } satisfies TiptapOrderedListNode,
@@ -72,7 +98,9 @@ export const TaskChecklist = meta.story({
         content: [
           {
             type: "paragraph",
-            content: [{ type: "text", text: "Sanitize all href and src attributes against XSS protocols" }],
+            content: [
+              { type: "text", text: "Sanitize all href and src attributes against XSS protocols" },
+            ],
           },
         ],
       },
@@ -82,7 +110,9 @@ export const TaskChecklist = meta.story({
         content: [
           {
             type: "paragraph",
-            content: [{ type: "text", text: "Add JSDoc prop documentation to all Astro components" }],
+            content: [
+              { type: "text", text: "Add JSDoc prop documentation to all Astro components" },
+            ],
           },
         ],
       },

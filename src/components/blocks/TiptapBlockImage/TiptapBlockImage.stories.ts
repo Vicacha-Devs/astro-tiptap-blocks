@@ -1,6 +1,6 @@
 import preview from "@storybook/preview";
-import type { TiptapImageNode } from "../../../types";
 
+import type { TiptapImageNode } from "../../../types";
 import TiptapBlockImage from "./TiptapBlockImage.astro";
 
 const sampleImageUrl =
@@ -31,12 +31,12 @@ export const CenteredFigureWithCaption = meta.story({
   args: {
     type: "image",
     attrs: {
-      src: sampleImageUrl,
-      alt: "Circuit board macro photography",
-      caption: "Figure 1: Strapi Media Library asset with caption and documentId metadata.",
+      "src": sampleImageUrl,
+      "alt": "Circuit board macro photography",
+      "caption": "Figure 1: Media asset with caption and documentId metadata.",
       "data-align": "center",
-      width: 720,
-      height: 405,
+      "width": 720,
+      "height": 405,
       "data-asset-id": 42,
       "data-document-id": "media-circuit-board-42",
     },
@@ -47,12 +47,12 @@ export const RightAlignedImage = meta.story({
   args: {
     type: "image",
     attrs: {
-      src: sampleImageUrl,
-      alt: "Right-aligned hardware graphic",
-      title: "Right-aligned image using data-align='right'",
+      "src": sampleImageUrl,
+      "alt": "Right-aligned hardware graphic",
+      "title": "Right-aligned image using data-align='right'",
       "data-align": "right",
-      width: 480,
-      height: 270,
+      "width": 480,
+      "height": 270,
     },
   } satisfies TiptapImageNode,
 });

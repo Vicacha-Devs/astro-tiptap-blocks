@@ -1,6 +1,6 @@
 import preview from "@storybook/preview";
-import type { TiptapMathematicsNode } from "../../../types";
 
+import type { TiptapMathematicsNode } from "../../../types";
 import TiptapBlockMath from "./TiptapBlockMath.astro";
 
 const meta = preview.meta({

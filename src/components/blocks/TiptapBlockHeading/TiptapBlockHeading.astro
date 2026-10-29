@@ -108,15 +108,11 @@ const dirAttr = attrs?.dir || undefined;
   class:list={[className || undefined]}
 >
   <TiptapInlineNodes nodes={content} theme={theme.paragraph} />
-  {
-    showAnchor && headingId && (
-      <a
-        href={`#${headingId}`}
-        aria-label={`Permalink to ${rawText || headingId}`}
-        class="tiptap-heading-anchor ms-2 text-slate-400 opacity-0 transition-opacity hover:text-blue-600 focus:opacity-100 group-hover:opacity-100 no-underline"
-      >
-        #
-      </a>
-    )
-  }
+  {showAnchor && headingId && <a
+    href={`#${headingId}`}
+    aria-label={`Permalink to ${rawText || headingId}`}
+    class="tiptap-heading-anchor ms-2 text-slate-400 opacity-0 transition-opacity hover:text-blue-600 focus:opacity-100 group-hover:opacity-100 no-underline"
+  >
+    #
+  </a>}
 </Tag>
