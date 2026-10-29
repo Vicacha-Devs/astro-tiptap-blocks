@@ -618,7 +618,9 @@
         },
         {
           "type": "text",
-          "marks": [{ "type": "abbr", "attrs": { "title": "Web Content Accessibility Guidelines" } }],
+          "marks": [
+            { "type": "abbr", "attrs": { "title": "Web Content Accessibility Guidelines" } }
+          ],
           "text": "WCAG"
         },
         { "type": "text", "text": " and " },
@@ -861,4 +863,3 @@
     }
   ]
 }
-
