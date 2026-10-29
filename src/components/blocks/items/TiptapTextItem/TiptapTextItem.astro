@@ -73,9 +73,7 @@ const highlightMark = marks.find(
 const textStyleMark = marks.find(
   (m): m is Extract<TiptapMark, { type: "textStyle" }> => m.type === "textStyle"
 );
-const abbrMark = marks.find(
-  (m): m is Extract<TiptapMark, { type: "abbr" }> => m.type === "abbr"
-);
+const abbrMark = marks.find((m): m is Extract<TiptapMark, { type: "abbr" }> => m.type === "abbr");
 const languageMark = marks.find(
   (m): m is Extract<TiptapMark, { type: "language" }> => m.type === "language"
 );
@@ -84,88 +82,67 @@ const highlightColor = sanitizeCssColor(highlightMark?.attrs?.color);
 const highlightStyle = highlightColor ? `background-color: ${highlightColor}` : undefined;
 const textInlineStyle = buildSafeInlineStyle(textStyleMark?.attrs);
 
-const wrapperClasses = [
-  isBold ? getPropertyClass(theme.bold) : "",
-  isItalic ? getPropertyClass(theme.italic) : "",
-  isUnderline ? getPropertyClass(theme.underline) : "",
-  isStrike ? getPropertyClass(theme.strikethrough) : "",
-  isLanguage ? getPropertyClass(theme.language) : "",
-]
-  .filter(Boolean)
-  .join(" ")
-  .trim();
-
-const hasSpanWrapper = Boolean(wrapperClasses || textInlineStyle || isLanguage);
+const boldClass = getPropertyClass(theme.bold);
+const italicClass = getPropertyClass(theme.italic);
+const underlineClass = getPropertyClass(theme.underline);
+const strikeClass = getPropertyClass(theme.strikethrough);
 const codeClass = getPropertyClass(theme.code);
 const highlightClass = getPropertyClass(theme.highlight);
 const subClass = getPropertyClass(theme.subscript);
 const supClass = getPropertyClass(theme.superscript);
 const abbrClass = getPropertyClass(theme.abbr);
+const langClass = isLanguage ? getPropertyClass(theme.language) : "";
+const hasSpanWrapper = Boolean(langClass || textInlineStyle || isLanguage);
 ---
 
-{
-  isCode ? (
-    <code class:list={[codeClass || undefined]}>{text}</code>
-  ) : (
-    <Fragment>
-      {hasSpanWrapper ? (
-        <span
-          class:list={[wrapperClasses || undefined]}
-          style={textInlineStyle}
-          lang={languageMark?.attrs?.lang || undefined}
-          dir={languageMark?.attrs?.dir || undefined}
-        >
-          {isAbbr ? (
-            <abbr title={abbrMark?.attrs?.title || undefined} class:list={[abbrClass || undefined]}>
-              {isHighlight ? (
-                <mark data-color={highlightColor || undefined} style={highlightStyle} class:list={[highlightClass || undefined]}>
-                  {isSubscript ? <sub class:list={[subClass || undefined]}>{text}</sub> : isSuperscript ? <sup class:list={[supClass || undefined]}>{text}</sup> : text}
-                </mark>
-              ) : isSubscript ? (
-                <sub class:list={[subClass || undefined]}>{text}</sub>
-              ) : isSuperscript ? (
-                <sup class:list={[supClass || undefined]}>{text}</sup>
-              ) : (
-                text
-              )}
-            </abbr>
-          ) : isHighlight ? (
-            <mark data-color={highlightColor || undefined} style={highlightStyle} class:list={[highlightClass || undefined]}>
-              {isSubscript ? <sub class:list={[subClass || undefined]}>{text}</sub> : isSuperscript ? <sup class:list={[supClass || undefined]}>{text}</sup> : text}
-            </mark>
-          ) : isSubscript ? (
-            <sub class:list={[subClass || undefined]}>{text}</sub>
-          ) : isSuperscript ? (
-            <sup class:list={[supClass || undefined]}>{text}</sup>
-          ) : (
-            text
-          )}
-        </span>
-      ) : isAbbr ? (
-        <abbr title={abbrMark?.attrs?.title || undefined} class:list={[abbrClass || undefined]}>
-          {isHighlight ? (
-            <mark data-color={highlightColor || undefined} style={highlightStyle} class:list={[highlightClass || undefined]}>
-              {isSubscript ? <sub class:list={[subClass || undefined]}>{text}</sub> : isSuperscript ? <sup class:list={[supClass || undefined]}>{text}</sup> : text}
-            </mark>
-          ) : isSubscript ? (
-            <sub class:list={[subClass || undefined]}>{text}</sub>
-          ) : isSuperscript ? (
-            <sup class:list={[supClass || undefined]}>{text}</sup>
-          ) : (
-            text
-          )}
-        </abbr>
-      ) : isHighlight ? (
-        <mark data-color={highlightColor || undefined} style={highlightStyle} class:list={[highlightClass || undefined]}>
-          {isSubscript ? <sub class:list={[subClass || undefined]}>{text}</sub> : isSuperscript ? <sup class:list={[supClass || undefined]}>{text}</sup> : text}
-        </mark>
-      ) : isSubscript ? (
-        <sub class:list={[subClass || undefined]}>{text}</sub>
-      ) : isSuperscript ? (
-        <sup class:list={[supClass || undefined]}>{text}</sup>
-      ) : (
-        text
-      )}
-    </Fragment>
-  )
-}
+{(() => {
+  let content: any = text;
+  if (isSubscript) {
+    content = <sub class:list={[subClass || undefined]}>{content}</sub>;
+  } else if (isSuperscript) {
+    content = <sup class:list={[supClass || undefined]}>{content}</sup>;
+  }
+  if (isHighlight) {
+    content = <mark
+      data-color={highlightColor || undefined}
+      style={highlightStyle}
+      class:list={[highlightClass || undefined]}
+    >
+      {content}
+    </mark>;
+  }
+  if (isAbbr) {
+    content = <abbr
+      title={abbrMark?.attrs?.title || undefined}
+      class:list={[abbrClass || undefined]}
+    >
+      {content}
+    </abbr>;
+  }
+  if (isStrike) {
+    content = <s class:list={[strikeClass || undefined]}>{content}</s>;
+  }
+  if (isUnderline) {
+    content = <u class:list={[underlineClass || undefined]}>{content}</u>;
+  }
+  if (isItalic) {
+    content = <em class:list={[italicClass || undefined]}>{content}</em>;
+  }
+  if (isBold) {
+    content = <strong class:list={[boldClass || undefined]}>{content}</strong>;
+  }
+  if (isCode) {
+    content = <code class:list={[codeClass || undefined]}>{content}</code>;
+  }
+  if (hasSpanWrapper) {
+    content = <span
+      class:list={[langClass || undefined]}
+      style={textInlineStyle}
+      lang={languageMark?.attrs?.lang || undefined}
+      dir={languageMark?.attrs?.dir || undefined}
+    >
+      {content}
+    </span>;
+  }
+  return content;
+})()}
