@@ -7,7 +7,7 @@ import { Meta } from "@storybook/addon-docs/blocks";
 `@vicacha-devs/astro-tiptap-blocks` supports **two levels of extensibility** in consumer Astro projects without modifying the library, while preserving its core security guarantee (**zero `set:html` / `innerHTML`**):
 
 1. **Overriding Built-in Blocks (`blocks` prop)**: Replace any built-in block renderer (`heading`, `paragraph`, `informationPane`, etc.) with your own Astro component.
-2. **Rendering Custom Tiptap Extensions (`TiptapCustomBlockNode`)**: Render any custom ProseMirror/Tiptap block registered via `registerTiptapExtension()` in `@notum-cz/strapi-plugin-tiptap-editor` by passing its node `type` name in `blocks={{ [customNodeType]: YourAstroComponent }}`.
+2. **Rendering Custom Tiptap Extensions (`TiptapCustomBlockNode`)**: Render any custom ProseMirror/Tiptap block node defined with `@tiptap/core` by passing its node `type` name in `blocks={{ [customNodeType]: YourAstroComponent }}`.
 
 ---
 
@@ -48,29 +48,29 @@ const baseClass = getPropertyClass(theme.informationPane?.default);
 
 ### Built-in `blocks` Override Keys (`TiptapBlockUserComponents`)
 
-| `blocks` Key                                | Handled AST `node.type`                                | Forwarded Content Helper                        |
-| :------------------------------------------ | :----------------------------------------------------- | :---------------------------------------------- |
-| `heading`                                   | `"heading"`                                            | `<TiptapInlineNodes nodes={content} />`         |
-| `paragraph`                                 | `"paragraph"`                                          | `<TiptapInlineNodes nodes={content} />`         |
-| `leadParagraph`                             | `"leadParagraph"`                                      | `<TiptapInlineNodes nodes={content} />`         |
-| `quote`                                     | `"blockquote"`                                         | `<TiptapNestedBlocks blocks={content} />`       |
-| `informationPane`                           | `"informationPane"`                                    | `<TiptapNestedBlocks blocks={content} />`       |
-| `conversationHistory`                       | `"conversationHistory"`                                | `<TiptapNestedBlocks blocks={content} />`       |
-| `details`                                   | `"details"`                                            | `detailsSummary` + `detailsContent`             |
-| `columns`                                   | `"layoutContainer"`                                    | `layoutColumn[]` with `<TiptapNestedBlocks />`  |
-| `list`                                      | `"bulletList"` \| `"orderedList"`                      | `listItem[]`                                    |
-| `taskList`                                  | `"taskList"`                                           | `taskItem[]` (`attrs.checked`)                  |
-| `code`                                      | `"codeBlock"`                                          | Plain text from `content`                       |
-| `image`                                     | `"image"`                                              | Self-contained (`attrs.src`, `attrs.alt`, etc.) |
-| `video` / `audio` / `attachment` / `iframe` | `"video"` \| `"audio"` \| `"attachment"` \| `"iframe"` | Self-contained (`attrs.src` / `attrs.href`)     |
-| `mathematics`                               | `"mathematics"`                                        | Self-contained (`attrs.latex`)                  |
-| `tableOfContents`                           | `"tableOfContents"`                                    | Self-contained (`attrs.headings`)               |
-| `pageBreak` / `hr`                          | `"pageBreak"` \| `"horizontalRule"`                    | Leaf node (`no content`)                        |
-| `table`                                     | `"table"`                                              | `tableRow[]` -> `tableHeader` / `tableCell`     |
+| `blocks` Key | Handled AST `node.type` | Forwarded Content Helper |
+| :--- | :--- | :--- |
+| `heading` | `"heading"` | `<TiptapInlineNodes nodes={content} />` |
+| `paragraph` | `"paragraph"` | `<TiptapInlineNodes nodes={content} />` |
+| `leadParagraph` | `"leadParagraph"` | `<TiptapInlineNodes nodes={content} />` |
+| `quote` | `"blockquote"` | `<TiptapNestedBlocks blocks={content} />` |
+| `informationPane` | `"informationPane"` | `<TiptapNestedBlocks blocks={content} />` |
+| `conversationHistory` | `"conversationHistory"` | `<TiptapNestedBlocks blocks={content} />` |
+| `details` | `"details"` | `detailsSummary` + `detailsContent` |
+| `columns` | `"layoutContainer"` | `layoutColumn[]` with `<TiptapNestedBlocks />` |
+| `list` | `"bulletList"` \| `"orderedList"` | `listItem[]` |
+| `taskList` | `"taskList"` | `taskItem[]` (`attrs.checked`) |
+| `code` | `"codeBlock"` | Plain text from `content` |
+| `image` | `"image"` | Self-contained (`attrs.src`, `attrs.alt`, etc.) |
+| `video` / `audio` / `attachment` / `iframe` | `"video"` \| `"audio"` \| `"attachment"` \| `"iframe"` | Self-contained (`attrs.src` / `attrs.href`) |
+| `mathematics` | `"mathematics"` | Self-contained (`attrs.latex`) |
+| `tableOfContents` | `"tableOfContents"` | Self-contained (`attrs.headings`) |
+| `pageBreak` / `hr` | `"pageBreak"` \| `"horizontalRule"` | Leaf node (`no content`) |
+| `table` | `"table"` | `tableRow[]` -> `tableHeader` / `tableCell` |
 
 ---
 
-## 2. Rendering Custom Tiptap Extensions (Backend + Frontend)
+## 2. Rendering Custom Tiptap Extensions (Editor + Frontend)
 
 `@vicacha-devs/astro-tiptap-blocks` natively supports custom Tiptap block nodes (`TiptapCustomBlockNode`) across all 3 input formats (**JSON**, **HTML**, and **Markdown**) without requiring changes to this package:
 
@@ -80,21 +80,13 @@ const baseClass = getPropertyClass(theme.informationPane?.default);
 
 ### End-to-End Example: Before / After Image Comparison Slider (`beforeAfterSlider`)
 
-#### Step A — Register the Custom Extension in (`backend/src/admin/app.tsx`)
+#### Step A — Define the Custom Tiptap Node (`editor/extensions/beforeAfterSlider.ts`)
 
-Import `Node`, `mergeAttributes`, `registerTiptapExtension`, and `MediaLibraryWrapper` directly from `@notum-cz/strapi-plugin-tiptap-editor/strapi-admin`:
+Import `Node` and `mergeAttributes` from `@tiptap/core`:
 
-```tsx
-// backend/src/admin/tiptap/beforeAfterSlider.tsx
-import React, { useState } from "react";
-import {
-  Node,
-  mergeAttributes,
-  registerTiptapExtension,
-  MediaLibraryWrapper,
-  type CustomExtensionDialogProps,
-  type StrapiFile,
-} from "@notum-cz/strapi-plugin-tiptap-editor/strapi-admin";
+```ts
+// editor/extensions/beforeAfterSlider.ts
+import { Node, mergeAttributes } from "@tiptap/core";
 
 export const BeforeAfterNode = Node.create({
   name: "beforeAfterSlider",
