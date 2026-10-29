@@ -1,6 +1,6 @@
 import preview from "@storybook/preview";
-import TiptapLibPreview from "../../components/blocks/TiptapLibPreview/TiptapLibPreview.astro";
 
+import TiptapLibPreview from "../../components/blocks/TiptapLibPreview/TiptapLibPreview.astro";
 import { isLikelyMarkdown, parseTiptapMarkdown } from "./markdown-parser";
 
 const markdownSample = [
@@ -55,7 +55,8 @@ export const CalloutsTaskListsAndTables = meta.story({
 export const LosslessMetadataCommentRestoration = meta.story({
   args: {
     title: "parseTiptapMarkdown() with <!-- tiptap-node:{...} -->",
-    subtitle: "Reconstructs exact Tiptap AST nodes serialized as lossless HTML comments in Markdown mode.",
+    subtitle:
+      "Reconstructs exact Tiptap AST nodes serialized as lossless HTML comments in Markdown mode.",
     inputPreview: losslessCommentMarkdown,
     outputPreview: JSON.stringify(parsedLossless, null, 2),
     renderedContent: parsedLossless,

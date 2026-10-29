@@ -19,7 +19,7 @@ describe("metadata utilities (lib/metadata)", () => {
         content: [
           {
             type: "text" as const,
-            text: "A zero-JS Astro component library for rendering Strapi Tiptap rich text safely.",
+            text: "A zero-JS Astro component library for rendering Tiptap rich text safely.",
           },
         ],
       },

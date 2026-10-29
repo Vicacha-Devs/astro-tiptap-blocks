@@ -1,4 +1,4 @@
-import { getByRole, getByText } from "@testing-library/dom";
+import { getByRole } from "@testing-library/dom";
 import { renderAstroComponentToDom } from "@utils/test.helpers";
 
 import TiptapBlocks from "./TiptapBlocks.astro";

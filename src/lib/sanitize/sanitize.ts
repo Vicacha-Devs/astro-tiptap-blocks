@@ -1,11 +1,26 @@
 import type { TiptapMediaUrlResolver, TiptapTextStyleMarkAttrs } from "../../types";
 
-const SAFE_URL_PROTOCOLS = ["http:", "https:", "mailto:", "tel:", "strapi:"];
+const SAFE_URL_PROTOCOLS = [
+  "http:",
+  "https:",
+  "mailto:",
+  "tel:",
+  "tiptap:",
+  "internal:",
+  "cms:",
+  "doc:",
+];
 const SAFE_DATA_URI_REGEX =
   /^data:(?:image\/(?:png|jpeg|jpg|gif|webp|avif)|audio\/(?:wav|mpeg|mp3|ogg|webm));base64,[a-z0-9+/=\s]+$/i;
 
 const HTML_ENTITIES: Record<string, string> = {
-  "&amp;": "&", "&lt;": "<", "&gt;": ">", "&quot;": '"', "&#39;": "'", "&apos;": "'", "&nbsp;": " ",
+  "&amp;": "&",
+  "&lt;": "<",
+  "&gt;": ">",
+  "&quot;": '"',
+  "&#39;": "'",
+  "&apos;": "'",
+  "&nbsp;": " ",
 };
 
 export const decodeHtmlEntities = (text: string): string =>
@@ -22,14 +37,21 @@ export const sanitizeTiptapUrl = (rawUrl: string | null | undefined): string => 
   if (!rawUrl || typeof rawUrl !== "string") return "#";
   const trimmed = decodeHtmlEntities(rawUrl).trim();
   if (!trimmed || trimmed.startsWith("//")) return "#";
-  if (trimmed.startsWith("/") || trimmed.startsWith("#") || trimmed.startsWith("./") || trimmed.startsWith("../")) {
+  if (
+    trimmed.startsWith("/") ||
+    trimmed.startsWith("#") ||
+    trimmed.startsWith("./") ||
+    trimmed.startsWith("../")
+  ) {
     return trimmed;
   }
   const normalized = trimmed.replace(/[\u0000-\u001F\u007F-\u009F\s]+/g, "").toLowerCase();
   if (normalized.startsWith("javascript:") || normalized.startsWith("vbscript:")) return "#";
   if (normalized.startsWith("data:")) return SAFE_DATA_URI_REGEX.test(trimmed) ? trimmed : "#";
-  if (normalized.startsWith("strapi://")) {
-    return /^strapi:\/\/[a-zA-Z0-9_.:-]+\/[a-zA-Z0-9_.:-]+$/.test(trimmed) ? trimmed : "#";
+  if (/^(?:tiptap|internal|cms|doc):\/\//.test(normalized)) {
+    return /^(?:tiptap|internal|cms|doc):\/\/[a-zA-Z0-9_.:-]+\/[a-zA-Z0-9_.:-]+$/.test(trimmed)
+      ? trimmed
+      : "#";
   }
   try {
     const parsed = new URL(trimmed);
@@ -40,7 +62,7 @@ export const sanitizeTiptapUrl = (rawUrl: string | null | undefined): string => 
 };
 
 /**
- * Resolves relative Strapi media URLs (e.g. `/uploads/photo.webp`) using `mediaBaseUrl` or `resolveMediaUrl`
+ * Resolves relative media URLs (e.g. `/uploads/photo.webp`) using `mediaBaseUrl` or `resolveMediaUrl`
  * before running `sanitizeTiptapUrl()`.
  */
 export const resolveTiptapMediaUrl = (
@@ -103,7 +125,9 @@ export const sanitizeCssDimension = (val: string | null | undefined): string | n
 export const sanitizeCssFontFamily = (font: string | null | undefined): string | null => {
   if (!font || typeof font !== "string") return null;
   const trimmed = font.trim();
-  return SAFE_FONT_FAMILY_REGEX.test(trimmed) && !/url\(|expression\(|;/i.test(trimmed) ? trimmed : null;
+  return SAFE_FONT_FAMILY_REGEX.test(trimmed) && !/url\(|expression\(|;/i.test(trimmed)
+    ? trimmed
+    : null;
 };
 
 export const sanitizeTextStyleAttrs = (
@@ -151,14 +175,33 @@ export const formatFileSize = (bytes: number | string | null | undefined): strin
 };
 
 const LATEX_SYMBOLS: Array<[RegExp, string]> = [
-  [/\\alpha(?![a-zA-Z])/g, "α"], [/\\beta(?![a-zA-Z])/g, "β"], [/\\gamma(?![a-zA-Z])/g, "γ"], [/\\delta(?![a-zA-Z])/g, "δ"],
-  [/\\pi(?![a-zA-Z])/g, "π"], [/\\theta(?![a-zA-Z])/g, "θ"], [/\\lambda(?![a-zA-Z])/g, "λ"], [/\\sigma(?![a-zA-Z])/g, "σ"],
-  [/\\omega(?![a-zA-Z])/g, "ω"], [/\\infty(?![a-zA-Z])/g, "∞"], [/\\sum(?![a-zA-Z])/g, "∑"], [/\\prod(?![a-zA-Z])/g, "∏"],
-  [/\\int(?![a-zA-Z])/g, "∫"], [/\\sqrt\{([^}]+)\}/g, "√($1)"], [/\\sqrt(?![a-zA-Z])/g, "√"],
+  [/\\alpha(?![a-zA-Z])/g, "α"],
+  [/\\beta(?![a-zA-Z])/g, "β"],
+  [/\\gamma(?![a-zA-Z])/g, "γ"],
+  [/\\delta(?![a-zA-Z])/g, "δ"],
+  [/\\pi(?![a-zA-Z])/g, "π"],
+  [/\\theta(?![a-zA-Z])/g, "θ"],
+  [/\\lambda(?![a-zA-Z])/g, "λ"],
+  [/\\sigma(?![a-zA-Z])/g, "σ"],
+  [/\\omega(?![a-zA-Z])/g, "ω"],
+  [/\\infty(?![a-zA-Z])/g, "∞"],
+  [/\\sum(?![a-zA-Z])/g, "∑"],
+  [/\\prod(?![a-zA-Z])/g, "∏"],
+  [/\\int(?![a-zA-Z])/g, "∫"],
+  [/\\sqrt\{([^}]+)\}/g, "√($1)"],
+  [/\\sqrt(?![a-zA-Z])/g, "√"],
   [/\\frac\{([^}]+)\}\{([^}]+)\}/g, "($1)/($2)"],
-  [/\\pm(?![a-zA-Z])/g, "±"], [/\\times(?![a-zA-Z])/g, "×"], [/\\div(?![a-zA-Z])/g, "÷"], [/\\cdot(?![a-zA-Z])/g, "·"],
-  [/\\neq(?![a-zA-Z])/g, "≠"], [/\\leq(?![a-zA-Z])/g, "≤"], [/\\geq(?![a-zA-Z])/g, "≥"], [/\\approx(?![a-zA-Z])/g, "≈"],
-  [/\\rightarrow(?![a-zA-Z])|\\to(?![a-zA-Z])/g, "→"], [/\\leftarrow(?![a-zA-Z])/g, "←"], [/\\Rightarrow(?![a-zA-Z])/g, "⇒"],
+  [/\\pm(?![a-zA-Z])/g, "±"],
+  [/\\times(?![a-zA-Z])/g, "×"],
+  [/\\div(?![a-zA-Z])/g, "÷"],
+  [/\\cdot(?![a-zA-Z])/g, "·"],
+  [/\\neq(?![a-zA-Z])/g, "≠"],
+  [/\\leq(?![a-zA-Z])/g, "≤"],
+  [/\\geq(?![a-zA-Z])/g, "≥"],
+  [/\\approx(?![a-zA-Z])/g, "≈"],
+  [/\\rightarrow(?![a-zA-Z])|\\to(?![a-zA-Z])/g, "→"],
+  [/\\leftarrow(?![a-zA-Z])/g, "←"],
+  [/\\Rightarrow(?![a-zA-Z])/g, "⇒"],
 ];
 
 export const formatLatexPreview = (latex: string | null | undefined): string => {

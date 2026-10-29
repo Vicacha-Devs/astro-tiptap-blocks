@@ -1,13 +1,4 @@
-import { readFileSync } from "node:fs";
-import { dirname, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
 import { parseTiptapContent } from "./parser";
-
-const currentDir = dirname(fileURLToPath(import.meta.url));
-const fixturePath = resolve(
-  currentDir,
-  "../../fixtures/all-features-payload.json"
-);
 
 describe("parseTiptapContent (lib/parser)", () => {
   it("parses ProseMirror JSON doc and auto-generates heading id", () => {
@@ -41,20 +32,74 @@ describe("parseTiptapContent (lib/parser)", () => {
     });
   });
 
-  it("parses the full Strapi all-features-payload.json and auto-populates Table of Contents", () => {
-    const payload = JSON.parse(readFileSync(fixturePath, "utf-8"));
-    const doc = parseTiptapContent(payload.content);
+  it("parses all extended Tiptap block types and auto-populates Table of Contents", () => {
+    const doc = parseTiptapContent({
+      type: "doc",
+      content: [
+        { type: "tableOfContents" },
+        {
+          type: "heading",
+          attrs: { level: 1 },
+          content: [{ type: "text", text: "Section One" }],
+        },
+        {
+          type: "leadParagraph",
+          content: [{ type: "text", text: "Lead summary" }],
+        },
+        {
+          type: "heading",
+          attrs: { level: 2 },
+          content: [{ type: "text", text: "Section Two" }],
+        },
+        {
+          type: "informationPane",
+          attrs: { variant: "info", title: "Note" },
+          content: [{ type: "paragraph", content: [{ type: "text", text: "Callout" }] }],
+        },
+        {
+          type: "conversationHistory",
+          attrs: { author: "Admin" },
+          content: [{ type: "paragraph", content: [{ type: "text", text: "Message" }] }],
+        },
+        {
+          type: "details",
+          content: [
+            { type: "detailsSummary", content: [{ type: "text", text: "Summary" }] },
+            {
+              type: "detailsContent",
+              content: [{ type: "paragraph", content: [{ type: "text", text: "Body" }] }],
+            },
+          ],
+        },
+        {
+          type: "layoutContainer",
+          attrs: { columns: "1:1" },
+          content: [
+            {
+              type: "layoutColumn",
+              content: [{ type: "paragraph", content: [{ type: "text", text: "Col 1" }] }],
+            },
+          ],
+        },
+        {
+          type: "taskList",
+          content: [
+            {
+              type: "taskItem",
+              attrs: { checked: true },
+              content: [{ type: "paragraph", content: [{ type: "text", text: "Done" }] }],
+            },
+          ],
+        },
+        {
+          type: "mathematics",
+          attrs: { latex: "E = mc^2", displayMode: "block" },
+        },
+        { type: "pageBreak" },
+      ],
+    });
 
     const blockTypes = new Set<string>(doc.content.map((b) => b.type));
-    for (const b of doc.content) {
-      if ("content" in b && Array.isArray(b.content)) {
-        for (const child of b.content) {
-          if (child && typeof child === "object" && "type" in child) {
-            blockTypes.add(child.type);
-          }
-        }
-      }
-    }
     expect(blockTypes.has("tableOfContents")).toBe(true);
     expect(blockTypes.has("leadParagraph")).toBe(true);
     expect(blockTypes.has("informationPane")).toBe(true);
@@ -66,9 +111,9 @@ describe("parseTiptapContent (lib/parser)", () => {
     expect(blockTypes.has("pageBreak")).toBe(true);
 
     const tocBlock = doc.content.find((b) => b.type === "tableOfContents");
-    expect(tocBlock?.type === "tableOfContents" && (tocBlock.attrs?.headings?.length ?? 0) > 5).toBe(
-      true
-    );
+    expect(
+      tocBlock?.type === "tableOfContents" && (tocBlock.attrs?.headings?.length ?? 0) === 2
+    ).toBe(true);
   });
 
   it("normalizes fallback string[] paragraph arrays", () => {

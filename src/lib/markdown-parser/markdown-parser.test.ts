@@ -7,7 +7,7 @@ describe("parseTiptapMarkdown (lib/markdown-parser)", () => {
       "# Main Heading",
       "> **Lead:** Introductory lead paragraph",
       "> [!SUCCESS] Deployment Ready\n> Everything passed.",
-      "- [x] Configure Strapi\n- [ ] Deploy Astro",
+      "- [x] Configure Tiptap\n- [ ] Deploy Astro",
       "$$\n\\int_0^\\infty e^{-x^2} dx\n$$",
       "[Attachment: guide.pdf](https://example.com/guide.pdf)",
       "<!-- pagebreak -->",
@@ -30,9 +30,9 @@ describe("parseTiptapMarkdown (lib/markdown-parser)", () => {
   });
 });
 
-describe("parseTiptapMarkdown block variants", () => {
-  const first = (md: string) => parseTiptapMarkdown(md).content[0];
+const first = (md: string) => parseTiptapMarkdown(md).content[0];
 
+describe("parseTiptapMarkdown block variants", () => {
   it("parses rules, code fences and block quotes", () => {
     expect(first("---").type).toBe("horizontalRule");
     expect(first("```ts\nconst a = 1;\n```")).toMatchObject({
@@ -65,11 +65,15 @@ describe("parseTiptapMarkdown block variants", () => {
     expect(parseTiptapMarkdown("[Video: x](javascript:alert)").content).toEqual([]);
   });
 
-  it("parses inline marks, links, strapi linkers and math", () => {
-    const para = first("**b** *i* ~~s~~ ==h== `c` [l](https://example.com) [r](strapi://api::a.a/doc1) $x$");
+  it("parses inline marks, links, internal linkers and math", () => {
+    const para = first(
+      "**b** *i* ~~s~~ ==h== `c` [l](https://example.com) [r](tiptap://article/doc1) $x$"
+    );
     const nodes = (para as { content: { type: string; marks?: { type: string }[] }[] }).content;
     const marks = nodes.flatMap((n) => n.marks?.map((m) => m.type) ?? []);
-    expect(marks).toEqual(expect.arrayContaining(["bold", "italic", "strike", "highlight", "code", "link"]));
+    expect(marks).toEqual(
+      expect.arrayContaining(["bold", "italic", "strike", "highlight", "code", "link"])
+    );
     expect(nodes.some((n) => n.type === "linker")).toBe(true);
     expect(nodes.some((n) => n.type === "mathematics")).toBe(true);
   });

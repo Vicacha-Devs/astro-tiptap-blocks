@@ -29,18 +29,18 @@ export function installDomGlobals(window: Window, document: Document): void {
   globalDom.Event = window.Event as unknown as typeof Event;
   globalDom.CustomEvent = window.CustomEvent as unknown as typeof CustomEvent;
   globalDom.MouseEvent = window.MouseEvent as unknown as typeof MouseEvent;
-  globalDom.KeyboardEvent =
-    window.KeyboardEvent as unknown as typeof KeyboardEvent;
+  globalDom.KeyboardEvent = window.KeyboardEvent as unknown as typeof KeyboardEvent;
 }
 
 type AstroContainerRenderComponent = Parameters<AstroContainer["renderToString"]>[0];
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type TAstroComponentFactory = (...args: any[]) => any;
 
-type ComponentContainerRenderOptions<TProps extends TAstroComponentFactory> =
-  Omit<ContainerRenderOptions, "props"> & {
-    props?: ComponentProps<TProps>;
-  };
+type ComponentContainerRenderOptions<TProps extends TAstroComponentFactory> = Omit<
+  ContainerRenderOptions,
+  "props"
+> & {
+  props?: ComponentProps<TProps>;
+};
 
 /**
  * Renders an Astro component to HTML and mounts it into a `happy-dom` document body.
@@ -53,9 +53,7 @@ type ComponentContainerRenderOptions<TProps extends TAstroComponentFactory> =
  * @param options - Render options passed through to Astro's container renderer.
  * @returns `{ window, root, html, close }` where `root` is the mounted body element.
  */
-export async function renderAstroComponentToDom<
-  TComponent extends TAstroComponentFactory,
->(
+export async function renderAstroComponentToDom<TComponent extends TAstroComponentFactory>(
   Component: TComponent,
   options: ComponentContainerRenderOptions<TComponent> = {}
 ): Promise<{

@@ -1,4 +1,5 @@
 import type { AstroComponentFactory } from "astro/runtime/server/index.js";
+
 import type { DeepPartial } from "./common";
 
 export type TiptapBlockThemePropertyValue = string | string[] | null | undefined;
@@ -32,9 +33,9 @@ export interface TiptapBlockThemeParagraph extends TiptapBlockThemeProperty {
   mathInline: TiptapBlockThemePropertyValue;
 }
 
-export interface TiptapBlockThemeLeadParagraph extends TiptapBlockThemeProperty {}
+export type TiptapBlockThemeLeadParagraph = TiptapBlockThemeProperty;
 
-export interface TiptapBlockThemeQuote extends TiptapBlockThemeProperty {}
+export type TiptapBlockThemeQuote = TiptapBlockThemeProperty;
 
 export interface TiptapBlockThemeInformationPane extends TiptapBlockThemeProperty {
   info: TiptapBlockThemePropertyValue;
@@ -118,7 +119,7 @@ export interface TiptapBlockThemeTableOfContents extends TiptapBlockThemePropert
   link: TiptapBlockThemePropertyValue;
 }
 
-export interface TiptapBlockThemePageBreak extends TiptapBlockThemeProperty {}
+export type TiptapBlockThemePageBreak = TiptapBlockThemeProperty;
 
 export interface TiptapBlockThemeTable extends TiptapBlockThemeProperty {
   head: TiptapBlockThemePropertyValue;
@@ -128,7 +129,7 @@ export interface TiptapBlockThemeTable extends TiptapBlockThemeProperty {
   cell: TiptapBlockThemePropertyValue;
 }
 
-export interface TiptapBlockThemeHr extends TiptapBlockThemeProperty {}
+export type TiptapBlockThemeHr = TiptapBlockThemeProperty;
 
 export interface TiptapBlockTheme {
   default: TiptapBlockThemePropertyValue;
@@ -160,4 +161,7 @@ export type TiptapBlockUserTheme = {
   overwrite?: DeepPartial<TiptapBlockTheme>;
 };
 
-export type TiptapBlockThemeCustomComponents = Record<keyof Omit<TiptapBlockTheme, "default">, AstroComponentFactory>;
+export type TiptapBlockThemeCustomComponents = Record<
+  keyof Omit<TiptapBlockTheme, "default">,
+  AstroComponentFactory
+>;

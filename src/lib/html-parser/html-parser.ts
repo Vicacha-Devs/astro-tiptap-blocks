@@ -11,6 +11,7 @@ import type {
   TiptapTextAlign,
   TiptapTextDirection,
 } from "../../types";
+import { decodeHtmlEntities, sanitizeCssColor, sanitizeTiptapUrl } from "../sanitize";
 import { convertCustomHtmlElement, findChildByTag } from "./html-custom-blocks";
 import {
   buildElementTree,
@@ -20,11 +21,12 @@ import {
   type SimpleElement,
   tokenizeHtml,
 } from "./html-inline";
-import { decodeHtmlEntities, sanitizeCssColor, sanitizeTiptapUrl } from "../sanitize";
 
 const extractBaseBlockAttrs = (el: SimpleElement) => {
   const styles = parseInlineStyleProps(el.attrs.style);
-  const textAlign = (el.attrs["data-text-align"] || styles["text-align"] || null) as TiptapTextAlign | null;
+  const textAlign = (el.attrs["data-text-align"] ||
+    styles["text-align"] ||
+    null) as TiptapTextAlign | null;
   const dir = (el.attrs.dir || null) as TiptapTextDirection | null;
   return {
     ...(textAlign ? { textAlign } : {}),
@@ -46,7 +48,12 @@ const convertElementToBlocks = (el: SimpleElement): TiptapBlockNode[] => {
     return [
       {
         type: "heading",
-        attrs: { level, id: el.attrs.id || null, ...(seoTag ? { tag: seoTag } : {}), ...extractBaseBlockAttrs(el) },
+        attrs: {
+          level,
+          id: el.attrs.id || null,
+          ...(seoTag ? { tag: seoTag } : {}),
+          ...extractBaseBlockAttrs(el),
+        },
         content: collectInlineNodes(el.children),
       },
     ];
@@ -54,7 +61,8 @@ const convertElementToBlocks = (el: SimpleElement): TiptapBlockNode[] => {
   if (el.tag === "p") {
     const imgChild = findChildByTag(el, "img");
     if (imgChild && el.children.length === 1) return convertElementToBlocks(imgChild);
-    const isLead = el.attrs["data-lead"] === "true" || (el.attrs.class || "").includes("tiptap-lead");
+    const isLead =
+      el.attrs["data-lead"] === "true" || (el.attrs.class || "").includes("tiptap-lead");
     return [
       {
         type: isLead ? "leadParagraph" : "paragraph",
@@ -64,7 +72,13 @@ const convertElementToBlocks = (el: SimpleElement): TiptapBlockNode[] => {
     ];
   }
   if (el.tag === "blockquote") {
-    return [{ type: "blockquote", attrs: extractBaseBlockAttrs(el), content: convertTreeToBlocks(el.children) }];
+    return [
+      {
+        type: "blockquote",
+        attrs: extractBaseBlockAttrs(el),
+        content: convertTreeToBlocks(el.children),
+      },
+    ];
   }
   if (el.tag === "ul" && dataType === "taskList") {
     const items: TiptapTaskItemNode[] = el.children
@@ -72,7 +86,9 @@ const convertElementToBlocks = (el: SimpleElement): TiptapBlockNode[] => {
       .map((li) => ({
         type: "taskItem",
         attrs: { checked: li.attrs["data-checked"] === "true" },
-        content: convertTreeToBlocks(li.children.filter((c) => typeof c === "string" || c.tag !== "label")),
+        content: convertTreeToBlocks(
+          li.children.filter((c) => typeof c === "string" || c.tag !== "label")
+        ),
       }));
     return [{ type: "taskList", content: items }];
   }
@@ -94,7 +110,9 @@ const convertElementToBlocks = (el: SimpleElement): TiptapBlockNode[] => {
   }
   if (el.tag === "pre") {
     const codeEl = findChildByTag(el, "code");
-    const langMatch = (codeEl?.attrs.class || el.attrs.class || "").match(/language-([a-zA-Z0-9_-]+)/);
+    const langMatch = (codeEl?.attrs.class || el.attrs.class || "").match(
+      /language-([a-zA-Z0-9_-]+)/
+    );
     const rawCode = extractRawText(codeEl ? codeEl.children : el.children);
     return [
       {
@@ -109,7 +127,11 @@ const convertElementToBlocks = (el: SimpleElement): TiptapBlockNode[] => {
     const capEl = findChildByTag(el, "figcaption");
     return convertElementToBlocks({
       ...imgEl,
-      attrs: { ...el.attrs, ...imgEl.attrs, ...(capEl ? { "data-caption": extractRawText(capEl.children) } : {}) },
+      attrs: {
+        ...el.attrs,
+        ...imgEl.attrs,
+        ...(capEl ? { "data-caption": extractRawText(capEl.children) } : {}),
+      },
     });
   }
   if (el.tag === "img") {
@@ -120,11 +142,11 @@ const convertElementToBlocks = (el: SimpleElement): TiptapBlockNode[] => {
         type: "image",
         attrs: {
           src,
-          alt: el.attrs.alt || "",
-          title: el.attrs.title || null,
-          caption: el.attrs["data-caption"] || null,
-          width: el.attrs.width || null,
-          height: el.attrs.height || null,
+          "alt": el.attrs.alt || "",
+          "title": el.attrs.title || null,
+          "caption": el.attrs["data-caption"] || null,
+          "width": el.attrs.width || null,
+          "height": el.attrs.height || null,
           "data-align": (el.attrs["data-align"] as TiptapElementAlign) || null,
           "data-asset-id": el.attrs["data-asset-id"] || null,
           "data-document-id": el.attrs["data-document-id"] || null,
@@ -140,10 +162,14 @@ const convertElementToBlocks = (el: SimpleElement): TiptapBlockNode[] => {
         if (typeof child === "string") continue;
         if (child.tag === "tr") {
           const cells: TiptapTableCellNode[] = child.children
-            .filter((c): c is SimpleElement => typeof c !== "string" && (c.tag === "td" || c.tag === "th"))
+            .filter(
+              (c): c is SimpleElement => typeof c !== "string" && (c.tag === "td" || c.tag === "th")
+            )
             .map((cell) => {
               const styles = parseInlineStyleProps(cell.attrs.style);
-              const bg = sanitizeCssColor(cell.attrs["data-background-color"] || styles["background-color"]);
+              const bg = sanitizeCssColor(
+                cell.attrs["data-background-color"] || styles["background-color"]
+              );
               return {
                 type: cell.tag === "th" ? "tableHeader" : "tableCell",
                 attrs: {

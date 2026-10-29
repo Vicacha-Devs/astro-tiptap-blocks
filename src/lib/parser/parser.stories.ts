@@ -1,7 +1,7 @@
 import preview from "@storybook/preview";
+
 import TiptapLibPreview from "../../components/blocks/TiptapLibPreview/TiptapLibPreview.astro";
 import type { TiptapDocNode } from "../../types";
-
 import { parseTiptapContent } from "./parser";
 
 const sampleDocInput: TiptapDocNode = {
@@ -23,7 +23,12 @@ const sampleDocInput: TiptapDocNode = {
     },
     {
       type: "paragraph",
-      content: [{ type: "text", text: "parseTiptapContent auto-detects JSON, HTML, Markdown, and string[]." }],
+      content: [
+        {
+          type: "text",
+          text: "parseTiptapContent auto-detects JSON, HTML, Markdown, and string[].",
+        },
+      ],
     },
   ],
 };

@@ -1,7 +1,7 @@
 import preview from "@storybook/preview";
+
 import TiptapLibPreview from "../../components/blocks/TiptapLibPreview/TiptapLibPreview.astro";
 import type { TiptapDocNode } from "../../types";
-
 import {
   calculateReadingTime,
   extractDocumentMetadata,
@@ -59,7 +59,7 @@ const meta = preview.meta({
   tags: ["autodocs", "version:1.1.0"],
   args: {
     title: "extractDocumentMetadata(doc, { excerptLength: 110 })",
-    subtitle: `${readingTime.text} (${readingTime.words} words) — Extracts SEO excerpt, reading time, headings, and Strapi relations.`,
+    subtitle: `${readingTime.text} (${readingTime.words} words) — Extracts SEO excerpt, reading time, headings, and document relations.`,
     inputPreview: JSON.stringify(sampleArticle, null, 2),
     outputPreview: JSON.stringify(fullMetadata, null, 2),
     renderedContent: sampleArticle,
@@ -69,7 +69,7 @@ const meta = preview.meta({
 export const DocumentMetadataAndReadingTime = meta.story({
   args: {
     title: "extractDocumentMetadata(doc, { excerptLength: 110 })",
-    subtitle: `${readingTime.text} (${readingTime.words} words) — Extracts SEO excerpt, reading time, headings, and Strapi relations.`,
+    subtitle: `${readingTime.text} (${readingTime.words} words) — Extracts SEO excerpt, reading time, headings, and document relations.`,
     inputPreview: JSON.stringify(sampleArticle, null, 2),
     outputPreview: JSON.stringify(fullMetadata, null, 2),
     renderedContent: sampleArticle,
@@ -79,7 +79,8 @@ export const DocumentMetadataAndReadingTime = meta.story({
 export const SeoExcerptTruncation = meta.story({
   args: {
     title: "extractPlainTextFromTiptap(doc, { maxLength: 90 })",
-    subtitle: "Cleanly truncates plain text at word boundaries for <meta name='description'> and OpenGraph cards.",
+    subtitle:
+      "Cleanly truncates plain text at word boundaries for <meta name='description'> and OpenGraph cards.",
     inputPreview: JSON.stringify(sampleArticle, null, 2),
     outputPreview: JSON.stringify(
       {

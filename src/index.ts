@@ -1,7 +1,7 @@
-import TiptapBlocks from "./components/TiptapBlocks/TiptapBlocks.astro";
+import { TiptapBlocks } from "./components";
 
+export * from "./components";
 export * from "./lib";
 export * from "./types";
 
-export { TiptapBlocks };
 export default TiptapBlocks;

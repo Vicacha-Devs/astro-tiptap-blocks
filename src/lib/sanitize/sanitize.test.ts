@@ -26,7 +26,7 @@ describe("sanitize utilities (lib/sanitize)", () => {
     );
   });
 
-  it("resolves relative Strapi media URLs with mediaBaseUrl or resolveMediaUrl", () => {
+  it("resolves relative media URLs with mediaBaseUrl or resolveMediaUrl", () => {
     expect(
       resolveTiptapMediaUrl("/uploads/mosque_hero.webp", {
         mediaBaseUrl: "https://cms.mezquitabogota.org/",

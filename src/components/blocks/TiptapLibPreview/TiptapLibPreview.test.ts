@@ -16,7 +16,9 @@ describe("TiptapLibPreview", () => {
     });
 
     try {
-      expect(getByRole(root, "heading", { level: 3, name: "parseTiptapContent(doc)" })).toBeInTheDocument();
+      expect(
+        getByRole(root, "heading", { level: 3, name: "parseTiptapContent(doc)" })
+      ).toBeInTheDocument();
       expect(getByText(root, '{"type":"doc"}')).toBeInTheDocument();
       expect(getByText(root, "Live rendered paragraph")).toBeInTheDocument();
     } finally {

@@ -2,7 +2,6 @@ import type {
   TiptapBlockNode,
   TiptapContentInput,
   TiptapHeadingLevel,
-  TiptapInlineNode,
   TiptapParserOptions,
   TiptapTocHeadingItem,
 } from "../../types";
@@ -107,7 +106,7 @@ export const extractHeadingsFromTiptap = (
 };
 
 /**
- * Extracts plain text, SEO excerpt, reading time, TOC headings, and Strapi relations in one call.
+ * Extracts plain text, SEO excerpt, reading time, TOC headings, and document relations in one call.
  */
 export const extractDocumentMetadata = (
   input: TiptapContentInput,

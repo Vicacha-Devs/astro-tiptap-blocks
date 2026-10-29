@@ -1,12 +1,8 @@
 import preview from "@storybook/preview";
+
 import TiptapLibPreview from "../../components/blocks/TiptapLibPreview/TiptapLibPreview.astro";
 import type { TiptapBlockUserTheme, TiptapDocNode } from "../../types";
-
-import {
-  buildThemeObject,
-  renderPropertyClasses,
-  TiptapBlockThemeDefault,
-} from "./theme";
+import { buildThemeObject, renderPropertyClasses, TiptapBlockThemeDefault } from "./theme";
 
 const extendUserTheme: TiptapBlockUserTheme = {
   extend: {
@@ -49,7 +45,9 @@ const previewDoc: TiptapDocNode = {
       content: [
         {
           type: "paragraph",
-          content: [{ type: "text", text: "Comparing 'extend' vs 'overwrite' theme merge strategies." }],
+          content: [
+            { type: "text", text: "Comparing 'extend' vs 'overwrite' theme merge strategies." },
+          ],
         },
       ],
     },
@@ -70,7 +68,7 @@ const meta = preview.meta({
         infoPaneClasses: renderPropertyClasses(extendedTheme.informationPane, "info"),
       },
       null,
-      2,
+      2
     ),
     renderedContent: previewDoc,
     theme: extendUserTheme,
@@ -88,7 +86,7 @@ export const ExtendModeThemeMerging = meta.story({
         infoPaneClasses: renderPropertyClasses(extendedTheme.informationPane, "info"),
       },
       null,
-      2,
+      2
     ),
     renderedContent: previewDoc,
     theme: extendUserTheme,
@@ -106,7 +104,7 @@ export const OverwriteModeThemeReplacement = meta.story({
         infoPaneClasses: renderPropertyClasses(overwrittenTheme.informationPane, "info"),
       },
       null,
-      2,
+      2
     ),
     renderedContent: previewDoc,
     theme: overwriteUserTheme,

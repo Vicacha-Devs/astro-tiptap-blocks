@@ -28,25 +28,25 @@ describe("TiptapLinkItem", () => {
     }
   });
 
-  it("resolves strapi:// internal link URIs and blocks javascript: URLs", async () => {
-    const { root: strapiRoot, close: closeStrapi } = await renderAstroComponentToDom(
+  it("resolves tiptap:// internal link URIs and blocks javascript: URLs", async () => {
+    const { root: internalRoot, close: closeInternal } = await renderAstroComponentToDom(
       TiptapLinkItem,
       {
         props: {
           text: "Internal Post",
           linkMark: {
             type: "link",
-            attrs: { href: "strapi://api::article.article/doc-99" },
+            attrs: { href: "tiptap://article/doc-99" },
           },
         },
       }
     );
 
     try {
-      const link = getByRole(strapiRoot, "link", { name: "Internal Post" });
+      const link = getByRole(internalRoot, "link", { name: "Internal Post" });
       expect(link.getAttribute("href")).toBe("/article/doc-99");
     } finally {
-      await closeStrapi();
+      await closeInternal();
     }
 
     const { root: unsafeRoot, close: closeUnsafe } = await renderAstroComponentToDom(

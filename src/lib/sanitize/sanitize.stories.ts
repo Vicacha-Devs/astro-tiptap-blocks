@@ -1,6 +1,6 @@
 import preview from "@storybook/preview";
-import TiptapLibPreview from "../../components/blocks/TiptapLibPreview/TiptapLibPreview.astro";
 
+import TiptapLibPreview from "../../components/blocks/TiptapLibPreview/TiptapLibPreview.astro";
 import {
   buildSafeInlineStyle,
   formatFileSize,
@@ -13,7 +13,7 @@ import {
 
 const urlTestCases = [
   "https://astro.build/blog",
-  "strapi://api::article.article/doc-42",
+  "tiptap://article/doc-42",
   "javascript:alert(document.cookie)",
   "data:text/html,<script>alert(1)</script>",
   "vbscript:msgbox(1)",
@@ -36,7 +36,7 @@ const iframeAndStyleInputs = {
     lineHeight: "1.6",
   },
   helpers: {
-    slug: slugifyHeadingText("Hello World! Strapi v5 & Astro"),
+    slug: slugifyHeadingText("Hello World! Tiptap & Astro"),
     fileSize: formatFileSize(2485760),
     latexPreview: formatLatexPreview("\\int_{-\\infty}^{\\infty} e^{-x^2} dx = \\sqrt{\\pi}"),
   },
@@ -44,7 +44,7 @@ const iframeAndStyleInputs = {
 
 const iframeAndStyleOutputs = {
   iframes: Object.fromEntries(
-    iframeAndStyleInputs.iframes.map((u) => [u, sanitizeTiptapIframeUrl(u)]),
+    iframeAndStyleInputs.iframes.map((u) => [u, sanitizeTiptapIframeUrl(u)])
   ),
   colors: Object.fromEntries(iframeAndStyleInputs.colors.map((c) => [c, sanitizeCssColor(c)])),
   safeStyleString: buildSafeInlineStyle(iframeAndStyleInputs.textStyleAttrs),
@@ -57,7 +57,8 @@ const meta = preview.meta({
   tags: ["autodocs", "version:1.1.0"],
   args: {
     title: "sanitizeTiptapUrl(url)",
-    subtitle: "Allows http/https/mailto/tel/strapi/relative URLs and blocks javascript:, data:text/html, and vbscript:.",
+    subtitle:
+      "Allows http/https/mailto/tel/tiptap/relative URLs and blocks javascript:, data:text/html, and vbscript:.",
     inputPreview: JSON.stringify(urlTestCases, null, 2),
     outputPreview: JSON.stringify(urlResults, null, 2),
   },
@@ -66,7 +67,8 @@ const meta = preview.meta({
 export const UrlProtocolWhitelisting = meta.story({
   args: {
     title: "sanitizeTiptapUrl(url)",
-    subtitle: "Allows http/https/mailto/tel/strapi/relative URLs and blocks javascript:, data:text/html, and vbscript:.",
+    subtitle:
+      "Allows http/https/mailto/tel/tiptap/relative URLs and blocks javascript:, data:text/html, and vbscript:.",
     inputPreview: JSON.stringify(urlTestCases, null, 2),
     outputPreview: JSON.stringify(urlResults, null, 2),
   },
@@ -75,7 +77,8 @@ export const UrlProtocolWhitelisting = meta.story({
 export const IframeCssAndFormattingHelpers = meta.story({
   args: {
     title: "sanitizeTiptapIframeUrl, sanitizeCssColor & buildSafeInlineStyle",
-    subtitle: "Enforces HTTPS on iframes, rejects CSS injection tokens, and formats slugs/bytes/LaTeX.",
+    subtitle:
+      "Enforces HTTPS on iframes, rejects CSS injection tokens, and formats slugs/bytes/LaTeX.",
     inputPreview: JSON.stringify(iframeAndStyleInputs, null, 2),
     outputPreview: JSON.stringify(iframeAndStyleOutputs, null, 2),
   },
