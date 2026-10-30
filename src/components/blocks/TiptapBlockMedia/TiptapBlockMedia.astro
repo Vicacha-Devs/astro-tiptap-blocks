@@ -1,20 +1,25 @@
 ---
-import { formatFileSize, sanitizeTiptapIframeUrl, sanitizeTiptapUrl } from "../../../lib/sanitize";
+import {
+  formatFileSize,
+  isTrustedMediaEmbedUrl,
+  resolveTiptapMediaUrl,
+  sanitizeTiptapIframeUrl,
+} from "../../../lib/sanitize";
 import {
   getPropertyClass,
   renderPropertyClasses,
   TiptapBlockThemeDefault,
 } from "../../../lib/theme";
-import type { TiptapBlockTheme, TiptapElementAlign } from "../../../types";
+import type {
+  TiptapBlockTheme,
+  TiptapMediaBlockAttrs,
+  TiptapMediaUrlResolver,
+} from "../../../types";
 
 /**
  * @component TiptapBlockMedia
  * @title Tiptap Block Media & Sandboxed Embeds
- * @description Renders rich media and sandboxed embed blocks:
- * - `video`: Sandboxed YouTube/Vimeo `<iframe>` (`embedType: "embed"`) or HTML5 `<video controls>` (`embedType: "file"`).
- * - `audio`: HTML5 `<audio controls>` player inside a `<figure>` with optional `<figcaption>`.
- * - `attachment`: Downloadable file card with file extension badge, formatted byte size, and `<a download>`.
- * - `iframe`: HTTPS-only sandboxed `<iframe>` validated against `allowedIframeDomains`.
+ * @description Renders rich media (`video`, `audio`, `attachment`) and HTTPS-only sandboxed `iframe` embeds.
  *
  * @preview
  * <TiptapBlockMedia type="attachment" attrs={{ href: "/files/guide.pdf", title: "User Guide", size: 1048576, ext: "pdf" }} />
@@ -24,52 +29,36 @@ import type { TiptapBlockTheme, TiptapElementAlign } from "../../../types";
  * ---
  * import TiptapBlockMedia from "@components/blocks/TiptapBlockMedia/TiptapBlockMedia.astro";
  * ---
- *
- * <TiptapBlockMedia
- *   type="video"
- *   attrs={{ src: "https://www.youtube.com/embed/dQw4w9WgXcQ", embedType: "embed", title: "Demo Video" }}
- * />
+ * <TiptapBlockMedia type="video" attrs={{ src: "https://www.youtube.com/embed/dQw4w9WgXcQ", embedType: "embed", title: "Demo" }} />
  * ```
  */
 export interface Props {
-  /**
-   * Media/embed block type (`"video"`, `"audio"`, `"attachment"`, or `"iframe"`).
-   */
+  /** Media/embed block type (`"video"`, `"audio"`, `"attachment"`, or `"iframe"`). */
   type: "video" | "audio" | "attachment" | "iframe";
-  /**
-   * Media/embed attributes (`src`, `href`, `embedType`, `title`, `caption`, `filename`, `size`, `ext`, `width`, `height`, `data-align`, `data-asset-id`, `data-document-id`).
-   */
-  attrs: {
-    "src"?: string;
-    "href"?: string;
-    "embedType"?: "embed" | "file" | null;
-    "title"?: string | null;
-    "caption"?: string | null;
-    "filename"?: string | null;
-    "size"?: number | string | null;
-    "mime"?: string | null;
-    "ext"?: string | null;
-    "width"?: number | string | null;
-    "height"?: number | string | null;
-    "data-align"?: TiptapElementAlign | null;
-    "data-asset-id"?: string | number | null;
-    "data-document-id"?: string | null;
-  };
-  /**
-   * Resolved block theme object.
-   * @default TiptapBlockThemeDefault
-   */
+  /** Media/embed attributes (`src`, `href`, `embedType`, `title`, `caption`, `filename`, `size`, `ext`, `width`, `height`, `data-align`, `data-asset-id`, `data-document-id`). */
+  attrs: TiptapMediaBlockAttrs;
+  /** Resolved block theme object. @default TiptapBlockThemeDefault */
   theme?: TiptapBlockTheme;
-  /**
-   * Optional domain allowlist for HTTPS `<iframe>` and video embeds.
-   */
+  /** Optional domain allowlist for HTTPS `<iframe>` and video embeds. */
   allowedIframeDomains?: ReadonlyArray<string>;
+  /** Optional media base URL prefixed to relative `/uploads/...` media URLs. */
+  mediaBaseUrl?: string;
+  /** Optional custom resolver for media URLs (`video`, `audio`, `attachment`) before sanitization. */
+  resolveMediaUrl?: TiptapMediaUrlResolver;
 }
 
-const { type, attrs, theme = TiptapBlockThemeDefault, allowedIframeDomains } = Astro.props;
+const {
+  type,
+  attrs,
+  theme = TiptapBlockThemeDefault,
+  allowedIframeDomains,
+  mediaBaseUrl,
+  resolveMediaUrl,
+} = Astro.props;
 const align = attrs?.["data-align"] || undefined;
 const assetId = attrs?.["data-asset-id"] != null ? String(attrs["data-asset-id"]) : undefined;
 const documentId = attrs?.["data-document-id"] || undefined;
+const mediaOpts = { mediaBaseUrl, resolveMediaUrl };
 ---
 
 {(() => {
@@ -79,8 +68,11 @@ const documentId = attrs?.["data-document-id"] || undefined;
       Boolean(attrs?.src && /youtube\.com|youtu\.be|vimeo\.com/i.test(attrs.src));
     const safeSrc = isEmbed
       ? sanitizeTiptapIframeUrl(attrs?.src, allowedIframeDomains)
-      : sanitizeTiptapUrl(attrs?.src);
+      : resolveTiptapMediaUrl(attrs?.src, mediaOpts);
     if (safeSrc === "#") return null;
+    const videoSandbox = isTrustedMediaEmbedUrl(safeSrc)
+      ? "allow-scripts allow-same-origin allow-presentation"
+      : "allow-scripts allow-presentation";
     return <figure
       data-type="video"
       data-align={align}
@@ -95,8 +87,8 @@ const documentId = attrs?.["data-document-id"] || undefined;
           width={attrs?.width || undefined}
           height={attrs?.height || undefined}
           loading="lazy"
-          sandbox="allow-scripts allow-same-origin allow-presentation"
-          referrerpolicy="no-referrer"
+          sandbox={videoSandbox}
+          referrerpolicy="strict-origin-when-cross-origin"
           allowfullscreen
           class:list={[getPropertyClass(theme.video.iframe) || undefined]}
         />
@@ -119,7 +111,7 @@ const documentId = attrs?.["data-document-id"] || undefined;
   }
 
   if (type === "audio") {
-    const safeSrc = sanitizeTiptapUrl(attrs?.src);
+    const safeSrc = resolveTiptapMediaUrl(attrs?.src, mediaOpts);
     if (safeSrc === "#") return null;
     return <figure
       data-type="audio"
@@ -143,7 +135,7 @@ const documentId = attrs?.["data-document-id"] || undefined;
   }
 
   if (type === "attachment") {
-    const safeHref = sanitizeTiptapUrl(attrs?.href || attrs?.src);
+    const safeHref = resolveTiptapMediaUrl(attrs?.href || attrs?.src, mediaOpts);
     if (safeHref === "#") return null;
     const displayTitle = attrs?.title || attrs?.filename || "Download file";
     const formattedSize = formatFileSize(attrs?.size);
@@ -155,9 +147,7 @@ const documentId = attrs?.["data-document-id"] || undefined;
       class:list={[renderPropertyClasses(theme.attachment) || undefined]}
     >
       <div class="flex items-center gap-3 min-w-0">
-        <span class:list={[getPropertyClass(theme.attachment.badge) || undefined]}>
-          {extLabel}
-        </span>
+        <span class:list={[getPropertyClass(theme.attachment.badge) || undefined]}>{extLabel}</span>
         <div class="min-w-0">
           <div class:list={[getPropertyClass(theme.attachment.title) || undefined]}>
             {displayTitle}
@@ -175,14 +165,16 @@ const documentId = attrs?.["data-document-id"] || undefined;
         target="_blank"
         rel="noopener noreferrer"
         class:list={[getPropertyClass(theme.attachment.button) || undefined]}
+        >Download</a
       >
-        Download
-      </a>
     </div>;
   }
 
   const safeIframeSrc = sanitizeTiptapIframeUrl(attrs?.src, allowedIframeDomains);
   if (safeIframeSrc === "#") return null;
+  const iframeSandbox = isTrustedMediaEmbedUrl(safeIframeSrc)
+    ? "allow-scripts allow-same-origin allow-presentation allow-popups"
+    : "allow-scripts allow-presentation allow-popups";
   return <div
     data-type="iframe"
     data-align={align}
@@ -194,8 +186,8 @@ const documentId = attrs?.["data-document-id"] || undefined;
       width={attrs?.width || "100%"}
       height={attrs?.height || "400"}
       loading="lazy"
-      sandbox="allow-scripts allow-same-origin"
-      referrerpolicy="no-referrer"
+      sandbox={iframeSandbox}
+      referrerpolicy="strict-origin-when-cross-origin"
       class:list={[getPropertyClass(theme.iframe.iframe) || undefined]}
     />
   </div>;

@@ -1,5 +1,12 @@
-import type { TiptapContentInput, TiptapInternalLinkResolver } from "../../types";
-import { sanitizeTiptapUrl } from "../sanitize";
+import type { TiptapContentInput } from "../../types";
+import { parseTiptapContent } from "../parser";
+import {
+  formatInternalLinkUri,
+  parseInternalLinkUri,
+  resolveInternalLinkHref,
+} from "./relations-uri";
+
+export { formatInternalLinkUri, parseInternalLinkUri, resolveInternalLinkHref };
 
 export type TiptapMediaNodeType = "image" | "video" | "audio" | "attachment";
 
@@ -26,69 +33,15 @@ export interface ExtractedRelationsResult {
 }
 
 const MEDIA_NODE_TYPES = new Set<string>(["image", "video", "audio", "attachment"]);
-const INTERNAL_URI_RE =
-  /^(?:tiptap|internal|cms|doc):\/\/([a-zA-Z0-9_.:-]+)\/([a-zA-Z0-9_.:-]+)(?:\?.*)?$/;
-
-export const parseInternalLinkUri = (
-  href: string | null | undefined
-): { collectionName: string; documentId: string } | null => {
-  if (!href || typeof href !== "string") return null;
-  const match = INTERNAL_URI_RE.exec(href.trim());
-  if (!match) return null;
-  return { collectionName: match[1], documentId: match[2] };
-};
-
-export const formatInternalLinkUri = (collectionName: string, documentId: string): string =>
-  `tiptap://${collectionName.trim()}/${documentId.trim()}`;
-
-/**
- * Resolves an internal link URI (`tiptap://collectionName/documentId` or `linker` attributes) into a safe frontend href.
- * Uses `resolveInternalLink` when provided, or defaults to `/<shortCollection>/<documentId>`.
- */
-export const resolveInternalLinkHref = (
-  input: {
-    href?: string | null;
-    collectionName?: string | null;
-    documentId?: string | null;
-    label?: string | null;
-  },
-  resolver?: TiptapInternalLinkResolver
-): string => {
-  const parsedFromHref = parseInternalLinkUri(input.href);
-  const collectionName = (input.collectionName || parsedFromHref?.collectionName || "").trim();
-  const documentId = (input.documentId || parsedFromHref?.documentId || "").trim();
-
-  if (collectionName && documentId) {
-    const rawUri = formatInternalLinkUri(collectionName, documentId);
-    if (resolver) {
-      return sanitizeTiptapUrl(
-        resolver({
-          collectionName,
-          documentId,
-          href: rawUri,
-          label: input.label,
-        })
-      );
-    }
-    if (input.href && !/^(?:tiptap|internal|cms|doc):\/\//.test(input.href.trim())) {
-      return sanitizeTiptapUrl(input.href);
-    }
-    const shortCollection = collectionName.includes(".")
-      ? collectionName.split(".").pop() || collectionName
-      : collectionName.replace(/^api::/, "");
-    return sanitizeTiptapUrl(`/${shortCollection}/${documentId}`);
-  }
-
-  return sanitizeTiptapUrl(input.href);
-};
 
 /**
  * Extracts all referenced media assets (`image`, `video`, `audio`, `attachment`)
- * and internal links (`linker` nodes and internal `tiptap://` link marks) from a Tiptap document.
+ * and internal links (`linker` nodes and internal `tiptap://` link marks) from any Tiptap document input.
  */
 export const extractRelationsFromTiptap = (
   doc: TiptapContentInput | unknown
 ): ExtractedRelationsResult => {
+  const normalizedRoot = typeof doc === "string" ? parseTiptapContent(doc) : doc;
   const mediaIdsSet = new Set<number>();
   const mediaDocIdsSet = new Set<string>();
   const mediaAssets: ExtractedMediaReference[] = [];
@@ -182,7 +135,7 @@ export const extractRelationsFromTiptap = (
     if (Array.isArray(n.content)) n.content.forEach(walk);
   };
 
-  walk(doc);
+  walk(normalizedRoot);
 
   const internalLinks = Array.from(internalLinksMap.values());
   const linksByCollection: Record<string, Array<{ documentId: string }>> = {};

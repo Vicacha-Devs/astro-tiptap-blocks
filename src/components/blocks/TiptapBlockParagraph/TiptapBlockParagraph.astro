@@ -1,6 +1,11 @@
 ---
 import { renderPropertyClasses, TiptapBlockThemeDefault } from "../../../lib/theme";
-import type { TiptapBlockBaseAttrs, TiptapBlockTheme, TiptapInlineNode } from "../../../types";
+import type {
+  TiptapBlockBaseAttrs,
+  TiptapBlockTheme,
+  TiptapInlineNode,
+  TiptapInternalLinkResolver,
+} from "../../../types";
 import TiptapInlineNodes from "../items/TiptapInlineNodes/TiptapInlineNodes.astro";
 
 /**
@@ -53,9 +58,19 @@ export interface Props {
    * @default TiptapBlockThemeDefault
    */
   theme?: TiptapBlockTheme;
+  /**
+   * Optional callback to resolve internal links (`tiptap://collectionName/documentId` and `linker` nodes).
+   */
+  resolveInternalLink?: TiptapInternalLinkResolver;
 }
 
-const { type = "paragraph", attrs, content = [], theme = TiptapBlockThemeDefault } = Astro.props;
+const {
+  type = "paragraph",
+  attrs,
+  content = [],
+  theme = TiptapBlockThemeDefault,
+  resolveInternalLink,
+} = Astro.props;
 const isLead = type === "leadParagraph";
 const className = isLead
   ? renderPropertyClasses(theme.leadParagraph)
@@ -73,5 +88,5 @@ const dirAttr = attrs?.dir || undefined;
   style={textAlignStyle}
   class:list={[className || undefined]}
 >
-  <TiptapInlineNodes nodes={content} theme={theme.paragraph} />
+  <TiptapInlineNodes nodes={content} theme={theme.paragraph} {resolveInternalLink} />
 </p>

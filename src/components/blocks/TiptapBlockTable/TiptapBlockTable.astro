@@ -7,6 +7,7 @@ import {
 } from "../../../lib/theme";
 import type {
   TiptapBlockTheme,
+  TiptapInternalLinkResolver,
   TiptapTableCellNode,
   TiptapTableNode,
   TiptapTableRowNode,
@@ -59,9 +60,18 @@ export interface Props {
    * @default TiptapBlockThemeDefault
    */
   theme?: TiptapBlockTheme;
+  /**
+   * Optional callback to resolve internal links (`tiptap://collectionName/documentId` and `linker` nodes).
+   */
+  resolveInternalLink?: TiptapInternalLinkResolver;
 }
 
-const { type = "table", content = [], theme = TiptapBlockThemeDefault } = Astro.props;
+const {
+  type = "table",
+  content = [],
+  theme = TiptapBlockThemeDefault,
+  resolveInternalLink,
+} = Astro.props;
 const tableClass = renderPropertyClasses(theme.table);
 const headClass = getPropertyClass(theme.table.head);
 const bodyClass = getPropertyClass(theme.table.body);
@@ -102,14 +112,20 @@ const buildCellStyle = (cell: TiptapTableCellNode): string | undefined => {
         >
           {(cell.content || []).map((child) => {
             if (child.type === "paragraph" || child.type === "leadParagraph") {
-              return <TiptapInlineNodes nodes={child.content} theme={theme.paragraph} />;
+              return (
+                <TiptapInlineNodes
+                  nodes={child.content}
+                  theme={theme.paragraph}
+                  {resolveInternalLink}
+                />
+              );
             }
             if (
               child.type === "bulletList" ||
               child.type === "orderedList" ||
               child.type === "taskList"
             ) {
-              return <TiptapBlockList {...child} {theme} />;
+              return <TiptapBlockList {...child} {theme} {resolveInternalLink} />;
             }
             return null;
           })}
@@ -131,14 +147,20 @@ const buildCellStyle = (cell: TiptapTableCellNode): string | undefined => {
         >
           {(cell.content || []).map((child) => {
             if (child.type === "paragraph" || child.type === "leadParagraph") {
-              return <TiptapInlineNodes nodes={child.content} theme={theme.paragraph} />;
+              return (
+                <TiptapInlineNodes
+                  nodes={child.content}
+                  theme={theme.paragraph}
+                  {resolveInternalLink}
+                />
+              );
             }
             if (
               child.type === "bulletList" ||
               child.type === "orderedList" ||
               child.type === "taskList"
             ) {
-              return <TiptapBlockList {...child} {theme} />;
+              return <TiptapBlockList {...child} {theme} {resolveInternalLink} />;
             }
             return null;
           })}

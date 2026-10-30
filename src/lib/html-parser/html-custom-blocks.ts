@@ -171,7 +171,21 @@ export const convertCustomHtmlElement = (
       const propKey = k
         .replace(/^data-/, "")
         .replace(/-([a-z])/g, (_, c: string) => c.toUpperCase());
-      attrs[propKey] = v;
+      if (
+        propKey === "__proto__" ||
+        propKey === "constructor" ||
+        propKey === "prototype" ||
+        /^on[a-z]/i.test(propKey)
+      ) {
+        continue;
+      }
+      if (/^(?:src|href|url|action|formaction)$|(?:Url|Href|Src|Uri)$/.test(propKey)) {
+        const safeVal = sanitizeTiptapUrl(v);
+        if (safeVal === "#") return [];
+        attrs[propKey] = safeVal;
+      } else {
+        attrs[propKey] = v;
+      }
     }
     return [{ type: customNodeType, attrs } as unknown as TiptapBlockNode];
   }
