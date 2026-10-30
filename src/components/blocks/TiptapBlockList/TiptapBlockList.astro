@@ -7,16 +7,18 @@ import {
 import type {
   TiptapBlockBaseAttrs,
   TiptapBlockTheme,
+  TiptapInternalLinkResolver,
   TiptapListItemNode,
   TiptapTaskItemNode,
 } from "../../../types";
 import TiptapInlineNodes from "../items/TiptapInlineNodes/TiptapInlineNodes.astro";
+import TiptapBlockCode from "../TiptapBlockCode/TiptapBlockCode.astro";
 
 /**
  * @component TiptapBlockList
  * @title Tiptap Block List & Task Checklist
  * @description Renders unordered (`<ul>`), ordered (`<ol>`), and interactive-styled checklist (`<ul data-type="taskList">`)
- * lists with support for nested sub-lists and read-only task checkboxes.
+ * lists with support for nested sub-lists, code blocks, and read-only task checkboxes.
  *
  * @preview
  *
@@ -63,9 +65,31 @@ export interface Props {
    * @default TiptapBlockThemeDefault
    */
   theme?: TiptapBlockTheme;
+  /**
+   * Optional callback to resolve internal links (`tiptap://collectionName/documentId` and `linker` nodes).
+   */
+  resolveInternalLink?: TiptapInternalLinkResolver;
+  /**
+   * Adds `data-line-number` attributes to nested code blocks.
+   * @default false
+   */
+  showCodeLineNumbers?: boolean;
+  /**
+   * Renders a header bar with copy button on nested code blocks.
+   * @default false
+   */
+  copyableCodeBlocks?: boolean;
 }
 
-const { type = "bulletList", attrs, content = [], theme = TiptapBlockThemeDefault } = Astro.props;
+const {
+  type = "bulletList",
+  attrs,
+  content = [],
+  theme = TiptapBlockThemeDefault,
+  resolveInternalLink,
+  showCodeLineNumbers = false,
+  copyableCodeBlocks = false,
+} = Astro.props;
 const isOrdered = type === "orderedList";
 const isTask = type === "taskList";
 const ListTag = isOrdered ? "ol" : "ul";
@@ -114,14 +138,38 @@ const startAttr =
       >
         {children.map((child) => {
           if (child.type === "paragraph" || child.type === "leadParagraph") {
-            return <TiptapInlineNodes nodes={child.content} theme={theme.paragraph} />;
+            return (
+              <TiptapInlineNodes
+                nodes={child.content}
+                theme={theme.paragraph}
+                {resolveInternalLink}
+              />
+            );
           }
           if (
             child.type === "bulletList" ||
             child.type === "orderedList" ||
             child.type === "taskList"
           ) {
-            return <Astro.self {...child} {theme} />;
+            return (
+              <Astro.self
+                {...child}
+                {theme}
+                {resolveInternalLink}
+                {showCodeLineNumbers}
+                {copyableCodeBlocks}
+              />
+            );
+          }
+          if (child.type === "codeBlock") {
+            return (
+              <TiptapBlockCode
+                {...child}
+                {theme}
+                showLineNumbers={showCodeLineNumbers}
+                copyable={copyableCodeBlocks}
+              />
+            );
           }
           return null;
         })}

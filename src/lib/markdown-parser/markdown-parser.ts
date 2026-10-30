@@ -2,71 +2,33 @@ import type {
   TiptapBlockNode,
   TiptapDocNode,
   TiptapHeadingLevel,
-  TiptapInformationPaneVariant,
-  TiptapInlineNode,
   TiptapTableCellNode,
   TiptapTableRowNode,
 } from "../../types";
 import { parseTiptapHtml } from "../html-parser";
-import { sanitizeTiptapIframeUrl, sanitizeTiptapUrl } from "../sanitize";
+import { sanitizeTiptapUrl } from "../sanitize";
+import {
+  isLikelyMarkdown,
+  parseMarkdownInline,
+  parseMediaBlock,
+  parseQuoteChunk,
+} from "./markdown-inline";
+
+export { isLikelyMarkdown, parseMarkdownInline };
 
 const TIPTAP_META_COMMENT_RE = /\n?<!--\s*tiptap-node:([\s\S]*?)\s*-->$/;
 
-export const parseMarkdownInline = (text: string): TiptapInlineNode[] => {
-  if (!text) return [];
-  const nodes: TiptapInlineNode[] = [];
-  const tokenRe =
-    /(\$(?!\$)([^$\n]+)\$|!\[([^\]]*)\]\(([^)\s]+)(?:\s+"([^"]*)")?\)|\[([^\]]+)\]\(([^)\s]+)(?:\s+"([^"]*)")?\)|`([^`]+)`|\*\*([^*]+)\*\*|==([^=]+)==|~~([^~]+)~~|\*([^*]+)\*|<([a-zA-Z0-9-]+)(?:\s[^>]*)?>[\s\S]*?<\/\14>)/g;
-  let lastIdx = 0;
-  let match: RegExpExecArray | null;
-
-  while ((match = tokenRe.exec(text)) !== null) {
-    if (match.index > lastIdx) nodes.push({ type: "text", text: text.slice(lastIdx, match.index) });
-    if (match[2] !== undefined) {
-      nodes.push({ type: "mathematics", attrs: { latex: match[2].trim(), displayMode: "inline" } });
-    } else if (match[6] !== undefined && match[7] !== undefined) {
-      const label = match[6];
-      const rawHref = match[7];
-      if (/^(?:tiptap|internal|cms|doc):\/\//.test(rawHref)) {
-        const parts = rawHref.replace(/^[a-z]+:\/\//i, "").split("/");
-        nodes.push({
-          type: "linker",
-          attrs: {
-            collectionName: parts[0] || null,
-            documentId: parts[1] || null,
-            label,
-            href: rawHref,
-          },
-        });
-      } else {
-        nodes.push({
-          type: "text",
-          text: label,
-          marks: [
-            { type: "link", attrs: { href: sanitizeTiptapUrl(rawHref), title: match[8] || null } },
-          ],
-        });
-      }
-    } else if (match[9] !== undefined)
-      nodes.push({ type: "text", text: match[9], marks: [{ type: "code" }] });
-    else if (match[10] !== undefined)
-      nodes.push({ type: "text", text: match[10], marks: [{ type: "bold" }] });
-    else if (match[11] !== undefined)
-      nodes.push({ type: "text", text: match[11], marks: [{ type: "highlight" }] });
-    else if (match[12] !== undefined)
-      nodes.push({ type: "text", text: match[12], marks: [{ type: "strike" }] });
-    else if (match[13] !== undefined)
-      nodes.push({ type: "text", text: match[13], marks: [{ type: "italic" }] });
-    else if (match[14] !== undefined) {
-      const first = parseTiptapHtml(`<p>${match[0]}</p>`).content[0];
-      if (first && "content" in first && Array.isArray(first.content))
-        nodes.push(...(first.content as TiptapInlineNode[]));
-    }
-    lastIdx = tokenRe.lastIndex;
-  }
-  if (lastIdx < text.length) nodes.push({ type: "text", text: text.slice(lastIdx) });
-  return nodes;
-};
+const parseTableCells = (rowStr: string, isHeader: boolean): TiptapTableCellNode[] =>
+  rowStr
+    .trim()
+    .replace(/^\||\|$/g, "")
+    .split(/(?<!\\)\|/)
+    .map((c) => ({
+      type: isHeader ? "tableHeader" : "tableCell",
+      content: [
+        { type: "paragraph", content: parseMarkdownInline(c.replace(/\\\|/g, "|").trim()) },
+      ],
+    }));
 
 const parseMarkdownChunk = (rawChunk: string): TiptapBlockNode[] => {
   const metaMatch = TIPTAP_META_COMMENT_RE.exec(rawChunk);
@@ -75,7 +37,7 @@ const parseMarkdownChunk = (rawChunk: string): TiptapBlockNode[] => {
       const parsed = JSON.parse(metaMatch[1].replace(/--\\u003e/g, "-->")) as TiptapBlockNode;
       if (parsed && typeof parsed === "object" && "type" in parsed) return [parsed];
     } catch {
-      // Fallback to markdown parsing
+      /* fallback to markdown parsing */
     }
   }
 
@@ -119,35 +81,7 @@ const parseMarkdownChunk = (rawChunk: string): TiptapBlockNode[] => {
     chunk
   );
   if (mediaMatch) {
-    const kind = mediaMatch[1].toLowerCase();
-    const label = mediaMatch[2].trim();
-    const rawUrl = mediaMatch[3];
-    if (kind === "video") {
-      const src = sanitizeTiptapUrl(rawUrl);
-      const isEmbed = /youtube\.com|youtu\.be|vimeo\.com/i.test(src);
-      return src === "#"
-        ? []
-        : [
-            {
-              type: "video",
-              attrs: { src, title: label, caption: label, embedType: isEmbed ? "embed" : "file" },
-            },
-          ];
-    }
-    if (kind === "audio") {
-      const src = sanitizeTiptapUrl(rawUrl);
-      return src === "#" ? [] : [{ type: "audio", attrs: { src, title: label, caption: label } }];
-    }
-    if (kind === "attachment") {
-      const href = sanitizeTiptapUrl(rawUrl);
-      return href === "#"
-        ? []
-        : [{ type: "attachment", attrs: { href, filename: label, title: label } }];
-    }
-    if (kind === "embed") {
-      const src = sanitizeTiptapIframeUrl(rawUrl);
-      return src === "#" ? [] : [{ type: "iframe", attrs: { src, title: label } }];
-    }
+    return parseMediaBlock(mediaMatch[1].toLowerCase(), mediaMatch[2].trim(), mediaMatch[3]);
   }
 
   const imgMatch = /^!\[([^\]]*)\]\(([^)\s]+)(?:\s+"([^"]*)")?\)$/.exec(chunk);
@@ -159,46 +93,7 @@ const parseMarkdownChunk = (rawChunk: string): TiptapBlockNode[] => {
   }
 
   if (chunk.startsWith(">")) {
-    const stripped = chunk
-      .split("\n")
-      .map((l) => l.replace(/^>\s?/, ""))
-      .join("\n")
-      .trim();
-    if (stripped.startsWith("**Lead:**")) {
-      return [
-        {
-          type: "leadParagraph",
-          content: parseMarkdownInline(stripped.replace(/^\*\*Lead:\*\*\s*/, "")),
-        },
-      ];
-    }
-    const calloutMatch =
-      /^\[!(INFO|SUCCESS|WARNING|DANGER|NEUTRAL|TIP)\](?:\s+([^\n]*))?\n?([\s\S]*)$/i.exec(
-        stripped
-      );
-    if (calloutMatch) {
-      const variant = calloutMatch[1].toLowerCase() as TiptapInformationPaneVariant;
-      return [
-        {
-          type: "informationPane",
-          attrs: { variant, title: calloutMatch[2]?.trim() || null },
-          content: parseTiptapMarkdown(calloutMatch[3] || "").content,
-        },
-      ];
-    }
-    const convMatch = /^\*\*Conversation History\*\*(?:\s+\*\(([^)]+)\)\*)?\n?([\s\S]*)$/i.exec(
-      stripped
-    );
-    if (convMatch) {
-      return [
-        {
-          type: "conversationHistory",
-          attrs: { author: convMatch[1] || null },
-          content: parseTiptapMarkdown(convMatch[2] || "").content,
-        },
-      ];
-    }
-    return [{ type: "blockquote", content: parseTiptapMarkdown(stripped).content }];
+    return parseQuoteChunk(chunk, (md) => parseTiptapMarkdown(md).content);
   }
 
   const lines = chunk.split("\n");
@@ -231,9 +126,11 @@ const parseMarkdownChunk = (rawChunk: string): TiptapBlockNode[] => {
     ];
   }
   if (lines.every((l) => /^\d+\.\s+/.test(l.trim()))) {
+    const firstStart = Number(/^(\d+)\.\s+/.exec(lines[0].trim())?.[1] ?? 1);
     return [
       {
         type: "orderedList",
+        ...(firstStart > 1 ? { attrs: { start: firstStart } } : {}),
         content: lines.map((l) => ({
           type: "listItem",
           content: [
@@ -244,21 +141,12 @@ const parseMarkdownChunk = (rawChunk: string): TiptapBlockNode[] => {
     ];
   }
   if (lines.length >= 2 && lines[0].includes("|") && /^\s*\|?[\s:-]+\|/.test(lines[1])) {
-    const parseCells = (rowStr: string, isHeader: boolean): TiptapTableCellNode[] =>
-      rowStr
-        .trim()
-        .replace(/^\||\|$/g, "")
-        .split("|")
-        .map((c) => ({
-          type: isHeader ? "tableHeader" : "tableCell",
-          content: [{ type: "paragraph", content: parseMarkdownInline(c.trim()) }],
-        }));
     const rows: TiptapTableRowNode[] = [
-      { type: "tableRow", content: parseCells(lines[0], true) },
+      { type: "tableRow", content: parseTableCells(lines[0], true) },
       ...lines
         .slice(2)
         .filter((l) => l.includes("|"))
-        .map((l) => ({ type: "tableRow" as const, content: parseCells(l, false) })),
+        .map((l) => ({ type: "tableRow" as const, content: parseTableCells(l, false) })),
     ];
     return [{ type: "table", content: rows }];
   }
@@ -266,11 +154,6 @@ const parseMarkdownChunk = (rawChunk: string): TiptapBlockNode[] => {
 
   return [{ type: "paragraph", content: parseMarkdownInline(chunk) }];
 };
-
-export const isLikelyMarkdown = (text: string): boolean =>
-  /(?:^|\n)(?:#{1,6}\s|>\s|[-*]\s+\[[ xX]\]\s|[-*]\s+\S|\d+\.\s+\S|```|\$\$|<!--\s*(?:tiptap-node:|pagebreak|toc)|\[(?:Video|Audio|Attachment|Embed):|!\[[^\]]*\]\([^)]+\)|\|.+\|\n\|[\s:-]+\|)/.test(
-    text
-  ) || /(\*\*[^*]+\*\*|==[^=]+==|~~[^~]+~~|\[[^\]]+\]\([^)]+\)|\$(?!\$)[^$\n]+\$)/.test(text);
 
 export const parseTiptapMarkdown = (markdown: string): TiptapDocNode => {
   const chunks = markdown.trim().split(/\n{2,}(?!(?:[^`]*```[^`]*```)*[^`]*```)/);

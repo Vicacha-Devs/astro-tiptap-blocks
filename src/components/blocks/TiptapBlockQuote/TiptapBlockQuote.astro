@@ -1,6 +1,11 @@
 ---
 import { renderPropertyClasses, TiptapBlockThemeDefault } from "../../../lib/theme";
-import type { TiptapBlockBaseAttrs, TiptapBlockNode, TiptapBlockTheme } from "../../../types";
+import type {
+  TiptapBlockBaseAttrs,
+  TiptapBlockNode,
+  TiptapBlockTheme,
+  TiptapRenderContextProps,
+} from "../../../types";
 import TiptapNestedBlocks from "../items/TiptapNestedBlocks/TiptapNestedBlocks.astro";
 
 /**
@@ -25,7 +30,7 @@ import TiptapNestedBlocks from "../items/TiptapNestedBlocks/TiptapNestedBlocks.a
  * />
  * ```
  */
-export interface Props {
+export interface Props extends TiptapRenderContextProps {
   /**
    * Discriminator node type.
    * @default "blockquote"
@@ -47,7 +52,13 @@ export interface Props {
   theme?: TiptapBlockTheme;
 }
 
-const { type = "blockquote", attrs, content = [], theme = TiptapBlockThemeDefault } = Astro.props;
+const {
+  type = "blockquote",
+  attrs,
+  content = [],
+  theme = TiptapBlockThemeDefault,
+  ...contextProps
+} = Astro.props;
 const quoteClass = renderPropertyClasses(theme.quote);
 const textAlignStyle =
   attrs?.textAlign && ["left", "center", "right", "justify"].includes(attrs.textAlign)
@@ -57,5 +68,5 @@ const dirAttr = attrs?.dir || undefined;
 ---
 
 <blockquote dir={dirAttr} style={textAlignStyle} class:list={[quoteClass || undefined]}>
-  <TiptapNestedBlocks blocks={content} {theme} />
+  <TiptapNestedBlocks blocks={content} {theme} {...contextProps} />
 </blockquote>

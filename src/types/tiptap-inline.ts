@@ -107,3 +107,4 @@ export type TiptapInternalLinkContext = {
 };
 
 export type TiptapInternalLinkResolver = (link: TiptapInternalLinkContext) => string;
+export type TiptapMediaUrlResolver = (url: string) => string | null | undefined;

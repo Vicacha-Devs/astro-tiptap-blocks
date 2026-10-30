@@ -3,7 +3,11 @@ import { resolveInternalLinkHref } from "../../../../lib/relations";
 import { formatLatexPreview } from "../../../../lib/sanitize";
 import { getPropertyClass, TiptapBlockThemeDefault } from "../../../../lib/theme";
 import type { TiptapBlockThemeParagraph } from "../../../../types/theme";
-import type { TiptapInlineNode, TiptapLinkMark } from "../../../../types/tiptap";
+import type {
+  TiptapInlineNode,
+  TiptapInternalLinkResolver,
+  TiptapLinkMark,
+} from "../../../../types/tiptap";
 import TiptapLinkItem from "../TiptapLinkItem/TiptapLinkItem.astro";
 import TiptapTextItem from "../TiptapTextItem/TiptapTextItem.astro";
 
@@ -44,9 +48,13 @@ export interface Props {
    * @default TiptapBlockThemeDefault.paragraph
    */
   theme?: TiptapBlockThemeParagraph;
+  /**
+   * Optional callback to resolve internal links (`tiptap://collectionName/documentId` and `linker` nodes).
+   */
+  resolveInternalLink?: TiptapInternalLinkResolver;
 }
 
-const { nodes = [], theme = TiptapBlockThemeDefault.paragraph } = Astro.props;
+const { nodes = [], theme = TiptapBlockThemeDefault.paragraph, resolveInternalLink } = Astro.props;
 const linkerClass = getPropertyClass(theme.linker || theme.link);
 const mathInlineClass = getPropertyClass(theme.mathInline);
 ---
@@ -56,7 +64,7 @@ const mathInlineClass = getPropertyClass(theme.mathInline);
     return <br />;
   }
   if (node.type === "linker") {
-    const safeHref = resolveInternalLinkHref(node.attrs || {});
+    const safeHref = resolveInternalLinkHref(node.attrs || {}, resolveInternalLink);
     const label = node.attrs?.label || node.attrs?.documentId || "Internal Link";
     return <a
       href={safeHref}
@@ -85,7 +93,7 @@ const mathInlineClass = getPropertyClass(theme.mathInline);
   if (node.type === "text") {
     const linkMark = node.marks?.find((m): m is TiptapLinkMark => m.type === "link");
     if (linkMark) {
-      return <TiptapLinkItem {...node} {linkMark} {theme} />;
+      return <TiptapLinkItem {...node} {linkMark} {theme} {resolveInternalLink} />;
     }
     return <TiptapTextItem {...node} {theme} />;
   }

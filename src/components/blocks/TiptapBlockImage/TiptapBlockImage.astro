@@ -1,5 +1,5 @@
 ---
-import { resolveTiptapMediaUrl } from "../../../lib/sanitize";
+import { resolveTiptapMediaUrl, sanitizeTiptapSrcset } from "../../../lib/sanitize";
 import {
   getPropertyClass,
   renderPropertyClasses,
@@ -72,6 +72,7 @@ const {
   resolveMediaUrl,
 } = Astro.props;
 const safeSrc = resolveTiptapMediaUrl(attrs?.src, { mediaBaseUrl, resolveMediaUrl });
+const safeSrcset = sanitizeTiptapSrcset(attrs?.srcset, { mediaBaseUrl, resolveMediaUrl });
 const alt = attrs?.alt || "";
 const title = attrs?.title || undefined;
 const captionText = attrs?.caption || attrs?.title || undefined;
@@ -104,7 +105,7 @@ const captionClass = getPropertyClass(theme.image.caption);
 >
   <img
     src={safeSrc}
-    srcset={attrs?.srcset || undefined}
+    srcset={safeSrcset}
     sizes={attrs?.sizes || undefined}
     {alt}
     {title}

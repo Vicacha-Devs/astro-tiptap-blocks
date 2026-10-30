@@ -8,6 +8,7 @@ import type {
   TiptapBlockTheme,
   TiptapLayoutColumnNode,
   TiptapLayoutContainerNode,
+  TiptapRenderContextProps,
 } from "../../../types";
 import TiptapNestedBlocks from "../items/TiptapNestedBlocks/TiptapNestedBlocks.astro";
 
@@ -38,12 +39,12 @@ import TiptapNestedBlocks from "../items/TiptapNestedBlocks/TiptapNestedBlocks.a
  *   attrs={{ columns: "2:1" }}
  *   content={[
  *     { type: "layoutColumn", content: [{ type: "paragraph", content: [{ type: "text", text: "Main (2/3)" }] }] },
- *     { type: "layoutColumn", content: [{ type: "paragraph", content: [{ type: "text", text: "Sidebar (1/3)" }] }] },
+ *     { type: "layoutColumn", content: [{ type: "text", text: "Sidebar (1/3)" }] },
  *   ]}
  * />
  * ```
  */
-export interface Props {
+export interface Props extends TiptapRenderContextProps {
   /**
    * Discriminator node type.
    * @default "layoutContainer"
@@ -70,6 +71,7 @@ const {
   attrs,
   content = [],
   theme = TiptapBlockThemeDefault,
+  ...contextProps
 } = Astro.props;
 const columnsRatio = attrs?.columns || "1:1";
 const containerClass = renderPropertyClasses(theme.columns);
@@ -92,6 +94,6 @@ const gridTemplateStyle =
   class:list={[containerClass || undefined]}
 >
   {content.map((col) => <div data-type="layout-column" class:list={[columnClass || undefined]}>
-    <TiptapNestedBlocks blocks={col.content} {theme} />
+    <TiptapNestedBlocks blocks={col.content} {theme} {...contextProps} />
   </div>)}
 </div>

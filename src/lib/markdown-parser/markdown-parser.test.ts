@@ -46,12 +46,15 @@ describe("parseTiptapMarkdown block variants", () => {
     });
   });
 
-  it("parses lists and tables", () => {
+  it("parses lists (including custom orderedList start) and tables with escaped pipes", () => {
     expect(first("- a\n- b").type).toBe("bulletList");
-    expect(first("1. a\n2. b").type).toBe("orderedList");
-    const table = first("| A | B |\n| - | - |\n| 1 | 2 |");
+    const ol = first("3. a\n4. b");
+    expect(ol).toMatchObject({ type: "orderedList", attrs: { start: 3 } });
+    const table = first("| A \\| B | C |\n| - | - |\n| 1 \\| 2 | 3 |");
     expect(table.type).toBe("table");
     expect((table as { content: unknown[] }).content).toHaveLength(2);
+    expect(JSON.stringify(table)).toContain("A | B");
+    expect(JSON.stringify(table)).toContain("1 | 2");
   });
 
   it("parses media and images, dropping unsafe URLs", () => {
@@ -65,15 +68,18 @@ describe("parseTiptapMarkdown block variants", () => {
     expect(parseTiptapMarkdown("[Video: x](javascript:alert)").content).toEqual([]);
   });
 
-  it("parses inline marks, links, internal linkers and math", () => {
+  it("parses inline marks, links, inline images, internal linkers and math", () => {
     const para = first(
-      "**b** *i* ~~s~~ ==h== `c` [l](https://example.com) [r](tiptap://article/doc1) $x$"
+      "**b** *i* ~~s~~ ==h== `c` [l](https://example.com) ![diag](https://example.com/d.png) [r](tiptap://article/doc1) $x$"
     );
-    const nodes = (para as { content: { type: string; marks?: { type: string }[] }[] }).content;
+    const nodes = (
+      para as { content: { type: string; text?: string; marks?: { type: string }[] }[] }
+    ).content;
     const marks = nodes.flatMap((n) => n.marks?.map((m) => m.type) ?? []);
     expect(marks).toEqual(
       expect.arrayContaining(["bold", "italic", "strike", "highlight", "code", "link"])
     );
+    expect(nodes.some((n) => n.text === "diag")).toBe(true);
     expect(nodes.some((n) => n.type === "linker")).toBe(true);
     expect(nodes.some((n) => n.type === "mathematics")).toBe(true);
   });

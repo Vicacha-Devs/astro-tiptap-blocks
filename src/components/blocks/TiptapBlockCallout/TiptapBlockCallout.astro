@@ -8,6 +8,7 @@ import type {
   TiptapBlockNode,
   TiptapBlockTheme,
   TiptapInformationPaneVariant,
+  TiptapRenderContextProps,
 } from "../../../types";
 import TiptapNestedBlocks from "../items/TiptapNestedBlocks/TiptapNestedBlocks.astro";
 
@@ -40,7 +41,7 @@ import TiptapNestedBlocks from "../items/TiptapNestedBlocks/TiptapNestedBlocks.a
  * />
  * ```
  */
-export interface Props {
+export interface Props extends TiptapRenderContextProps {
   /**
    * Block discriminator (`"informationPane"` or `"conversationHistory"`).
    * @default "informationPane"
@@ -72,6 +73,7 @@ const {
   attrs,
   content = [],
   theme = TiptapBlockThemeDefault,
+  ...contextProps
 } = Astro.props;
 const isConversation = type === "conversationHistory";
 
@@ -114,7 +116,7 @@ const convBodyClass = getPropertyClass(theme.conversationHistory.body);
       </time>}
     </div>}
     <div class:list={[convBodyClass || undefined]}>
-      <TiptapNestedBlocks blocks={content} {theme} />
+      <TiptapNestedBlocks blocks={content} {theme} {...contextProps} />
     </div>
   </div>
 ) : (
@@ -127,7 +129,7 @@ const convBodyClass = getPropertyClass(theme.conversationHistory.body);
   >
     {paneTitle && <strong class:list={[paneTitleClass || undefined]}>{paneTitle}</strong>}
     <div class:list={[paneBodyClass || undefined]}>
-      <TiptapNestedBlocks blocks={content} {theme} />
+      <TiptapNestedBlocks blocks={content} {theme} {...contextProps} />
     </div>
   </aside>
 )}

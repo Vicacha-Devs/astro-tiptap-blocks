@@ -2,7 +2,12 @@
 import { resolveInternalLinkHref } from "../../../../lib/relations";
 import { getPropertyClass, TiptapBlockThemeDefault } from "../../../../lib/theme";
 import type { TiptapBlockThemeParagraph } from "../../../../types/theme";
-import type { TiptapLinkMark, TiptapMark, TiptapTextNode } from "../../../../types/tiptap";
+import type {
+  TiptapInternalLinkResolver,
+  TiptapLinkMark,
+  TiptapMark,
+  TiptapTextNode,
+} from "../../../../types/tiptap";
 import TiptapTextItem from "../TiptapTextItem/TiptapTextItem.astro";
 
 /**
@@ -55,6 +60,10 @@ export interface Props {
    * @default TiptapBlockThemeDefault.paragraph
    */
   theme?: TiptapBlockThemeParagraph;
+  /**
+   * Optional callback to resolve internal links (`tiptap://collectionName/documentId`).
+   */
+  resolveInternalLink?: TiptapInternalLinkResolver;
 }
 
 const {
@@ -63,9 +72,13 @@ const {
   marks = [],
   linkMark,
   theme = TiptapBlockThemeDefault.paragraph,
+  resolveInternalLink,
 } = Astro.props;
 
-const safeHref = resolveInternalLinkHref({ href: linkMark.attrs?.href, label: text });
+const safeHref = resolveInternalLinkHref(
+  { href: linkMark.attrs?.href, label: text },
+  resolveInternalLink
+);
 const target = linkMark.attrs?.target || undefined;
 const title = linkMark.attrs?.title || undefined;
 const rel =

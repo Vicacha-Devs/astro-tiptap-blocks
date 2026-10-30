@@ -1,8 +1,12 @@
 ---
 import { parseTiptapContent } from "../../lib/parser";
-import { buildThemeObject, getPropertyClass, TiptapBlockThemeDefault } from "../../lib/theme";
+import {
+  buildThemeObject,
+  getPropertyClass,
+  mapNodeTypeToThemeKey,
+  TiptapBlockThemeDefault,
+} from "../../lib/theme";
 import type {
-  TiptapBlockNode,
   TiptapBlockThemeCustomComponents,
   TiptapBlockUserComponents,
   TiptapBlockUserTheme,
@@ -10,21 +14,12 @@ import type {
   TiptapInternalLinkResolver,
   TiptapMediaUrlResolver,
 } from "../../types";
+import TiptapNestedBlocks from "../blocks/items/TiptapNestedBlocks/TiptapNestedBlocks.astro";
 import TiptapBlockCallout from "../blocks/TiptapBlockCallout/TiptapBlockCallout.astro";
-import TiptapBlockCode from "../blocks/TiptapBlockCode/TiptapBlockCode.astro";
 import TiptapBlockColumns from "../blocks/TiptapBlockColumns/TiptapBlockColumns.astro";
 import TiptapBlockCustom from "../blocks/TiptapBlockCustom/TiptapBlockCustom.astro";
 import TiptapBlockDetails from "../blocks/TiptapBlockDetails/TiptapBlockDetails.astro";
-import TiptapBlockHeading from "../blocks/TiptapBlockHeading/TiptapBlockHeading.astro";
-import TiptapBlockHr from "../blocks/TiptapBlockHr/TiptapBlockHr.astro";
-import TiptapBlockImage from "../blocks/TiptapBlockImage/TiptapBlockImage.astro";
-import TiptapBlockList from "../blocks/TiptapBlockList/TiptapBlockList.astro";
-import TiptapBlockMath from "../blocks/TiptapBlockMath/TiptapBlockMath.astro";
-import TiptapBlockMedia from "../blocks/TiptapBlockMedia/TiptapBlockMedia.astro";
-import TiptapBlockParagraph from "../blocks/TiptapBlockParagraph/TiptapBlockParagraph.astro";
 import TiptapBlockQuote from "../blocks/TiptapBlockQuote/TiptapBlockQuote.astro";
-import TiptapBlockTable from "../blocks/TiptapBlockTable/TiptapBlockTable.astro";
-import TiptapBlockToc from "../blocks/TiptapBlockToc/TiptapBlockToc.astro";
 
 /**
  * @component TiptapBlocks
@@ -33,16 +28,13 @@ import TiptapBlockToc from "../blocks/TiptapBlockToc/TiptapBlockToc.astro";
  * into a sanitized `TiptapDocNode` AST and renders each block using native, themeable Astro components.
  *
  * @preview
- *
  * <TiptapBlocks data={{ type: "doc", content: [{ type: "paragraph", content: [{ type: "text", text: "Hello Astro!" }] }] }} />
  *
  * @usage
- *
  * ```astro nocollapse
  * ---
  * import { TiptapBlocks } from "@vicacha-devs/astro-tiptap-blocks";
  * ---
- *
  * <TiptapBlocks
  *   data={article.body}
  *   mediaBaseUrl="https://cms.mezquitabogota.org"
@@ -56,15 +48,9 @@ export interface Props {
   data: TiptapContentInput;
   /** Optional user theme configuration (`extend` or `overwrite`) merged over `TiptapBlockThemeDefault`. */
   theme?: TiptapBlockUserTheme;
-  /**
-   * Optional map of custom Astro components overriding specific block types (`heading`, `paragraph`, `quote`, etc.).
-   * @default {}
-   */
+  /** Optional map of custom Astro components overriding specific block types (`heading`, `paragraph`, `quote`, etc.). @default {} */
   blocks?: TiptapBlockUserComponents;
-  /**
-   * Optional CSS class names appended to the root container `<div>`.
-   * @default ""
-   */
+  /** Optional CSS class names appended to the root container `<div>`. @default "" */
   class?: string;
   /** Optional domain allowlist for HTTPS `<iframe>` and video embeds (e.g. `["youtube.com", "player.vimeo.com"]`). */
   allowedIframeDomains?: ReadonlyArray<string>;
@@ -74,20 +60,11 @@ export interface Props {
   mediaBaseUrl?: string;
   /** Optional custom resolver for media URLs (`image`, `video`, `audio`, `attachment`) before sanitization. */
   resolveMediaUrl?: TiptapMediaUrlResolver;
-  /**
-   * Renders an accessible `#` permalink anchor inside headings (`h1`–`h6`).
-   * @default false
-   */
+  /** Renders an accessible `#` permalink anchor inside headings (`h1`–`h6`). @default false */
   headingAnchors?: boolean;
-  /**
-   * Adds `data-line-number` attributes to code block lines.
-   * @default false
-   */
+  /** Adds `data-line-number` attributes to code block lines. @default false */
   showCodeLineNumbers?: boolean;
-  /**
-   * Renders a header bar with language badge and copy button on code blocks.
-   * @default false
-   */
+  /** Renders a header bar with language badge and copy button on code blocks. @default false */
   copyableCodeBlocks?: boolean;
 }
 
@@ -113,114 +90,37 @@ const doc = parseTiptapContent(data, {
 });
 const theme = buildThemeObject(userTheme, TiptapBlockThemeDefault);
 const wrapperClass = [getPropertyClass(theme.default), className].filter(Boolean).join(" ").trim();
-
-const mapNodeTypeToThemeKey = (
-  nodeType: TiptapBlockNode["type"]
-): keyof TiptapBlockThemeCustomComponents | undefined => {
-  switch (nodeType) {
-    case "heading":
-      return "heading";
-    case "paragraph":
-      return "paragraph";
-    case "leadParagraph":
-      return "leadParagraph";
-    case "blockquote":
-      return "quote";
-    case "informationPane":
-      return "informationPane";
-    case "conversationHistory":
-      return "conversationHistory";
-    case "details":
-      return "details";
-    case "layoutContainer":
-      return "columns";
-    case "bulletList":
-    case "orderedList":
-      return "list";
-    case "taskList":
-      return "taskList";
-    case "codeBlock":
-      return "code";
-    case "image":
-      return "image";
-    case "video":
-      return "video";
-    case "audio":
-      return "audio";
-    case "attachment":
-      return "attachment";
-    case "iframe":
-      return "iframe";
-    case "mathematics":
-      return "mathematics";
-    case "tableOfContents":
-      return "tableOfContents";
-    case "pageBreak":
-      return "pageBreak";
-    case "table":
-      return "table";
-    case "horizontalRule":
-      return "hr";
-    default:
-      return undefined;
-  }
+const contextProps = {
+  customBlocks,
+  headingAnchors,
+  showCodeLineNumbers,
+  copyableCodeBlocks,
+  mediaBaseUrl,
+  resolveMediaUrl,
+  allowedIframeDomains,
+  resolveInternalLink,
 };
 ---
 
 <div class:list={[wrapperClass || undefined]}>
   {doc.content.map((block) => {
-    const themeKey = mapNodeTypeToThemeKey(block.type);
-    const customComponent =
-      (themeKey ? customBlocks[themeKey] : undefined) ?? customBlocks[block.type];
+    const themeKey = mapNodeTypeToThemeKey(block.type) as keyof TiptapBlockThemeCustomComponents;
+    const customComponent = customBlocks[themeKey] ?? customBlocks[block.type];
     if (customComponent) {
       return <TiptapBlockCustom component={customComponent} {...block} {theme} />;
     }
     switch (block.type) {
-      case "heading":
-        return <TiptapBlockHeading {...block} {theme} anchorLink={headingAnchors} />;
-      case "paragraph":
-      case "leadParagraph":
-        return <TiptapBlockParagraph {...block} {theme} />;
       case "blockquote":
-        return <TiptapBlockQuote {...block} {theme} />;
+        return <TiptapBlockQuote {...block} {theme} {...contextProps} />;
       case "informationPane":
       case "conversationHistory":
-        return <TiptapBlockCallout {...block} {theme} />;
+        return <TiptapBlockCallout {...block} {theme} {...contextProps} />;
       case "details":
-        return <TiptapBlockDetails {...block} {theme} />;
+        return <TiptapBlockDetails {...block} {theme} {...contextProps} />;
       case "layoutContainer":
-        return <TiptapBlockColumns {...block} {theme} />;
-      case "bulletList":
-      case "orderedList":
-      case "taskList":
-        return <TiptapBlockList {...block} {theme} />;
-      case "codeBlock":
-        return (
-          <TiptapBlockCode
-            {...block}
-            {theme}
-            showLineNumbers={showCodeLineNumbers}
-            copyable={copyableCodeBlocks}
-          />
-        );
-      case "image":
-        return <TiptapBlockImage {...block} {theme} {mediaBaseUrl} {resolveMediaUrl} />;
-      case "video":
-      case "audio":
-      case "attachment":
-      case "iframe":
-        return <TiptapBlockMedia {...block} {theme} {allowedIframeDomains} />;
-      case "mathematics":
-        return <TiptapBlockMath {...block} {theme} />;
-      case "tableOfContents":
-      case "pageBreak":
-        return <TiptapBlockToc {...block} {theme} />;
-      case "table":
-        return <TiptapBlockTable {...block} {theme} />;
-      case "horizontalRule":
-        return <TiptapBlockHr {...block} {theme} />;
+        return <TiptapBlockColumns {...block} {theme} {...contextProps} />;
       default:
-        return null;
+        return <TiptapNestedBlocks blocks={[block]} {theme} {...contextProps} />;
     }
   })}
 </div>

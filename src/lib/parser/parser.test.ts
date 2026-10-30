@@ -1,35 +1,46 @@
 import { parseTiptapContent } from "./parser";
 
 describe("parseTiptapContent (lib/parser)", () => {
-  it("parses ProseMirror JSON doc and auto-generates heading id", () => {
+  it("parses ProseMirror JSON doc and deduplicates auto-generated heading IDs across nested blocks", () => {
     const doc = parseTiptapContent({
       type: "doc",
       content: [
+        { type: "tableOfContents" },
         {
           type: "heading",
           attrs: { level: 2 },
-          content: [{ type: "text", text: "Welcome to Abu Bakr Mosque" }],
+          content: [{ type: "text", text: "Overview" }],
         },
         {
-          type: "paragraph",
+          type: "heading",
+          attrs: { level: 2 },
+          content: [{ type: "text", text: "Overview" }],
+        },
+        {
+          type: "layoutContainer",
+          attrs: { columns: "1:1" },
           content: [
-            { type: "text", text: "Visit our ", marks: [{ type: "bold" }] },
             {
-              type: "text",
-              text: "community page",
-              marks: [{ type: "link", attrs: { href: "https://mezquitabogota.org/en" } }],
+              type: "layoutColumn",
+              content: [
+                {
+                  type: "heading",
+                  attrs: { level: 3 },
+                  content: [{ type: "text", text: "Overview" }],
+                },
+              ],
             },
           ],
         },
       ],
     });
 
-    expect(doc.content).toHaveLength(2);
-    expect(doc.content[0]).toEqual({
-      type: "heading",
-      attrs: { level: 2, id: "welcome-to-abu-bakr-mosque" },
-      content: [{ type: "text", text: "Welcome to Abu Bakr Mosque" }],
-    });
+    const toc = doc.content[0];
+    expect(toc.type === "tableOfContents" && toc.attrs?.headings).toEqual([
+      { id: "overview", text: "Overview", level: 2 },
+      { id: "overview-2", text: "Overview", level: 2 },
+      { id: "overview-3", text: "Overview", level: 3 },
+    ]);
   });
 
   it("parses all extended Tiptap block types and auto-populates Table of Contents", () => {
@@ -45,11 +56,6 @@ describe("parseTiptapContent (lib/parser)", () => {
         {
           type: "leadParagraph",
           content: [{ type: "text", text: "Lead summary" }],
-        },
-        {
-          type: "heading",
-          attrs: { level: 2 },
-          content: [{ type: "text", text: "Section Two" }],
         },
         {
           type: "informationPane",
@@ -68,16 +74,6 @@ describe("parseTiptapContent (lib/parser)", () => {
             {
               type: "detailsContent",
               content: [{ type: "paragraph", content: [{ type: "text", text: "Body" }] }],
-            },
-          ],
-        },
-        {
-          type: "layoutContainer",
-          attrs: { columns: "1:1" },
-          content: [
-            {
-              type: "layoutColumn",
-              content: [{ type: "paragraph", content: [{ type: "text", text: "Col 1" }] }],
             },
           ],
         },
@@ -105,15 +101,9 @@ describe("parseTiptapContent (lib/parser)", () => {
     expect(blockTypes.has("informationPane")).toBe(true);
     expect(blockTypes.has("conversationHistory")).toBe(true);
     expect(blockTypes.has("details")).toBe(true);
-    expect(blockTypes.has("layoutContainer")).toBe(true);
     expect(blockTypes.has("taskList")).toBe(true);
     expect(blockTypes.has("mathematics")).toBe(true);
     expect(blockTypes.has("pageBreak")).toBe(true);
-
-    const tocBlock = doc.content.find((b) => b.type === "tableOfContents");
-    expect(
-      tocBlock?.type === "tableOfContents" && (tocBlock.attrs?.headings?.length ?? 0) === 2
-    ).toBe(true);
   });
 
   it("normalizes fallback string[] paragraph arrays", () => {
@@ -125,7 +115,7 @@ describe("parseTiptapContent (lib/parser)", () => {
     });
   });
 
-  it("preserves generic custom block nodes and sanitizes URL attributes", () => {
+  it("preserves generic custom block nodes, strips event handlers/prototype keys, and sanitizes URL/srcset attributes", () => {
     const doc = parseTiptapContent(
       {
         type: "doc",
@@ -134,13 +124,17 @@ describe("parseTiptapContent (lib/parser)", () => {
             type: "customWidget",
             attrs: {
               imageUrl: "/uploads/sample.jpg",
+              imageSrcset: "/uploads/sample-1x.jpg 1x, javascript:alert(1) 2x",
               caption: "Custom block",
+              onclick: "alert(1)",
+              onerror: "alert(2)",
+              constructor: "polluted",
             },
           },
           {
             type: "customWidget",
             attrs: {
-              imageUrl: "javascript:alert(1)",
+              url: "javascript:alert(1)",
             },
           },
         ],
@@ -152,6 +146,7 @@ describe("parseTiptapContent (lib/parser)", () => {
         type: "customWidget",
         attrs: {
           imageUrl: "https://cms.mezquitabogota.org/uploads/sample.jpg",
+          imageSrcset: "https://cms.mezquitabogota.org/uploads/sample-1x.jpg 1x",
           caption: "Custom block",
         },
       },

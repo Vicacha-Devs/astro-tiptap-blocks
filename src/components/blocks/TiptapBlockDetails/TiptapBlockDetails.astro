@@ -1,16 +1,11 @@
 ---
+import { extractDetailsParts } from "../../../lib/parser";
 import {
   getPropertyClass,
   renderPropertyClasses,
   TiptapBlockThemeDefault,
 } from "../../../lib/theme";
-import type {
-  TiptapBlockNode,
-  TiptapBlockTheme,
-  TiptapDetailsContentNode,
-  TiptapDetailsNode,
-  TiptapDetailsSummaryNode,
-} from "../../../types";
+import type { TiptapBlockTheme, TiptapDetailsNode, TiptapRenderContextProps } from "../../../types";
 import TiptapInlineNodes from "../items/TiptapInlineNodes/TiptapInlineNodes.astro";
 import TiptapNestedBlocks from "../items/TiptapNestedBlocks/TiptapNestedBlocks.astro";
 
@@ -46,7 +41,7 @@ import TiptapNestedBlocks from "../items/TiptapNestedBlocks/TiptapNestedBlocks.a
  * />
  * ```
  */
-export interface Props {
+export interface Props extends TiptapRenderContextProps {
   /**
    * Discriminator node type.
    * @default "details"
@@ -68,33 +63,32 @@ export interface Props {
   theme?: TiptapBlockTheme;
 }
 
-const { type = "details", attrs, content = [], theme = TiptapBlockThemeDefault } = Astro.props;
+const {
+  type = "details",
+  attrs,
+  content = [],
+  theme = TiptapBlockThemeDefault,
+  ...contextProps
+} = Astro.props;
 const detailsClass = renderPropertyClasses(theme.details);
 const summaryClass = getPropertyClass(theme.details.summary);
 const contentClass = getPropertyClass(theme.details.content);
-
-const summaryNode = content.find(
-  (child): child is TiptapDetailsSummaryNode => child.type === "detailsSummary"
-);
-const detailsContentNode = content.find(
-  (child): child is TiptapDetailsContentNode => child.type === "detailsContent"
-);
-const bodyBlocks: TiptapBlockNode[] = detailsContentNode
-  ? detailsContentNode.content || []
-  : (content.filter(
-      (child) => child.type !== "detailsSummary" && child.type !== "detailsContent"
-    ) as TiptapBlockNode[]);
+const { summary, body } = extractDetailsParts(content);
 ---
 
 <details open={attrs?.open ? true : undefined} class:list={[detailsClass || undefined]}>
   <summary class:list={[summaryClass || undefined]}>
-    {summaryNode?.content && summaryNode.content.length > 0 ? (
-      <TiptapInlineNodes nodes={summaryNode.content} theme={theme.paragraph} />
+    {summary.length > 0 ? (
+      <TiptapInlineNodes
+        nodes={summary}
+        theme={theme.paragraph}
+        resolveInternalLink={contextProps.resolveInternalLink}
+      />
     ) : (
       "Details"
     )}
   </summary>
   <div data-type="details-content" class:list={[contentClass || undefined]}>
-    <TiptapNestedBlocks blocks={bodyBlocks} {theme} />
+    <TiptapNestedBlocks blocks={body} {theme} {...contextProps} />
   </div>
 </details>
