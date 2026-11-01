@@ -99,5 +99,6 @@ jobs:
       - name: Run semantic-release
         run: pnpm release
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Fine-grained PAT (this repo only) from an admin: lets @semantic-release/git push to the protected main branch.
+          GITHUB_TOKEN: ${{ secrets.RELEASE_GH_TOKEN }}
           NPM_CONFIG_PROVENANCE: "true"
