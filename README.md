@@ -163,6 +163,12 @@ pnpm check && pnpm build
 
 ---
 
+## TODO
+
+- [ ] Remove the `conventional-changelog-writer` override from `pnpm-workspace.yaml` once `semantic-release` ships `@semantic-release/release-notes-generator@15` (the `conventionalcommits@10` preset needs writer 9, but `release-notes-generator@14` bundles writer 8).
+
+---
+
 ## License
 
 MIT © Vicacha Devs
