@@ -11,3 +11,6 @@ minimumReleaseAgeExclude:
 # Temporary: 2.2.1 was published inside minimumReleaseAge. Remove once it ages out.
 overrides:
   mdast-util-to-markdown: 2.2.0
+  # conventionalcommits@10 needs writer@9, but semantic-release@25 bundles release-notes-generator@14 (writer@8).
+  # Remove once semantic-release ships release-notes-generator@15.
+  conventional-changelog-writer: 9.3.0
