@@ -96,9 +96,17 @@ jobs:
       - name: Build package
         run: pnpm build
 
+      # Short-lived token for the org's release GitHub App, which bypasses the "Protect main" ruleset
+      # so @semantic-release/git can push the changelog/version commit.
+      - name: Create GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@v3.3.0
+        with:
+          app-id: ${{ vars.RELEASE_APP_ID }}
+          private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+
       - name: Run semantic-release
         run: pnpm release
         env:
-          # Fine-grained PAT (this repo only) from an admin: lets @semantic-release/git push to the protected main branch.
-          GITHUB_TOKEN: ${{ secrets.RELEASE_GH_TOKEN }}
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
           NPM_CONFIG_PROVENANCE: "true"
