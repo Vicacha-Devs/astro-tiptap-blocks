@@ -71,8 +71,8 @@ importers:
         specifier: 10.6.5
         version: 10.6.5(storybook@10.6.5(@types/react@19.3.0)(react@19.3.1))(vite@8.3.5(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))
       '@stylistic/eslint-plugin':
-        specifier: 6.0.0-beta.4
-        version: 6.0.0-beta.4(eslint@10.14.0(jiti@2.7.0))(oxlint@1.90.0)
+        specifier: 6.0.0-beta.6
+        version: 6.0.0-beta.6(eslint@10.14.0(jiti@2.7.0))(oxlint@1.90.0)
       '@testing-library/dom':
         specifier: 10.4.2
         version: 10.4.2
@@ -1876,8 +1876,8 @@ packages:
       '@types/react-dom':
         optional: true
 
-  '@stylistic/eslint-plugin@6.0.0-beta.4':
-    resolution: {integrity: sha512-W3n6MLvFG06tF7G0w42ae3SO+1IK+luLVoIDGTo/YmF/6K8xTMSIp8jdEGuUKy4/GckhrkUpBW7ENhVCnCHhPg==}
+  '@stylistic/eslint-plugin@6.0.0-beta.6':
+    resolution: {integrity: sha512-DqDQZSrV/0AZ/4qLxaQUtNxafk3qWfeG5xOHx64ELjHWSHt2GtELZR6ClrNVvQwo/d13Atf8Hrh/s/ZnuJk57w==}
     engines: {node: ^20.19.0 || ^22.13.0 || >=24}
     peerDependencies:
       eslint: ^9.0.0 || ^10.0.0
@@ -6771,7 +6771,7 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.3.0
 
-  '@stylistic/eslint-plugin@6.0.0-beta.4(eslint@10.14.0(jiti@2.7.0))(oxlint@1.90.0)':
+  '@stylistic/eslint-plugin@6.0.0-beta.6(eslint@10.14.0(jiti@2.7.0))(oxlint@1.90.0)':
     dependencies:
       '@eslint-community/eslint-utils': 4.10.1(eslint@10.14.0(jiti@2.7.0))
       '@typescript-eslint/types': 8.72.1
