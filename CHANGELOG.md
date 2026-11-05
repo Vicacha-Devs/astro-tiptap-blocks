@@ -1,3 +1,20 @@
+## [1.2.2](https://github.com/Vicacha-Devs/astro-tiptap-blocks/compare/v1.2.1...v1.2.2) (2026-11-05)
+
+### Performance Improvements
+
+* shrink install size (optional shiki peer) + release App token ([#18](https://github.com/Vicacha-Devs/astro-tiptap-blocks/issues/18)) ([2da5694](https://github.com/Vicacha-Devs/astro-tiptap-blocks/commit/2da56945e93a98b610279fbf6f647b5e7e18199d))
+
+### Miscellaneous Chores
+
+* **deps-dev:** bump @stylistic/eslint-plugin ([7d79504](https://github.com/Vicacha-Devs/astro-tiptap-blocks/commit/7d7950468535c5f42b9bf9576bb703e2e8326e54))
+* **deps-dev:** bump eslint from 10.13.0 to 10.14.0 ([0c7cd72](https://github.com/Vicacha-Devs/astro-tiptap-blocks/commit/0c7cd72bd1919602933a91c5245d73f6337a7ed4))
+
+### Continuous Integration
+
+* **release:** authenticate with a GitHub App token and document the release setup ([ad946ba](https://github.com/Vicacha-Devs/astro-tiptap-blocks/commit/ad946baebfb6dc2935de75c5f96b09be77271a61))
+* **release:** keep release notes out of the repo ([35c838e](https://github.com/Vicacha-Devs/astro-tiptap-blocks/commit/35c838e44b7edaddefd72447b5677346ff999620))
+* **release:** read the App id from the org variable RELEASE_APP_ID ([1844d98](https://github.com/Vicacha-Devs/astro-tiptap-blocks/commit/1844d982743b8b5943b96c1853868efa910c0e8f))
+
 ## [1.2.1](https://github.com/Vicacha-Devs/astro-tiptap-blocks/compare/v1.2.0...v1.2.1) (2026-11-02)
 
 ### Bug Fixes
