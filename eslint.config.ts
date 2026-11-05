@@ -49,7 +49,7 @@ export default defineConfig([
       globals: { ...globals.browser, ...globals.node },
       parserOptions: {
         projectService: {
-          allowDefaultProject: ["src/index.d.ts", "src/components/index.d.ts", "scripts/*.mjs"],
+          allowDefaultProject: ["src/index.d.ts", "src/components/index.d.ts"],
         },
       },
     },

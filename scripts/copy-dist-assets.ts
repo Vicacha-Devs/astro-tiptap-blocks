@@ -14,7 +14,7 @@ const DIST_DIR = path.join(ROOT_DIR, "dist");
 
 const EXCLUDED_COMPONENT_DIRS = new Set(["TiptapLibPreview"]);
 
-function copyAstroComponents(srcDir, destDir) {
+function copyAstroComponents(srcDir: string, destDir: string): void {
   for (const entry of readdirSync(srcDir, { withFileTypes: true })) {
     if (entry.isDirectory()) {
       if (EXCLUDED_COMPONENT_DIRS.has(entry.name)) {
@@ -31,7 +31,7 @@ function copyAstroComponents(srcDir, destDir) {
   }
 }
 
-function resolveRelativeJsSpecifier(fromFileDir, specifier) {
+function resolveRelativeJsSpecifier(fromFileDir: string, specifier: string): string {
   if (!specifier.startsWith("./") && !specifier.startsWith("../")) {
     return specifier;
   }
@@ -51,7 +51,7 @@ function resolveRelativeJsSpecifier(fromFileDir, specifier) {
   return specifier;
 }
 
-function rewriteDistModuleSpecifiers(dir) {
+function rewriteDistModuleSpecifiers(dir: string): void {
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
     const fullPath = path.join(dir, entry.name);
     if (entry.isDirectory()) {
@@ -67,7 +67,7 @@ function rewriteDistModuleSpecifiers(dir) {
     const original = readFileSync(fullPath, "utf8");
     const rewritten = original.replace(
       /((?:from|import)\s+["'])(\.\.?\/[^"']+)(["'])/g,
-      (_match, prefix, specifier, suffix) =>
+      (_match: string, prefix: string, specifier: string, suffix: string) =>
         `${prefix}${resolveRelativeJsSpecifier(fileDir, specifier)}${suffix}`
     );
 

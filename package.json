@@ -60,7 +60,7 @@
     "provenance": true
   },
   "scripts": {
-    "build": "rm -rf dist && tsc -p tsconfig.build.json && node scripts/copy-dist-assets.mjs",
+    "build": "rm -rf dist && tsc -p tsconfig.build.json && jiti scripts/copy-dist-assets.ts",
     "build-storybook": "storybook build",
     "build:storybook": "storybook build",
     "check": "tsc --noEmit",
@@ -127,6 +127,7 @@
     "globals": "17.13.0",
     "happy-dom": "21.0.4",
     "husky": "9.1.7",
+    "jiti": "^2.7.0",
     "lint-staged": "17.6.0",
     "oxfmt": "0.75.0",
     "oxlint": "1.90.0",
