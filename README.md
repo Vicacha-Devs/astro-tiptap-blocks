@@ -38,7 +38,7 @@ pnpm add @vicacha-devs/astro-tiptap-blocks
 ```css
 /* src/styles/global.css */
 @import "tailwindcss";
-@source "../../node_modules/@vicacha-devs/astro-tiptap-blocks/dist/**/*.{astro,js}";
+@source "../../node_modules/@vicacha-devs/astro-tiptap-blocks/src/**/*.{astro,ts}";
 ```
 
 ---

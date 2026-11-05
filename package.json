@@ -23,28 +23,37 @@
     "url": "git+https://github.com/Vicacha-Devs/astro-tiptap-blocks.git"
   },
   "files": [
-    "dist"
+    "dist",
+    "src",
+    "!src/**/*.mdx",
+    "!src/**/README.md",
+    "!src/**/*.stories.ts",
+    "!src/**/*.test.ts",
+    "!src/components/blocks/TiptapLibPreview/**",
+    "!src/env.d.ts",
+    "!src/vitest.setup.ts",
+    "!src/utils/**"
   ],
   "type": "module",
-  "main": "./dist/components/TiptapBlocks/TiptapBlocks.astro",
-  "types": "./dist/index.d.ts",
+  "main": "./src/components/TiptapBlocks/TiptapBlocks.astro",
+  "types": "./src/index.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "astro": "./dist/index.js",
-      "default": "./dist/index.js"
+      "types": "./src/index.d.ts",
+      "astro": "./src/index.ts",
+      "default": "./src/index.ts"
     },
     "./astro": {
-      "types": "./dist/index.d.ts",
-      "astro": "./dist/components/TiptapBlocks/TiptapBlocks.astro",
-      "default": "./dist/components/TiptapBlocks/TiptapBlocks.astro"
+      "types": "./src/index.d.ts",
+      "astro": "./src/components/TiptapBlocks/TiptapBlocks.astro",
+      "default": "./src/components/TiptapBlocks/TiptapBlocks.astro"
     },
     "./components": {
-      "types": "./dist/components/index.d.ts",
-      "astro": "./dist/components/index.js",
-      "default": "./dist/components/index.js"
+      "types": "./src/components/index.d.ts",
+      "astro": "./src/components/index.ts",
+      "default": "./src/components/index.ts"
     },
-    "./components/*": "./dist/components/*",
+    "./components/*": "./src/components/*",
     "./lib": {
       "types": "./dist/lib/index.d.ts",
       "default": "./dist/lib/index.js"
@@ -60,7 +69,7 @@
     "provenance": true
   },
   "scripts": {
-    "build": "rm -rf dist && tsc -p tsconfig.build.json && jiti scripts/copy-dist-assets.ts",
+    "build": "rm -rf dist && tsc -p tsconfig.build.json",
     "build-storybook": "storybook build",
     "build:storybook": "storybook build",
     "check": "tsc --noEmit",
@@ -127,7 +136,6 @@
     "globals": "17.13.0",
     "happy-dom": "21.0.4",
     "husky": "9.1.7",
-    "jiti": "^2.7.0",
     "lint-staged": "17.6.0",
     "oxfmt": "0.75.0",
     "oxlint": "1.90.0",
@@ -144,6 +152,7 @@
     "vitest": "5.0.5"
   },
   "peerDependencies": {
+    "astro": "^5.0.0 || ^6.0.0 || ^7.0.0",
     "shiki": "^3.0.0 || ^4.0.0"
   },
   "peerDependenciesMeta": {
