@@ -31,6 +31,8 @@ Render **Tiptap / ProseMirror** rich text content across **JSON**, **HTML**, and
 pnpm add @vicacha-devs/astro-tiptap-blocks
 ```
 
+> **Optional syntax highlighting:** code blocks are highlighted with [Shiki](https://shiki.style), which is an optional peer dependency (it is large). Run `pnpm add shiki` to enable it; without it, code blocks render as plain text.
+
 ### Tailwind CSS v4 (`@tailwindcss/vite`)
 
 ```css

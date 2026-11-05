@@ -1,5 +1,5 @@
 ---
-import { type BundledLanguage, codeToTokens, type ThemedToken } from "shiki";
+import type { BundledLanguage, ThemedToken } from "shiki";
 
 import { sanitizeCssColor } from "../../../lib/sanitize";
 import {
@@ -97,6 +97,11 @@ const buildShikiTokenStyle = (token: ThemedToken): string | undefined => {
 let shikiLines: ThemedToken[][] | null = null;
 if (rawCode && language && language !== "plaintext" && language !== "text") {
   try {
+    // Shiki is an optional peer dependency: without it the block renders as plain text.
+    const shikiModuleName = "shiki";
+    const { codeToTokens } = (await import(
+      /* @vite-ignore */ shikiModuleName
+    )) as typeof import("shiki");
     const tokenized = await codeToTokens(rawCode, {
       lang: language as BundledLanguage,
       themes: { dark: "github-dark", light: "github-light" },

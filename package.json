@@ -92,9 +92,6 @@
     "test:watch": "vitest",
     "verify": "pnpm format:check && pnpm lint && pnpm check && pnpm test:coverage && pnpm build && pnpm publint"
   },
-  "dependencies": {
-    "shiki": "^4.5.0"
-  },
   "devDependencies": {
     "@astrojs/compiler-rs": "0.5.2",
     "@commitlint/cli": "21.2.4",
@@ -146,6 +143,7 @@
     "publint": "0.3.25",
     "remark-gfm": "^4.0.1",
     "semantic-release": "25.0.9",
+    "shiki": "^4.5.0",
     "storybook": "10.6.5",
     "storybook-addon-rtl": "3.0.2",
     "storybook-addon-tag-badges": "3.1.0",
@@ -154,7 +152,13 @@
     "vitest": "5.0.5"
   },
   "peerDependencies": {
-    "astro": "^5.0.0 || ^6.0.0 || ^7.0.0"
+    "astro": "^5.0.0 || ^6.0.0 || ^7.0.0",
+    "shiki": "^3.0.0 || ^4.0.0"
+  },
+  "peerDependenciesMeta": {
+    "shiki": {
+      "optional": true
+    }
   },
   "engines": {
     "node": ">=20.16.0",
