@@ -23,37 +23,28 @@
     "url": "git+https://github.com/Vicacha-Devs/astro-tiptap-blocks.git"
   },
   "files": [
-    "dist",
-    "src",
-    "!src/**/*.mdx",
-    "!src/**/README.md",
-    "!src/**/*.stories.ts",
-    "!src/**/*.test.ts",
-    "!src/components/blocks/TiptapLibPreview/**",
-    "!src/env.d.ts",
-    "!src/vitest.setup.ts",
-    "!src/utils/**"
+    "dist"
   ],
   "type": "module",
-  "main": "./src/components/TiptapBlocks/TiptapBlocks.astro",
-  "types": "./src/index.d.ts",
+  "main": "./dist/components/TiptapBlocks/TiptapBlocks.astro",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "types": "./src/index.d.ts",
-      "astro": "./src/index.ts",
-      "default": "./src/index.ts"
+      "types": "./dist/index.d.ts",
+      "astro": "./dist/index.js",
+      "default": "./dist/index.js"
     },
     "./astro": {
-      "types": "./src/index.d.ts",
-      "astro": "./src/components/TiptapBlocks/TiptapBlocks.astro",
-      "default": "./src/components/TiptapBlocks/TiptapBlocks.astro"
+      "types": "./dist/index.d.ts",
+      "astro": "./dist/components/TiptapBlocks/TiptapBlocks.astro",
+      "default": "./dist/components/TiptapBlocks/TiptapBlocks.astro"
     },
     "./components": {
-      "types": "./src/components/index.d.ts",
-      "astro": "./src/components/index.ts",
-      "default": "./src/components/index.ts"
+      "types": "./dist/components/index.d.ts",
+      "astro": "./dist/components/index.js",
+      "default": "./dist/components/index.js"
     },
-    "./components/*": "./src/components/*",
+    "./components/*": "./dist/components/*",
     "./lib": {
       "types": "./dist/lib/index.d.ts",
       "default": "./dist/lib/index.js"
@@ -69,7 +60,7 @@
     "provenance": true
   },
   "scripts": {
-    "build": "rm -rf dist && tsc -p tsconfig.build.json",
+    "build": "rm -rf dist && tsc -p tsconfig.build.json && node scripts/copy-dist-assets.mjs",
     "build-storybook": "storybook build",
     "build:storybook": "storybook build",
     "check": "tsc --noEmit",
@@ -92,9 +83,6 @@
     "test:watch": "vitest",
     "verify": "pnpm format:check && pnpm lint && pnpm check && pnpm test:coverage && pnpm build && pnpm publint"
   },
-  "dependencies": {
-    "shiki": "^4.5.0"
-  },
   "devDependencies": {
     "@astrojs/compiler-rs": "0.5.2",
     "@commitlint/cli": "21.2.4",
@@ -114,7 +102,7 @@
     "@storybook/addon-themes": "10.6.5",
     "@storybook/addon-vitest": "10.6.5",
     "@storybook/builder-vite": "10.6.5",
-    "@stylistic/eslint-plugin": "6.0.0-beta.4",
+    "@stylistic/eslint-plugin": "6.0.0-beta.6",
     "@testing-library/dom": "10.4.2",
     "@testing-library/jest-dom": "7.0.1",
     "@types/node": "^26.6.6",
@@ -127,7 +115,7 @@
     "astro": "^7.4.4",
     "astro-eslint-parser": "3.2.0",
     "conventional-changelog-conventionalcommits": "10.4.1",
-    "eslint": "10.13.0",
+    "eslint": "10.14.0",
     "eslint-import-resolver-typescript": "4.4.5",
     "eslint-plugin-astro": "3.2.1",
     "eslint-plugin-import-x": "4.17.1",
@@ -146,6 +134,7 @@
     "publint": "0.3.25",
     "remark-gfm": "^4.0.1",
     "semantic-release": "25.0.9",
+    "shiki": "^4.5.0",
     "storybook": "10.6.5",
     "storybook-addon-rtl": "3.0.2",
     "storybook-addon-tag-badges": "3.1.0",
@@ -154,7 +143,12 @@
     "vitest": "5.0.5"
   },
   "peerDependencies": {
-    "astro": "^5.0.0 || ^6.0.0 || ^7.0.0"
+    "shiki": "^3.0.0 || ^4.0.0"
+  },
+  "peerDependenciesMeta": {
+    "shiki": {
+      "optional": true
+    }
   },
   "engines": {
     "node": ">=20.16.0",
