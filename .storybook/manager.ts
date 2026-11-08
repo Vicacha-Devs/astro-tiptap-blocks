@@ -12,7 +12,7 @@ import { create } from "storybook/theming";
 const REGISTER_THEMES_EVENT = "storybook/themes/REGISTER_THEMES";
 
 const brand = {
-  brandTitle: "astro-tiptap-blocks",
+  brandTitle: "Astro Tiptap Blocks",
   brandUrl: "https://github.com/Vicacha-Devs/astro-tiptap-blocks",
   brandTarget: "_blank",
   fontBase: 'ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif',

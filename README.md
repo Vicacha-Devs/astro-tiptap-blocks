@@ -1,4 +1,10 @@
-# `@vicacha-devs/astro-tiptap-blocks`
+# Astro Tiptap Blocks
+
+[![npm](https://img.shields.io/npm/v/@vicacha-devs/astro-tiptap-blocks)](https://www.npmjs.com/package/@vicacha-devs/astro-tiptap-blocks)
+[![CI](https://github.com/Vicacha-Devs/astro-tiptap-blocks/actions/workflows/ci.yml/badge.svg)](https://github.com/Vicacha-Devs/astro-tiptap-blocks/actions/workflows/ci.yml)
+[![Storybook](https://img.shields.io/badge/docs-Storybook-ff4785)](https://vicacha-devs.github.io/astro-tiptap-blocks/)
+
+**Package:** `@vicacha-devs/astro-tiptap-blocks` · **Docs & live examples:** <https://vicacha-devs.github.io/astro-tiptap-blocks/>
 
 Render **Tiptap / ProseMirror** rich text content across **JSON**, **HTML**, and **Markdown** output modes using native, themeable **Astro** block components with zero `set:html` injection.
 
@@ -146,6 +152,8 @@ import CustomHeading from "./CustomHeading.astro";
 ---
 
 ## Interactive Documentation & Testing
+
+The published Storybook is the canonical documentation, with live examples, props tables, theme customization guides and type references: **<https://vicacha-devs.github.io/astro-tiptap-blocks/>**. It is rebuilt and deployed to GitHub Pages on every push to `main`.
 
 This repository includes a full TypeScript **Storybook for Astro** (`@storybook-astro/framework` + `@storybook/addon-docs` + `@storybook/addon-a11y` + themes, designs, RTL and tag badges) suite and **Vitest** unit/component tests for every `.astro` component and `src/lib/` module.
 
