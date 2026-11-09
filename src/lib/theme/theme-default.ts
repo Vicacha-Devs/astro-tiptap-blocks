@@ -74,7 +74,7 @@ export const TiptapBlockThemeDefault: TiptapBlockTheme = {
   code: {
     default:
       "font-mono text-sm p-4 my-6 rounded-lg overflow-x-auto bg-neutral-900 text-neutral-100",
-    line: "block",
+    line: "",
   },
   image: {
     default: "my-6",
