@@ -388,9 +388,24 @@ pre code [data-line-number]::before {
   user-select: none;
 }
 
-/* Wide docs tables scroll horizontally instead of overflowing the page */
+/* Wide docs tables scroll horizontally instead of overflowing the page.
+   Scroll shadows hint at hidden content when the OS uses overlay (invisible) scrollbars. */
 .sbdocs table {
   display: block;
   max-width: 100%;
   overflow-x: auto;
+  background:
+    linear-gradient(to right, var(--sb-table-bg, #fff) 30%, transparent) left center / 2rem 100%
+      no-repeat local,
+    linear-gradient(to left, var(--sb-table-bg, #fff) 30%, transparent) right center / 2rem 100%
+      no-repeat local,
+    linear-gradient(to right, rgba(0, 0, 0, 0.18), transparent) left center / 0.75rem 100% no-repeat
+      scroll,
+    linear-gradient(to left, rgba(0, 0, 0, 0.18), transparent) right center / 0.75rem 100% no-repeat
+      scroll;
+  scrollbar-width: thin;
+}
+
+[data-theme="dark"] .sbdocs table {
+  --sb-table-bg: #0f172a;
 }
