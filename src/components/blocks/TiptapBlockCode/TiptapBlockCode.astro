@@ -129,32 +129,10 @@ const NEWLINE = "\n";
       Copy
     </button>
   </div>}
+  <!-- Whitespace inside <pre> is significant: keep every tag glued together, no indentation/newlines between them. -->
   <pre
     class:list={[preClassName || undefined, isCopyable ? "!my-0 !rounded-t-none" : undefined]}
     data-language={language}
     data-shiki={shikiLines ? "true" : undefined}
-  >
-    <code class:list={[language ? `language-${language}` : undefined]}>
-      {shikiLines && shikiLines.map((tokens, idx) => (
-        <span
-          data-line-number={withLineNumbers ? idx + 1 : undefined}
-          class:list={[lineClassName || undefined]}
-        >
-          {tokens.map((token) => (
-            <span class="shiki-token" style={buildShikiTokenStyle(token)}>{token.content}</span>
-          ))}
-          {NEWLINE}
-        </span>
-      ))}
-      {!shikiLines && plainLines.map((line, idx) => (
-        <span
-          data-line-number={withLineNumbers ? idx + 1 : undefined}
-          class:list={[lineClassName || undefined]}
-        >
-          {line}
-          {NEWLINE}
-        </span>
-      ))}
-    </code>
-  </pre>
+  ><code class:list={[language ? `language-${language}` : undefined]}>{shikiLines && shikiLines.map((tokens, idx) => (<span data-line-number={withLineNumbers ? idx + 1 : undefined} class:list={[lineClassName || undefined]}>{tokens.map((token) => (<span class="shiki-token" style={buildShikiTokenStyle(token)}>{token.content}</span>))}{idx < shikiLines.length - 1 ? NEWLINE : ""}</span>))}{!shikiLines && plainLines.map((line, idx) => (<span data-line-number={withLineNumbers ? idx + 1 : undefined} class:list={[lineClassName || undefined]}>{line}{idx < plainLines.length - 1 ? NEWLINE : ""}</span>))}</code></pre>
 </div>

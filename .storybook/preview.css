@@ -387,3 +387,10 @@ pre code [data-line-number]::before {
   color: #6e7681;
   user-select: none;
 }
+
+/* Wide docs tables scroll horizontally instead of overflowing the page */
+.sbdocs table {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+}
