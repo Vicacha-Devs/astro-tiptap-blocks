@@ -27,7 +27,7 @@ Render **Tiptap / ProseMirror** rich text content across **JSON**, **HTML**, and
   - **Advanced Tables**: `table`, `tableRow`, `tableHeader`, and `tableCell` supporting `colspan`, `rowspan`, `colwidth`, and sanitized `backgroundColor`.
 - **3-Format Input Normalization** — Seamlessly accepts ProseMirror JSON (`TiptapDocNode` or JSON string), Tiptap HTML strings, Tiptap Markdown strings (including lossless `<!-- tiptap-node:{...} -->` metadata comments), or `string[]` fallback arrays.
 - **Built-in SEO Metadata, Reading Time & Document Relation Extraction** — Includes `extractDocumentMetadata()`, `extractPlainTextFromTiptap()`, `calculateReadingTime()`, `extractHeadingsFromTiptap()`, and `extractRelationsFromTiptap()`.
-- **Granular Subpath Exports** — Import the Astro component from `@vicacha-devs/astro-tiptap-blocks`, built-in block components from `@vicacha-devs/astro-tiptap-blocks/components`, pure TypeScript utilities from `@vicacha-devs/astro-tiptap-blocks/lib`, or types from `@vicacha-devs/astro-tiptap-blocks/types`.
+- **Granular Subpath Exports** — Import the Astro component from `@vicacha-devs/astro-tiptap-blocks` or `@vicacha-devs/astro-tiptap-blocks/astro`, built-in block components from `@vicacha-devs/astro-tiptap-blocks/components`, pure TypeScript utilities from `@vicacha-devs/astro-tiptap-blocks/lib`, or types from `@vicacha-devs/astro-tiptap-blocks/types`.
 
 ---
 

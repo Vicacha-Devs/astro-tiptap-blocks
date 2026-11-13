@@ -13,7 +13,12 @@ import type {
   TiptapTableRowNode,
 } from "../../../types";
 import TiptapInlineNodes from "../items/TiptapInlineNodes/TiptapInlineNodes.astro";
+import TiptapBlockCode from "../TiptapBlockCode/TiptapBlockCode.astro";
+import TiptapBlockHeading from "../TiptapBlockHeading/TiptapBlockHeading.astro";
+import TiptapBlockHr from "../TiptapBlockHr/TiptapBlockHr.astro";
+import TiptapBlockImage from "../TiptapBlockImage/TiptapBlockImage.astro";
 import TiptapBlockList from "../TiptapBlockList/TiptapBlockList.astro";
+import TiptapBlockMath from "../TiptapBlockMath/TiptapBlockMath.astro";
 
 /**
  * @component TiptapBlockTable
@@ -81,8 +86,11 @@ const cellClass = getPropertyClass(theme.table.cell);
 
 const hasHeaderRow =
   content.length > 0 && (content[0].content || []).every((cell) => cell.type === "tableHeader");
-const headerRows = hasHeaderRow ? [content[0]] : [];
-const bodyRows = hasHeaderRow ? content.slice(1) : content;
+const sections = [
+  { Tag: "thead", cls: headClass, rows: hasHeaderRow ? [content[0]] : [] },
+  { Tag: "tbody", cls: bodyClass, rows: hasHeaderRow ? content.slice(1) : content },
+].filter((section) => section.rows.length > 0);
+const quoteClass = renderPropertyClasses(theme.quote);
 
 const buildCellStyle = (cell: TiptapTableCellNode): string | undefined => {
   const parts: string[] = [];
@@ -100,60 +108,28 @@ const buildCellStyle = (cell: TiptapTableCellNode): string | undefined => {
 ---
 
 <table class:list={[tableClass || undefined]}>
-  {headerRows.length > 0 && <thead class:list={[headClass || undefined]}>
-    {headerRows.map((row) => <tr class:list={[rowClass || undefined]}>
-      {(row.content || []).map((cell) => {
-        const cellStyle = buildCellStyle(cell);
-        return <th
-          colspan={cell.attrs?.colspan && cell.attrs.colspan > 1 ? cell.attrs.colspan : undefined}
-          rowspan={cell.attrs?.rowspan && cell.attrs.rowspan > 1 ? cell.attrs.rowspan : undefined}
-          style={cellStyle}
-          class:list={[headerCellClass || undefined]}
-        >
-          {(cell.content || []).map((child) => {
-            if (child.type === "paragraph" || child.type === "leadParagraph") {
-              return (
-                <TiptapInlineNodes
-                  nodes={child.content}
-                  theme={theme.paragraph}
-                  {resolveInternalLink}
-                />
-              );
-            }
-            if (
-              child.type === "bulletList" ||
-              child.type === "orderedList" ||
-              child.type === "taskList"
-            ) {
-              return <TiptapBlockList {...child} {theme} {resolveInternalLink} />;
-            }
-            return null;
-          })}
-        </th>;
-      })}
-    </tr>)}
-  </thead>}
-  {bodyRows.length > 0 && <tbody class:list={[bodyClass || undefined]}>
-    {bodyRows.map((row) => <tr class:list={[rowClass || undefined]}>
+  {sections.map(({ Tag, cls, rows }) => <Tag class:list={[cls || undefined]}>
+    {rows.map((row) => <tr class:list={[rowClass || undefined]}>
       {(row.content || []).map((cell) => {
         const isHeader = cell.type === "tableHeader";
         const CellTag = isHeader ? "th" : "td";
-        const cellStyle = buildCellStyle(cell);
+        const siblings = cell.content || [];
         return <CellTag
           colspan={cell.attrs?.colspan && cell.attrs.colspan > 1 ? cell.attrs.colspan : undefined}
           rowspan={cell.attrs?.rowspan && cell.attrs.rowspan > 1 ? cell.attrs.rowspan : undefined}
-          style={cellStyle}
+          style={buildCellStyle(cell)}
           class:list={[(isHeader ? headerCellClass : cellClass) || undefined]}
         >
-          {(cell.content || []).map((child) => {
+          {siblings.map((child) => {
             if (child.type === "paragraph" || child.type === "leadParagraph") {
-              return (
+              const inline = (
                 <TiptapInlineNodes
                   nodes={child.content}
                   theme={theme.paragraph}
                   {resolveInternalLink}
                 />
               );
+              return siblings.length > 1 ? <p>{inline}</p> : inline;
             }
             if (
               child.type === "bulletList" ||
@@ -161,11 +137,41 @@ const buildCellStyle = (cell: TiptapTableCellNode): string | undefined => {
               child.type === "taskList"
             ) {
               return <TiptapBlockList {...child} {theme} {resolveInternalLink} />;
+            }
+            if (child.type === "codeBlock") {
+              return <TiptapBlockCode {...child} {theme} />;
+            }
+            if (child.type === "heading") {
+              return <TiptapBlockHeading {...child} {theme} {resolveInternalLink} />;
+            }
+            if (child.type === "image") {
+              return <TiptapBlockImage {...child} {theme} />;
+            }
+            if (child.type === "horizontalRule" || child.type === "pageBreak") {
+              return <TiptapBlockHr {...child} {theme} />;
+            }
+            if (child.type === "mathematics") {
+              return <TiptapBlockMath {...child} {theme} />;
+            }
+            if (child.type === "blockquote") {
+              return <blockquote class:list={[quoteClass || undefined]}>
+                {(child.content || []).map((qChild) =>
+                  qChild.type === "paragraph" || qChild.type === "leadParagraph" ? (
+                    <p>
+                      <TiptapInlineNodes
+                        nodes={qChild.content}
+                        theme={theme.paragraph}
+                        {resolveInternalLink}
+                      />
+                    </p>
+                  ) : null
+                )}
+              </blockquote>;
             }
             return null;
           })}
         </CellTag>;
       })}
     </tr>)}
-  </tbody>}
+  </Tag>)}
 </table>

@@ -77,7 +77,7 @@ export const collectInlineNodes = (
 
     const nextMarks = [...activeMarks];
     const styles = parseInlineStyleProps(node.attrs.style);
-    const simpleMarkType = TAG_TO_MARK[node.tag];
+    const simpleMarkType = Object.hasOwn(TAG_TO_MARK, node.tag) ? TAG_TO_MARK[node.tag] : undefined;
     if (simpleMarkType) nextMarks.push({ type: simpleMarkType } as TiptapMark);
     else if (node.tag === "abbr")
       nextMarks.push({ type: "abbr", attrs: { title: node.attrs.title || null } });

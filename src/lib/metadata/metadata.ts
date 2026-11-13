@@ -113,8 +113,9 @@ export const extractDocumentMetadata = (
   options?: { excerptLength?: number; wordsPerMinute?: number }
 ): TiptapDocumentMetadata => {
   const doc = parseTiptapContent(input);
+  const plainText = blockNodesToText(doc.content);
   return {
-    plainText: extractPlainTextFromTiptap(doc),
+    plainText,
     excerpt: extractPlainTextFromTiptap(doc, { maxLength: options?.excerptLength ?? 160 }),
     readingTime: calculateReadingTime(doc, options?.wordsPerMinute ?? 200),
     headings: extractHeadingsFromTiptap(doc),

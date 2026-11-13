@@ -81,10 +81,20 @@ const safeHref = resolveInternalLinkHref(
 );
 const target = linkMark.attrs?.target || undefined;
 const title = linkMark.attrs?.title || undefined;
+const relTokens = (linkMark.attrs?.rel || "")
+  .split(/\s+/)
+  .map((token) => token.trim())
+  .filter(Boolean);
 const rel =
   target === "_blank"
-    ? linkMark.attrs?.rel || "noopener noreferrer"
-    : linkMark.attrs?.rel || undefined;
+    ? Array.from(
+        new Set([
+          ...relTokens.filter((token) => token.toLowerCase() !== "opener"),
+          "noopener",
+          "noreferrer",
+        ])
+      ).join(" ")
+    : relTokens.join(" ") || undefined;
 const nonLinkMarks = marks.filter((m) => m.type !== "link");
 const linkClass = [getPropertyClass(theme.link), linkMark.attrs?.class || ""]
   .filter(Boolean)

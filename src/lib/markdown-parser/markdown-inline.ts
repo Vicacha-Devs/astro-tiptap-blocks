@@ -1,6 +1,6 @@
 import type { TiptapBlockNode, TiptapInformationPaneVariant, TiptapInlineNode } from "../../types";
 import { parseTiptapHtml } from "../html-parser";
-import { sanitizeTiptapIframeUrl, sanitizeTiptapUrl } from "../sanitize";
+import { isTrustedMediaEmbedUrl, sanitizeTiptapIframeUrl, sanitizeTiptapUrl } from "../sanitize";
 
 export const parseMarkdownInline = (text: string): TiptapInlineNode[] => {
   if (!text) return [];
@@ -70,7 +70,7 @@ export const parseMarkdownInline = (text: string): TiptapInlineNode[] => {
 export const parseMediaBlock = (kind: string, label: string, rawUrl: string): TiptapBlockNode[] => {
   if (kind === "video") {
     const src = sanitizeTiptapUrl(rawUrl);
-    const isEmbed = /youtube\.com|youtu\.be|vimeo\.com/i.test(src);
+    const isEmbed = isTrustedMediaEmbedUrl(src);
     return src === "#"
       ? []
       : [

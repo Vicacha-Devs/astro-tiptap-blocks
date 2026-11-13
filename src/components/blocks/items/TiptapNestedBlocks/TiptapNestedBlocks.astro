@@ -78,14 +78,23 @@ const ctx = {
 
 {blocks.map((block) => {
   const themeKey = mapNodeTypeToThemeKey(block.type) as keyof TiptapBlockThemeCustomComponents;
-  const customComponent = customBlocks[themeKey] ?? customBlocks[block.type];
+  const customComponent =
+    (Object.hasOwn(customBlocks, themeKey) ? customBlocks[themeKey] : undefined) ??
+    (Object.hasOwn(customBlocks, block.type) ? customBlocks[block.type] : undefined);
   if (customComponent) {
     return <TiptapBlockCustom component={customComponent} {...block} {theme} />;
   }
   const typedBlock = block as TiptapBlockNode;
   switch (typedBlock.type) {
     case "heading":
-      return <TiptapBlockHeading {...typedBlock} {theme} anchorLink={headingAnchors} />;
+      return (
+        <TiptapBlockHeading
+          {...typedBlock}
+          {theme}
+          anchorLink={headingAnchors}
+          {resolveInternalLink}
+        />
+      );
     case "paragraph":
     case "leadParagraph":
       return <TiptapBlockParagraph {...typedBlock} {theme} {resolveInternalLink} />;
@@ -177,9 +186,20 @@ const ctx = {
         </div>
       </details>;
     }
-    case "layoutContainer":
+    case "layoutContainer": {
+      const columnsRatio = typedBlock.attrs?.columns || "1:1";
+      const ratioParts = columnsRatio
+        .split(":")
+        .map((part) => Number(part.trim()))
+        .filter((n) => !Number.isNaN(n) && n > 0);
+      const gridTemplateStyle =
+        ratioParts.length > 1
+          ? `grid-template-columns: ${ratioParts.map((n) => `minmax(0, ${n}fr)`).join(" ")}`
+          : undefined;
       return <div
         data-type="layout-container"
+        data-columns={columnsRatio}
+        style={gridTemplateStyle}
         class:list={[renderPropertyClasses(theme.columns) || undefined]}
       >
         {(typedBlock.content || []).map((col) => <div
@@ -189,6 +209,7 @@ const ctx = {
           <Astro.self blocks={col.content} {...ctx} />
         </div>)}
       </div>;
+    }
     default:
       return null;
   }

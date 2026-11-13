@@ -1,5 +1,3 @@
-import type { AstroComponentFactory } from "astro/runtime/server/index.js";
-
 import type {
   TiptapBlockUserComponents,
   TiptapBlockUserTheme,
@@ -26,5 +24,6 @@ export interface TiptapBlocksProps {
   copyableCodeBlocks?: boolean;
 }
 
-export declare const TiptapBlocks: AstroComponentFactory;
-export default TiptapBlocks;
+import { TiptapBlocks as TiptapBlocksComponent } from "./components/index.d.ts";
+
+export default TiptapBlocksComponent;

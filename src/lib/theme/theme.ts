@@ -19,7 +19,7 @@ const NODE_TYPE_TO_THEME_KEY: Record<string, string> = {
 };
 
 export const mapNodeTypeToThemeKey = (nodeType: string): string =>
-  NODE_TYPE_TO_THEME_KEY[nodeType] ?? nodeType;
+  Object.hasOwn(NODE_TYPE_TO_THEME_KEY, nodeType) ? NODE_TYPE_TO_THEME_KEY[nodeType] : nodeType;
 
 export const getPropertyClass = (value: TiptapBlockThemePropertyValue): string => {
   if (!value) return "";

@@ -155,8 +155,33 @@ const parseMarkdownChunk = (rawChunk: string): TiptapBlockNode[] => {
   return [{ type: "paragraph", content: parseMarkdownInline(chunk) }];
 };
 
+/**
+ * Splits Markdown into blank-line-separated chunks without breaking fenced code blocks.
+ */
+const splitMarkdownChunks = (markdown: string): string[] => {
+  const trimmed = markdown.trim();
+  if (!trimmed) return [];
+  const chunks: string[] = [];
+  let current: string[] = [];
+  let inFence = false;
+
+  for (const line of trimmed.split("\n")) {
+    if (line.trimStart().startsWith("```")) inFence = !inFence;
+    if (!inFence && line.trim() === "") {
+      if (current.length > 0) {
+        chunks.push(current.join("\n"));
+        current = [];
+      }
+      continue;
+    }
+    current.push(line);
+  }
+  if (current.length > 0) chunks.push(current.join("\n"));
+  return chunks;
+};
+
 export const parseTiptapMarkdown = (markdown: string): TiptapDocNode => {
-  const chunks = markdown.trim().split(/\n{2,}(?!(?:[^`]*```[^`]*```)*[^`]*```)/);
+  const chunks = splitMarkdownChunks(markdown);
   const content: TiptapBlockNode[] = [];
   for (const chunk of chunks) content.push(...parseMarkdownChunk(chunk));
   return { type: "doc", content };

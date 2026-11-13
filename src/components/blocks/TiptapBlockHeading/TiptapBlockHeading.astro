@@ -7,6 +7,7 @@ import type {
   TiptapHeadingNode,
   TiptapHeadingTag,
   TiptapInlineNode,
+  TiptapInternalLinkResolver,
 } from "../../../types";
 import TiptapInlineNodes from "../items/TiptapInlineNodes/TiptapInlineNodes.astro";
 
@@ -69,6 +70,10 @@ export interface Props {
    * @default false
    */
   anchorLink?: boolean;
+  /**
+   * Custom resolver for `tiptap://` or `internal://` links inside the heading.
+   */
+  resolveInternalLink?: TiptapInternalLinkResolver;
 }
 
 const {
@@ -77,6 +82,7 @@ const {
   content = [],
   theme = TiptapBlockThemeDefault,
   anchorLink = false,
+  resolveInternalLink,
 } = Astro.props;
 const level: TiptapHeadingLevel =
   attrs?.level && attrs.level >= 1 && attrs.level <= 6 ? attrs.level : 2;
@@ -107,7 +113,7 @@ const dirAttr = attrs?.dir || undefined;
   style={textAlignStyle}
   class:list={[className || undefined]}
 >
-  <TiptapInlineNodes nodes={content} theme={theme.paragraph} />
+  <TiptapInlineNodes nodes={content} theme={theme.paragraph} {resolveInternalLink} />
   {showAnchor && headingId && <a
     href={`#${headingId}`}
     aria-label={`Permalink to ${rawText || headingId}`}

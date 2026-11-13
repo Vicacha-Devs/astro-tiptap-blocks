@@ -140,7 +140,10 @@ export const extractRelationsFromTiptap = (
   const internalLinks = Array.from(internalLinksMap.values());
   const linksByCollection: Record<string, Array<{ documentId: string }>> = {};
   for (const link of internalLinks) {
-    (linksByCollection[link.collectionName] ??= []).push({ documentId: link.documentId });
+    if (!Object.hasOwn(linksByCollection, link.collectionName)) {
+      linksByCollection[link.collectionName] = [];
+    }
+    linksByCollection[link.collectionName].push({ documentId: link.documentId });
   }
 
   return {

@@ -53,9 +53,40 @@ const convertElementToBlocks = (el: SimpleElement): TiptapBlockNode[] => {
   }
   if (el.tag === "p") {
     const imgChild = findChildByTag(el, "img");
-    if (imgChild && el.children.length === 1) return convertElementToBlocks(imgChild);
     const isLead =
       el.attrs["data-lead"] === "true" || (el.attrs.class || "").includes("tiptap-lead");
+    const buildParagraph = (children: typeof el.children): TiptapBlockNode[] => {
+      const inlineContent = collectInlineNodes(children);
+      if (inlineContent.length === 0) return [];
+      const hasOnlyWhitespace = inlineContent.every(
+        (n) => n.type === "text" && (!n.text || n.text.trim() === "")
+      );
+      if (hasOnlyWhitespace) return [];
+      return [
+        {
+          type: isLead ? "leadParagraph" : "paragraph",
+          attrs: extractBaseBlockAttrs(el),
+          content: inlineContent,
+        },
+      ];
+    };
+
+    if (imgChild) {
+      const blocks: TiptapBlockNode[] = [];
+      let pendingInline: typeof el.children = [];
+      for (const child of el.children) {
+        if (typeof child !== "string" && child.tag === "img") {
+          blocks.push(...buildParagraph(pendingInline));
+          pendingInline = [];
+          blocks.push(...convertElementToBlocks(child));
+        } else {
+          pendingInline.push(child);
+        }
+      }
+      blocks.push(...buildParagraph(pendingInline));
+      return blocks;
+    }
+
     return [
       {
         type: isLead ? "leadParagraph" : "paragraph",

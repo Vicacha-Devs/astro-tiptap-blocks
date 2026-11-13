@@ -44,7 +44,7 @@
       "default": "./src/index.ts"
     },
     "./astro": {
-      "types": "./src/index.d.ts",
+      "types": "./src/astro.d.ts",
       "astro": "./src/components/TiptapBlocks/TiptapBlocks.astro",
       "default": "./src/components/TiptapBlocks/TiptapBlocks.astro"
     },

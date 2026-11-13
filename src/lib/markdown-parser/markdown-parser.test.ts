@@ -88,4 +88,26 @@ describe("parseTiptapMarkdown block variants", () => {
     expect(first("text\n<!-- tiptap-node:{bad} -->").type).toBe("paragraph");
     expect(first("<p>raw html</p>").type).toBe("paragraph");
   });
+
+  it("keeps fenced code blocks with inline backticks and blank lines intact without backtracking", () => {
+    const md = "Intro with `inline`\n\n```ts\nconst a = `x`;\n\nconst b = 2;\n```";
+    const doc = parseTiptapMarkdown(md);
+    expect(doc.content).toHaveLength(2);
+    expect(doc.content[1]?.type).toBe("codeBlock");
+
+    const manyBlankLines = `${"paragraph\n\n".repeat(1500)}end`;
+    const start = performance.now();
+    const parsed = parseTiptapMarkdown(manyBlankLines);
+    expect(performance.now() - start).toBeLessThan(200);
+    expect(parsed.content).toHaveLength(1501);
+  });
+
+  it("only classifies actual YouTube/Vimeo hosts as video embeds", () => {
+    const fileVid = first("[Video: Demo](https://cdn.example.com/youtube.com-demo.mp4)") as {
+      type: string;
+      attrs: { embedType: string };
+    };
+    expect(fileVid.type).toBe("video");
+    expect(fileVid.attrs.embedType).toBe("file");
+  });
 });

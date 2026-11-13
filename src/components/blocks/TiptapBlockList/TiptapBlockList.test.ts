@@ -58,4 +58,31 @@ describe("TiptapBlockList", () => {
       await close();
     }
   });
+
+  it("applies dir and textAlign on list element and wraps multi-paragraph items", async () => {
+    const { root, close } = await renderAstroComponentToDom(TiptapBlockList, {
+      props: {
+        type: "bulletList",
+        attrs: { dir: "rtl", textAlign: "right" },
+        content: [
+          {
+            type: "listItem",
+            content: [
+              { type: "paragraph", content: [{ type: "text", text: "First para" }] },
+              { type: "paragraph", content: [{ type: "text", text: "Second para" }] },
+            ],
+          },
+        ],
+      },
+    });
+
+    try {
+      const ul = root.querySelector("ul");
+      expect(ul?.getAttribute("dir")).toBe("rtl");
+      expect(ul?.getAttribute("style")).toContain("text-align: right");
+      expect(root.querySelectorAll("li p")).toHaveLength(2);
+    } finally {
+      await close();
+    }
+  });
 });
