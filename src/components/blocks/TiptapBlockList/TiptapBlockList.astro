@@ -13,6 +13,10 @@ import type {
 } from "../../../types";
 import TiptapInlineNodes from "../items/TiptapInlineNodes/TiptapInlineNodes.astro";
 import TiptapBlockCode from "../TiptapBlockCode/TiptapBlockCode.astro";
+import TiptapBlockHeading from "../TiptapBlockHeading/TiptapBlockHeading.astro";
+import TiptapBlockHr from "../TiptapBlockHr/TiptapBlockHr.astro";
+import TiptapBlockImage from "../TiptapBlockImage/TiptapBlockImage.astro";
+import TiptapBlockMath from "../TiptapBlockMath/TiptapBlockMath.astro";
 
 /**
  * @component TiptapBlockList
@@ -106,10 +110,17 @@ const startAttr =
   isOrdered && attrs && "start" in attrs && attrs.start && attrs.start > 1
     ? attrs.start
     : undefined;
+const textAlignStyle =
+  attrs?.textAlign && ["left", "center", "right", "justify"].includes(attrs.textAlign)
+    ? `text-align: ${attrs.textAlign}`
+    : undefined;
+const dirAttr = attrs?.dir || undefined;
 ---
 
 <ListTag
   start={startAttr}
+  dir={dirAttr}
+  style={textAlignStyle}
   data-type={isTask ? "taskList" : undefined}
   class:list={[listClass || undefined]}
 >
@@ -138,13 +149,14 @@ const startAttr =
       >
         {children.map((child) => {
           if (child.type === "paragraph" || child.type === "leadParagraph") {
-            return (
+            const inline = (
               <TiptapInlineNodes
                 nodes={child.content}
                 theme={theme.paragraph}
                 {resolveInternalLink}
               />
             );
+            return children.length > 1 ? <p>{inline}</p> : inline;
           }
           if (
             child.type === "bulletList" ||
@@ -170,6 +182,33 @@ const startAttr =
                 copyable={copyableCodeBlocks}
               />
             );
+          }
+          if (child.type === "heading") {
+            return <TiptapBlockHeading {...child} {theme} {resolveInternalLink} />;
+          }
+          if (child.type === "image") {
+            return <TiptapBlockImage {...child} {theme} />;
+          }
+          if (child.type === "horizontalRule" || child.type === "pageBreak") {
+            return <TiptapBlockHr {...child} {theme} />;
+          }
+          if (child.type === "mathematics") {
+            return <TiptapBlockMath {...child} {theme} />;
+          }
+          if (child.type === "blockquote") {
+            return <blockquote class:list={[renderPropertyClasses(theme.quote) || undefined]}>
+              {(child.content || []).map((qChild) =>
+                qChild.type === "paragraph" || qChild.type === "leadParagraph" ? (
+                  <p>
+                    <TiptapInlineNodes
+                      nodes={qChild.content}
+                      theme={theme.paragraph}
+                      {resolveInternalLink}
+                    />
+                  </p>
+                ) : null
+              )}
+            </blockquote>;
           }
           return null;
         })}

@@ -37,7 +37,7 @@
   - `eslint.config.ts` — Flat ESLint v10 configuration with `typescript-eslint`, `eslint-plugin-astro`, `eslint-plugin-import-x`, `eslint-plugin-sonarjs`, `eslint-plugin-storybook`, `@vitest/eslint-plugin`, `eslint-plugin-testing-library`, `eslint-plugin-jest-dom`, and `@eslint/json` (`pnpm lint:eslint`).
   - `commitlint.config.ts`, `.lintstagedrc.json`, & `.husky/` — Conventional Commits validation (`commit-msg`), staged formatting + linting (`pre-commit` with `oxfmt`, `oxlint --fix`, `eslint --fix`), and pre-push verification (`pre-push`).
 - `.github/workflows/` & `.releaserc.json` —
-  - `ci.yml`: Automated CI pipeline running PR commitlint, `pnpm format:check`, `pnpm lint`, `pnpm check`, `pnpm test:coverage`, `pnpm test:stories`, and `pnpm build:storybook`.
+  - `ci.yml`: Automated CI pipeline running PR commitlint, `pnpm format:check`, `pnpm lint`, `pnpm check`, `pnpm test:coverage`, `pnpm build`, `pnpm publint`, `pnpm test:stories`, and `pnpm build:storybook`.
   - `.releaserc.json` & `CHANGELOG.md`: Automated `semantic-release` configuration (`@semantic-release/commit-analyzer`, `@semantic-release/release-notes-generator`, `@semantic-release/changelog`, `@semantic-release/npm`, `@semantic-release/git`, `@semantic-release/github`) driven by Conventional Commits (`pnpm release`, `pnpm release:dry`).
   - `npm-release.yml`: Automated release workflow triggered on pushes to `main` (and `workflow_dispatch`), running verification gates and `pnpm release` with npm provenance (`NPM_CONFIG_PROVENANCE=true`).
 

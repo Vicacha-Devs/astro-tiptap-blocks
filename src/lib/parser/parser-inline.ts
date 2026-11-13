@@ -111,8 +111,9 @@ export const allocateHeadingId = (
 ): string | null => {
   if (explicitId && explicitId.trim()) {
     const clean = explicitId.trim();
-    usedIds.set(clean, (usedIds.get(clean) ?? 0) + 1);
-    return clean;
+    const count = (usedIds.get(clean) ?? 0) + 1;
+    usedIds.set(clean, count);
+    return count === 1 ? clean : `${clean}-${count}`;
   }
   if (!rawText.trim()) return null;
   const base = slugifyHeadingText(rawText);

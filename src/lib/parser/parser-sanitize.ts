@@ -1,5 +1,6 @@
 import type { TiptapBlockNode, TiptapHeadingLevel, TiptapParserOptions } from "../../types";
 import {
+  isTrustedMediaEmbedUrl,
   resolveTiptapMediaUrl,
   sanitizeCssColor,
   sanitizeTiptapIframeUrl,
@@ -96,14 +97,24 @@ export const sanitizeBlockNodes = (
         const safeSrc = resolveTiptapMediaUrl(node.attrs?.src, options);
         if (safeSrc !== "#") {
           const safeSrcset = sanitizeTiptapSrcset(node.attrs?.srcset, options);
+          const { srcset: _rawSrcset, ...restAttrs } = node.attrs ?? {};
           result.push({
             ...node,
-            attrs: { ...node.attrs, src: safeSrc, ...(safeSrcset ? { srcset: safeSrcset } : {}) },
+            attrs: { ...restAttrs, src: safeSrc, ...(safeSrcset ? { srcset: safeSrcset } : {}) },
           });
         }
         break;
       }
-      case "video":
+      case "video": {
+        const isEmbed =
+          node.attrs?.embedType === "embed" || isTrustedMediaEmbedUrl(node.attrs?.src);
+        const safeSrc = isEmbed
+          ? sanitizeTiptapIframeUrl(node.attrs?.src, options?.allowedIframeDomains)
+          : resolveTiptapMediaUrl(node.attrs?.src, options);
+        if (safeSrc !== "#")
+          result.push({ ...node, attrs: { ...node.attrs, src: safeSrc } } as TiptapBlockNode);
+        break;
+      }
       case "audio": {
         const safeSrc = resolveTiptapMediaUrl(node.attrs?.src, options);
         if (safeSrc !== "#")

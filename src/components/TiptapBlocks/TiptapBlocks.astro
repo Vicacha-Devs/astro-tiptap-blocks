@@ -105,7 +105,9 @@ const contextProps = {
 <div class:list={[wrapperClass || undefined]}>
   {doc.content.map((block) => {
     const themeKey = mapNodeTypeToThemeKey(block.type) as keyof TiptapBlockThemeCustomComponents;
-    const customComponent = customBlocks[themeKey] ?? customBlocks[block.type];
+    const customComponent =
+      (Object.hasOwn(customBlocks, themeKey) ? customBlocks[themeKey] : undefined) ??
+      (Object.hasOwn(customBlocks, block.type) ? customBlocks[block.type] : undefined);
     if (customComponent) {
       return <TiptapBlockCustom component={customComponent} {...block} {theme} />;
     }

@@ -63,9 +63,7 @@ const mediaOpts = { mediaBaseUrl, resolveMediaUrl };
 
 {(() => {
   if (type === "video") {
-    const isEmbed =
-      attrs?.embedType === "embed" ||
-      Boolean(attrs?.src && /youtube\.com|youtu\.be|vimeo\.com/i.test(attrs.src));
+    const isEmbed = attrs?.embedType === "embed" || isTrustedMediaEmbedUrl(attrs?.src);
     const safeSrc = isEmbed
       ? sanitizeTiptapIframeUrl(attrs?.src, allowedIframeDomains)
       : resolveTiptapMediaUrl(attrs?.src, mediaOpts);

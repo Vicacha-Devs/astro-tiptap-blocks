@@ -43,4 +43,33 @@ describe("TiptapBlockHeading", () => {
       await close();
     }
   });
+
+  it("forwards resolveInternalLink to inline links inside headings", async () => {
+    const { root, close } = await renderAstroComponentToDom(TiptapBlockHeading, {
+      props: {
+        attrs: { level: 2 },
+        content: [
+          {
+            type: "text",
+            text: "Docs",
+            marks: [{ type: "link", attrs: { href: "tiptap://guide/intro" } }],
+          },
+        ],
+        resolveInternalLink: ({
+          collectionName,
+          documentId,
+        }: {
+          collectionName: string;
+          documentId: string;
+        }) => `/custom/${collectionName}/${documentId}`,
+      },
+    });
+
+    try {
+      const link = getByRole(root, "link", { name: "Docs" });
+      expect(link.getAttribute("href")).toBe("/custom/guide/intro");
+    } finally {
+      await close();
+    }
+  });
 });

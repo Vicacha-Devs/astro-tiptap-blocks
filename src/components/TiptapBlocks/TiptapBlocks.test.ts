@@ -99,4 +99,43 @@ describe("TiptapBlocks", () => {
       await close();
     }
   });
+
+  it("guards customBlocks prototype lookups and strips rel=opener on target=_blank links", async () => {
+    const { root, close } = await renderAstroComponentToDom(TiptapBlocks, {
+      props: {
+        data: {
+          type: "doc",
+          content: [
+            { type: "toString", attrs: {} } as never,
+            {
+              type: "paragraph",
+              content: [
+                {
+                  type: "text",
+                  text: "External",
+                  marks: [
+                    {
+                      type: "link",
+                      attrs: {
+                        href: "https://example.com",
+                        target: "_blank",
+                        rel: "opener nofollow",
+                      },
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      },
+    });
+
+    try {
+      const link = getByRole(root, "link", { name: "External" });
+      expect(link.getAttribute("rel")).toBe("nofollow noopener noreferrer");
+    } finally {
+      await close();
+    }
+  });
 });

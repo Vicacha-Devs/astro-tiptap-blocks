@@ -1,6 +1,8 @@
 import type { AstroComponentFactory } from "astro/runtime/server/index.js";
 
-export declare const TiptapBlocks: AstroComponentFactory;
+import type { TiptapBlocksProps } from "../index.d.ts";
+
+export declare const TiptapBlocks: (props: TiptapBlocksProps) => unknown;
 export declare const TiptapBlockCallout: AstroComponentFactory;
 export declare const TiptapBlockCode: AstroComponentFactory;
 export declare const TiptapBlockColumns: AstroComponentFactory;

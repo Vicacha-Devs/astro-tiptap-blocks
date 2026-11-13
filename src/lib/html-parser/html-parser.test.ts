@@ -77,4 +77,32 @@ describe("parseTiptapHtml (lib/html-parser)", () => {
       attrs: { url: "https://example.com/banner" },
     });
   });
+
+  it("preserves images inside <p> with whitespace or sibling text and ignores prototype tags", () => {
+    const doc = parseTiptapHtml(
+      `<p>\n  <img src="https://example.com/a.png" alt="A" />\n</p><p>Before <img src="https://example.com/b.png" alt="B" /> after</p><p><constructor>safe</constructor></p>`
+    );
+    expect(doc.content.map((n) => n.type)).toEqual([
+      "image",
+      "paragraph",
+      "image",
+      "paragraph",
+      "paragraph",
+    ]);
+    expect(doc.content[0]).toMatchObject({
+      type: "image",
+      attrs: { src: "https://example.com/a.png" },
+    });
+    expect(doc.content[4]).toMatchObject({
+      type: "paragraph",
+      content: [{ type: "text", text: "safe" }],
+    });
+  });
+
+  it("enforces HTTPS iframe sanitization on data-tiptap-type=iframe", () => {
+    const doc = parseTiptapHtml(
+      `<div data-tiptap-type="iframe" data-src="http://example.com/embed"></div>`
+    );
+    expect(doc.content).toEqual([]);
+  });
 });

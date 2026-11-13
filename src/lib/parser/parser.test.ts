@@ -152,4 +152,53 @@ describe("parseTiptapContent (lib/parser)", () => {
       },
     ]);
   });
+
+  it("drops rejected image srcset and enforces iframe sanitization on video embeds", () => {
+    const doc = parseTiptapContent({
+      type: "doc",
+      content: [
+        {
+          type: "image",
+          attrs: {
+            src: "https://example.com/a.png",
+            srcset: "javascript:alert(1) 1x",
+          },
+        },
+        {
+          type: "video",
+          attrs: {
+            src: "http://evil.example.com/embed",
+            embedType: "embed",
+          },
+        },
+      ],
+    });
+    expect(doc.content).toHaveLength(1);
+    expect(doc.content[0]).toEqual({
+      type: "image",
+      attrs: { src: "https://example.com/a.png" },
+    });
+  });
+
+  it("deduplicates repeated explicit heading ids", () => {
+    const doc = parseTiptapContent({
+      type: "doc",
+      content: [
+        {
+          type: "heading",
+          attrs: { level: 2, id: "intro" },
+          content: [{ type: "text", text: "A" }],
+        },
+        {
+          type: "heading",
+          attrs: { level: 2, id: "intro" },
+          content: [{ type: "text", text: "B" }],
+        },
+      ],
+    });
+    expect(doc.content.map((n) => (n as { attrs?: { id?: string } }).attrs?.id)).toEqual([
+      "intro",
+      "intro-2",
+    ]);
+  });
 });

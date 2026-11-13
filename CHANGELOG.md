@@ -1,3 +1,18 @@
+## [1.2.3](https://github.com/Vicacha-Devs/astro-tiptap-blocks/compare/v1.2.2...v1.2.3) (2026-11-09)
+
+### Bug Fixes
+
+* **storybook:** render code lines consistently in Firefox and hint table scroll ([#22](https://github.com/Vicacha-Devs/astro-tiptap-blocks/issues/22)) ([09f50a8](https://github.com/Vicacha-Devs/astro-tiptap-blocks/commit/09f50a85cb1071530654600c39da766b4802db18))
+
+### Documentation
+
+* improve Storybook metadata and link the published docs ([#20](https://github.com/Vicacha-Devs/astro-tiptap-blocks/issues/20)) ([ede82c6](https://github.com/Vicacha-Devs/astro-tiptap-blocks/commit/ede82c60bbbe37b23e10940250de5e0fce5a3710))
+* **storybook:** improve metadata, fix code block whitespace, scroll wide tables ([#21](https://github.com/Vicacha-Devs/astro-tiptap-blocks/issues/21)) ([cedea5e](https://github.com/Vicacha-Devs/astro-tiptap-blocks/commit/cedea5ed9571e412749a0f13e9bcdeda2449979d))
+
+### Continuous Integration
+
+* deploy Storybook to GitHub Pages and release via GitHub App token ([#19](https://github.com/Vicacha-Devs/astro-tiptap-blocks/issues/19)) ([5d98912](https://github.com/Vicacha-Devs/astro-tiptap-blocks/commit/5d989129089929de931f8506a3151395659ddcd5))
+
 ## [1.2.2](https://github.com/Vicacha-Devs/astro-tiptap-blocks/compare/v1.2.1...v1.2.2) (2026-11-05)
 
 ### Performance Improvements

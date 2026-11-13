@@ -180,7 +180,10 @@ export const convertCustomHtmlElement = (
         continue;
       }
       if (/^(?:src|href|url|action|formaction)$|(?:Url|Href|Src|Uri)$/.test(propKey)) {
-        const safeVal = sanitizeTiptapUrl(v);
+        const safeVal =
+          customNodeType === "iframe" && propKey === "src"
+            ? sanitizeTiptapIframeUrl(v)
+            : sanitizeTiptapUrl(v);
         if (safeVal === "#") return [];
         attrs[propKey] = safeVal;
       } else {

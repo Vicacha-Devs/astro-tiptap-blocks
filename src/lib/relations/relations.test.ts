@@ -65,4 +65,24 @@ describe("relations utilities (lib/relations)", () => {
       )
     ).toBe("/cms/page/home-1");
   });
+
+  it("handles Object.prototype collection names safely in linksByCollection", () => {
+    const relations = extractRelationsFromTiptap({
+      type: "doc",
+      content: [
+        {
+          type: "paragraph",
+          content: [
+            {
+              type: "text",
+              text: "Ref",
+              marks: [{ type: "link", attrs: { href: "tiptap://toString/1" } }],
+            },
+          ],
+        },
+      ],
+    });
+    expect(Object.hasOwn(relations.linksByCollection, "toString")).toBe(true);
+    expect(relations.linksByCollection["toString"]).toEqual([{ documentId: "1" }]);
+  });
 });
