@@ -1,3 +1,9 @@
+## [1.2.4](https://github.com/Vicacha-Devs/astro-tiptap-blocks/compare/v1.2.3...v1.2.4) (2026-11-13)
+
+### Bug Fixes
+
+* harden parsers and sanitization, improve table/list/link rendering ([#29](https://github.com/Vicacha-Devs/astro-tiptap-blocks/issues/29)) ([af46f8e](https://github.com/Vicacha-Devs/astro-tiptap-blocks/commit/af46f8e22bb80348fd604d02907a2c360c12a9cc))
+
 ## [1.2.3](https://github.com/Vicacha-Devs/astro-tiptap-blocks/compare/v1.2.2...v1.2.3) (2026-11-09)
 
 ### Bug Fixes
