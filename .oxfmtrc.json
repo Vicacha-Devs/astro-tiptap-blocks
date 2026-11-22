@@ -30,6 +30,8 @@
     "coverage",
     "dist",
     "storybook-static",
+    ".qa",
+    "**/.qa/**",
     "node_modules",
     "yarn.lock",
     "package-lock.json",

@@ -169,6 +169,12 @@ pnpm test:stories
 
 # Typecheck & build declaration files
 pnpm check && pnpm build
+
+# Run offline QA doctor, adversarial judges (exports, zero set:html, story coverage) & HTML Control Center
+pnpm qa:doctor
+pnpm qa:judges
+pnpm qa:verify          # emits .qa/report.json & interactive .qa/dashboard.html
+pnpm qa:report          # aggregates sibling Vicacha repos when checked out locally
 ```
 
 ---

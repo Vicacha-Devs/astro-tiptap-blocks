@@ -92,3 +92,16 @@ jobs:
 
       - name: Build static Storybook documentation
         run: pnpm build:storybook
+
+      - name: Run QA Control Center checks & generate dashboard
+        run: pnpm qa:verify
+
+      - name: Upload Interactive QA Control Center HTML
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: astro-tiptap-blocks-qa-dashboard
+          path: |
+            .qa/dashboard.html
+            .qa/report.json
+          retention-days: 14

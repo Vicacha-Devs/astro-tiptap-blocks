@@ -43,11 +43,11 @@ importers:
         specifier: 11.0.1
         version: 11.0.1(semantic-release@25.0.9(typescript@6.0.3))
       '@storybook-astro/framework':
-        specifier: 1.15.0
-        version: 1.15.0(astro@7.4.4(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))(storybook@10.6.6(@types/react@19.3.0)(react@19.3.1))(typescript@6.0.3)(vite@8.3.5(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))(vitest@5.0.5)
+        specifier: 1.17.0
+        version: 1.17.0(astro@7.4.4(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))(storybook@10.6.6(@types/react@19.3.0)(react@19.3.1))(typescript@6.0.3)(vite@8.3.5(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))(vitest@5.0.5)
       '@storybook-astro/renderer':
-        specifier: 1.15.0
-        version: 1.15.0(astro@7.4.4(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))(storybook@10.6.6(@types/react@19.3.0)(react@19.3.1))
+        specifier: 1.17.0
+        version: 1.17.0(astro@7.4.4(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))(storybook@10.6.6(@types/react@19.3.0)(react@19.3.1))
       '@storybook/addon-a11y':
         specifier: 10.6.6
         version: 10.6.6(storybook@10.6.6(@types/react@19.3.0)(react@19.3.1))
@@ -1734,8 +1734,8 @@ packages:
   '@sonarsource/analyzer-commons-configurations@2.31.0-5284':
     resolution: {integrity: sha512-ruk3blMs9BE9RNSp9LPpWZAIjxJmq4Cp00E3cELIHz7Kym3WxdWGRlKOMYLRQ5tJg/de7jN5AtEElY3bGIfTcw==}
 
-  '@storybook-astro/framework@1.15.0':
-    resolution: {integrity: sha512-lCjK9WuO5mGqRqz4t9wuQ/Yso3Agl2/KdefqfunGnoKTnII42T2b5YK4rACnOlG+GzSpcRvd0lCDPZNCl6EqZw==}
+  '@storybook-astro/framework@1.17.0':
+    resolution: {integrity: sha512-7MGNI/Eu61jPcHh9k2G957LDkxlbE+EvfCAuwQbBQYXFk7NMLgZlH3gU3Yg4X9o1Vii2GhGK2UPh2gexQIMZtA==}
     engines: {node: '>=20.16.0 || >=22.19.0 || >=24.0.0'}
     peerDependencies:
       '@astrojs/alpinejs': ^0.4.5 || ^0.5.0 || ^1.0.0
@@ -1745,16 +1745,16 @@ packages:
       '@astrojs/svelte': ^7.0.9 || ^8.0.0 || ^9.0.0
       '@astrojs/vue': ^5.0.9 || ^6.0.0 || ^7.0.0
       '@preact/preset-vite': ^2.10.1
-      '@storybook/preact': ^10.0.0
-      '@storybook/react': ^10.0.0
-      '@storybook/svelte': ^10.0.0
-      '@storybook/vue3': ^10.0.0
+      '@storybook/preact': ^10.0.0 || ^11.0.0-beta.0
+      '@storybook/react': ^10.0.0 || ^11.0.0-beta.0
+      '@storybook/svelte': ^10.0.0 || ^11.0.0-beta.0
+      '@storybook/vue3': ^10.0.0 || ^11.0.0-beta.0
       '@vitejs/plugin-react': ^5.0.0 || ^6.0.0
       '@vitejs/plugin-vue': ^5.2.3 || ^6.0.0
       '@vitejs/plugin-vue-jsx': ^4.1.2 || ^5.0.0
       astro: ^5.5.3 || ^6.0.0 || ^7.0.0
-      storybook: ^10.0.0
-      storybook-solidjs-vite: '>=10.0.0 <10.1.0 || ^10.6.0'
+      storybook: ^10.0.0 || ^11.0.0-beta.0
+      storybook-solidjs-vite: '>=10.0.0 <10.1.0 || ^10.6.0 || ^11.0.0-beta.0'
       typescript: ^5.0.0 || ^6.0.0
       vite: ^6.4.1 || ^7.0.0 || ^8.0.0
       vitest: ^4.1.0 || ^5.0.0
@@ -1794,13 +1794,13 @@ packages:
       vitest:
         optional: true
 
-  '@storybook-astro/renderer@1.15.0':
-    resolution: {integrity: sha512-38sRF16x0lU5UbQq/kRiUrTbkco76ILz+JKz70CuRKvCHxxMIyllf+rgDxH1AbyYdb0wqVxFLmh9y+oeZKEguA==}
+  '@storybook-astro/renderer@1.17.0':
+    resolution: {integrity: sha512-txxVYl0B8r4U+LVY+t58aRT3u0Wp+uv9kqiW3ySLrK5c0VojuIggYCt09OlclRQgtomV7VzvPIBjPm65JXwE5g==}
     engines: {node: '>=20.16.0 || >=22.19.0 || >=24.0.0'}
     peerDependencies:
-      '@storybook/react': ^10.0.0
+      '@storybook/react': ^10.0.0 || ^11.0.0-beta.0
       astro: ^5.5.3 || ^6.0.0 || ^7.0.0
-      storybook: ^10.0.0
+      storybook: ^10.0.0 || ^11.0.0-beta.0
     peerDependenciesMeta:
       '@storybook/react':
         optional: true
@@ -6705,9 +6705,9 @@ snapshots:
 
   '@sonarsource/analyzer-commons-configurations@2.31.0-5284': {}
 
-  '@storybook-astro/framework@1.15.0(astro@7.4.4(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))(storybook@10.6.6(@types/react@19.3.0)(react@19.3.1))(typescript@6.0.3)(vite@8.3.5(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))(vitest@5.0.5)':
+  '@storybook-astro/framework@1.17.0(astro@7.4.4(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))(storybook@10.6.6(@types/react@19.3.0)(react@19.3.1))(typescript@6.0.3)(vite@8.3.5(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))(vitest@5.0.5)':
     dependencies:
-      '@storybook-astro/renderer': 1.15.0(astro@7.4.4(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))(storybook@10.6.6(@types/react@19.3.0)(react@19.3.1))
+      '@storybook-astro/renderer': 1.17.0(astro@7.4.4(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))(storybook@10.6.6(@types/react@19.3.0)(react@19.3.1))
       astro: 7.4.4(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)
       get-tsconfig: 5.0.0-beta.4
       hono: 4.13.18
@@ -6718,7 +6718,7 @@ snapshots:
       typescript: 6.0.3
       vitest: 5.0.5(@types/node@26.6.6)(@vitest/browser-playwright@5.0.5)(@vitest/coverage-v8@5.0.5)(@vitest/ui@5.0.5)(happy-dom@21.0.4)(vite@8.3.5(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))
 
-  '@storybook-astro/renderer@1.15.0(astro@7.4.4(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))(storybook@10.6.6(@types/react@19.3.0)(react@19.3.1))':
+  '@storybook-astro/renderer@1.17.0(astro@7.4.4(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))(storybook@10.6.6(@types/react@19.3.0)(react@19.3.1))':
     dependencies:
       '@types/node': 20.19.43
       astro: 7.4.4(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)
