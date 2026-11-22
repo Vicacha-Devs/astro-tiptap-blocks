@@ -22,6 +22,7 @@ export default defineConfig([
     "storybook-static",
     "node_modules",
     ".astro",
+    ".qa",
     ".github",
     ".vscode",
     "**/*.mdx",

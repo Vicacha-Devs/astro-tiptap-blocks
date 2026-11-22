@@ -10,4 +10,5 @@ coverage/
 *.tsbuildinfo
 .eslintcache
 storybook-static/
+.qa/
 
