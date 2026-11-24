@@ -98,7 +98,7 @@ jobs:
 
       - name: Upload Interactive QA Control Center HTML
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: astro-tiptap-blocks-qa-dashboard
           path: |
